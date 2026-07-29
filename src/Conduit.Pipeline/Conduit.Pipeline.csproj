@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Conduit.Pipeline</RootNamespace>
+    <AssemblyName>Conduit.Pipeline</AssemblyName>
+    <PackageId>Conduit.Pipeline</PackageId>
+    <Description>Pipeline composition primitives consumed by Conduit generated dispatch code.</Description>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Conduit.Abstractions\Conduit.Abstractions.csproj" />
+    <ProjectReference Include="..\Conduit.Core\Conduit.Core.csproj" />
+  </ItemGroup>
+</Project>

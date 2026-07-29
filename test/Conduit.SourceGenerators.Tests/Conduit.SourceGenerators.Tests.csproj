@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Conduit.SourceGenerators.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Conduit.SourceGenerators\Conduit.SourceGenerators.csproj" />
+    <ProjectReference Include="..\..\src\Conduit.Abstractions\Conduit.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Conduit.Core\Conduit.Core.csproj" />
+    <ProjectReference Include="..\..\src\Conduit.Pipeline\Conduit.Pipeline.csproj" />
+    <ProjectReference Include="..\..\src\Conduit.DependencyInjection\Conduit.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>
