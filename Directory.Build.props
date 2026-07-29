@@ -14,8 +14,8 @@
     <Company>Conduit</Company>
     <Copyright>Copyright © Conduit Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/conduit-dotnet/conduit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/conduit-dotnet/conduit</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/avmp2208/Conduit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/avmp2208/Conduit</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

@@ -1,0 +1,45 @@
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Conduit.sln
+
+      - name: Build
+        run: dotnet build Conduit.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Conduit.sln --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: dotnet pack Conduit.sln --configuration Release --no-build --output nupkgs
+
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: avmp2208
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
