@@ -33,7 +33,7 @@ jobs:
         run: dotnet test Conduit.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack Conduit.sln --configuration Release --no-build --output nupkgs
+        run: dotnet pack Conduit.sln --configuration Release --output nupkgs
 
       - name: NuGet login
         uses: NuGet/login@v1
