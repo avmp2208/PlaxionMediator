@@ -7,9 +7,11 @@
     <Description>Incremental source generator for Conduit handler discovery, dispatcher emission, and AddConduit registration.</Description>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <BuildOutputTargetFolder>analyzers/dotnet/cs</BuildOutputTargetFolder>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5128;RS2008;RS1038</NoWarn>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <Version>0.1.0</Version>
     <!-- netstandard2.0 needs polyfills; avoid pulling modern BCL assumptions -->
     <Nullable>enable</Nullable>
@@ -22,10 +24,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Pack as analyzer -->
-    <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 </Project>
