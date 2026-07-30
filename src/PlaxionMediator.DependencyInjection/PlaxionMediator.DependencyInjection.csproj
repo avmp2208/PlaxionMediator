@@ -8,7 +8,13 @@
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <Version>0.1.0</Version>
+    <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
@@ -18,6 +24,7 @@
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.Testing\PlaxionMediator.Testing.csproj" />
     <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" />
   </ItemGroup>

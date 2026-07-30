@@ -8,5 +8,10 @@
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <Version>0.1.0</Version>
+    <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>

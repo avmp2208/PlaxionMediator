@@ -11,6 +11,6 @@
     <PackageReference Include="coverlet.collector" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PlaxionMediator.Testing\PlaxionMediator.Testing.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Testing\PlaxionMediator.Testing.csproj" />
   </ItemGroup>
 </Project>

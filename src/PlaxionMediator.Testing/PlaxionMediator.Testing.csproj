@@ -8,17 +8,22 @@
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <Version>0.1.0</Version>
+    <PackageIcon>plaxionlogonuget.png</PackageIcon>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <Using Remove="Xunit" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
-    <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" />
-    <ProjectReference Include="..\..\src\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Ensure analyzer/generator DLLs are packed under analyzers/dotnet/cs when packing this package -->
