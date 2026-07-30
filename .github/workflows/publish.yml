@@ -33,7 +33,12 @@ jobs:
         run: dotnet test PlaxionMediator.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack PlaxionMediator.sln --configuration Release --output nupkgs
+        run: |
+          # Extract version from tag (remove 'v' prefix)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [[ $VERSION == refs/heads/* ]]; then VERSION="0.1.0-preview.$(date +%Y%m%d%H%M%S)"; fi
+          echo "Packing version $VERSION"
+          dotnet pack PlaxionMediator.sln --configuration Release --output nupkgs /p:Version=$VERSION
 
       - name: NuGet login
         uses: NuGet/login@v1
