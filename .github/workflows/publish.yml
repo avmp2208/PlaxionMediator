@@ -18,6 +18,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify tag is on master
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git fetch origin master --depth=1000
+          if git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "Tag $GITHUB_REF points to a commit that is on master. Proceeding."
+          else
+            echo "Tag $GITHUB_REF points to a commit that is NOT on master (likely a feature branch)."
+            echo "Publishing is only allowed for tags created on/merged into master. Aborting."
+            exit 1
+          fi
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -34,9 +46,13 @@ jobs:
 
       - name: Pack
         run: |
-          # Extract version from tag (remove 'v' prefix)
-          VERSION=${GITHUB_REF#refs/tags/v}
-          if [[ $VERSION == refs/heads/* ]]; then VERSION="0.1.0-preview.$(date +%Y%m%d%H%M%S)"; fi
+          # Extract version from tag (remove 'v' prefix). For manual workflow_dispatch runs
+          # (no tag), fall back to a timestamped preview version.
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="0.1.0-preview.$(date +%Y%m%d%H%M%S)"
+          fi
           echo "Packing version $VERSION"
           dotnet pack PlaxionMediator.sln --configuration Release --output nupkgs /p:Version=$VERSION
 
