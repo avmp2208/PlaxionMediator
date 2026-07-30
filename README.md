@@ -74,10 +74,6 @@ app.Run();
 | `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, â€¦) |
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 
-## Documentation
-
-Full architecture design lives in [`docs/architecture/`](docs/architecture/). MVP scope and release process are documented under [`ReleaseProcess/`](ReleaseProcess/).
-
 ## License
 
 MIT â€” see [LICENSE](LICENSE).
