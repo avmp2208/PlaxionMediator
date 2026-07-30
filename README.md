@@ -1,23 +1,23 @@
-# Conduit
+﻿# PlaxionMediator
 
-**Conduit** is a next-generation .NET request pipeline framework — a from-scratch, Native AOT-safe alternative to MediatR built on zero-reflection, source-generator-first architecture.
+**PlaxionMediator** is a next-generation .NET request pipeline framework â€” a from-scratch, Native AOT-safe alternative to MediatR built on zero-reflection, source-generator-first architecture.
 
-Define immutable requests, write a single handler, call `AddConduit()`, and dispatch with `ISender.Send`. Missing handlers are compile-time errors, not runtime surprises.
+Define immutable requests, write a single handler, call `AddPlaxionMediator()`, and dispatch with `ISender.Send`. Missing handlers are compile-time errors, not runtime surprises.
 
 ## Install
 
 ```bash
-dotnet add package Conduit.DependencyInjection
+dotnet add package PlaxionMediator.DependencyInjection
 ```
 
-`Conduit.DependencyInjection` brings in the core runtime packages and the source generator transitively.
+`PlaxionMediator.DependencyInjection` brings in the core runtime packages and the source generator transitively.
 
 ## Quickstart
 
 ```csharp
-using Conduit.Abstractions;
-using Conduit.Core;
-using Conduit.DependencyInjection;
+using PlaxionMediator.Abstractions;
+using PlaxionMediator.Core;
+using PlaxionMediator.DependencyInjection;
 
 // 1. Define an immutable request
 public sealed record Ping(string Message) : IRequest<string>;
@@ -29,9 +29,9 @@ public sealed class PingHandler : IRequestHandler<Ping, string>
         => ValueTask.FromResult($"Pong: {request.Message}");
 }
 
-// 3. Register (handlers discovered at compile time — zero reflection)
+// 3. Register (handlers discovered at compile time â€” zero reflection)
 var services = new ServiceCollection();
-services.AddConduit();
+services.AddPlaxionMediator();
 await using var sp = services.BuildServiceProvider();
 
 // 4. Dispatch
@@ -44,7 +44,7 @@ Console.WriteLine(result); // Pong: hello
 
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddConduit();
+builder.Services.AddPlaxionMediator();
 
 var app = builder.Build();
 
@@ -54,11 +54,11 @@ app.MapGet("/ping", async (ISender sender, CancellationToken ct) =>
 app.Run();
 ```
 
-## Why Conduit?
+## Why PlaxionMediator?
 
-- **Zero reflection** at runtime — dispatch and DI registration are generated
+- **Zero reflection** at runtime â€” dispatch and DI registration are generated
 - **Native AOT / trim safe** by construction
-- **Compile-time safety** — missing or duplicate handlers fail the build (`CONDUIT001` / `CONDUIT002`)
+- **Compile-time safety** â€” missing or duplicate handlers fail the build (`PlaxionMediator001` / `PlaxionMediator002`)
 - **Immutable-by-default** requests (`sealed record`)
 - **Split `ISender` / `IPublisher`** contracts with clear failure semantics
 
@@ -66,13 +66,13 @@ app.Run();
 
 | Package | Role |
 |---------|------|
-| `Conduit.Abstractions` | Contracts (`IRequest<>`, handlers, behaviors, notifications) |
-| `Conduit.Core` | `ISender`, `IPublisher`, exceptions |
-| `Conduit.Pipeline` | Delegate-chain pipeline primitives |
-| `Conduit.DependencyInjection` | `AddConduit()` + generator integration |
-| `Conduit.SourceGenerators` | Incremental generator (analyzer package) |
-| `Conduit.Analyzers` | Roslyn analyzers (missing handler, mutable request, …) |
-| `Conduit.Testing` | `FakeSender` and test helpers |
+| `PlaxionMediator.Abstractions` | Contracts (`IRequest<>`, handlers, behaviors, notifications) |
+| `PlaxionMediator.Core` | `ISender`, `IPublisher`, exceptions |
+| `PlaxionMediator.Pipeline` | Delegate-chain pipeline primitives |
+| `PlaxionMediator.DependencyInjection` | `AddPlaxionMediator()` + generator integration |
+| `PlaxionMediator.SourceGenerators` | Incremental generator (analyzer package) |
+| `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, â€¦) |
+| `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 
 ## Documentation
 
@@ -80,4 +80,4 @@ Full architecture design lives in [`docs/architecture/`](docs/architecture/). MV
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT â€” see [LICENSE](LICENSE).

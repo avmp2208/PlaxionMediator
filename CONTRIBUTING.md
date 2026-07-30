@@ -1,6 +1,6 @@
-# Contributing to Conduit
+﻿# Contributing to PlaxionMediator
 
-Thanks for your interest in contributing to Conduit!
+Thanks for your interest in contributing to PlaxionMediator!
 
 ## Prerequisites
 
@@ -10,13 +10,13 @@ Thanks for your interest in contributing to Conduit!
 ## Getting started
 
 1. Fork and clone the repository.
-2. Open `Conduit.sln` in your IDE of choice (Rider, Visual Studio, or VS Code + C# Dev Kit).
+2. Open `PlaxionMediator.sln` in your IDE of choice (Rider, Visual Studio, or VS Code + C# Dev Kit).
 3. Restore and build:
 
 ```bash
-dotnet restore Conduit.sln
-dotnet build Conduit.sln
-dotnet test Conduit.sln
+dotnet restore PlaxionMediator.sln
+dotnet build PlaxionMediator.sln
+dotnet test PlaxionMediator.sln
 ```
 
 ## Project layout
@@ -48,7 +48,7 @@ dotnet test Conduit.sln
 
 Please include:
 
-- Conduit package version(s)
+- PlaxionMediator package version(s)
 - Target framework
 - Minimal reproduction (ideally a small project or snippet)
 - Expected vs. actual behavior

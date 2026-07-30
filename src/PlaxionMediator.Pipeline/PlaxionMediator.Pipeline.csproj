@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>PlaxionMediator.Pipeline</RootNamespace>
+    <AssemblyName>PlaxionMediator.Pipeline</AssemblyName>
+    <PackageId>PlaxionMediator.Pipeline</PackageId>
+    <Description>Pipeline composition primitives consumed by PlaxionMediator generated dispatch code.</Description>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+  </ItemGroup>
+</Project>

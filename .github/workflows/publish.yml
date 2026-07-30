@@ -1,4 +1,4 @@
-name: Publish to NuGet
+﻿name: Publish to NuGet
 
 on:
   push:
@@ -24,16 +24,16 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore Conduit.sln
+        run: dotnet restore PlaxionMediator.sln
 
       - name: Build
-        run: dotnet build Conduit.sln --configuration Release --no-restore
+        run: dotnet build PlaxionMediator.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test Conduit.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test PlaxionMediator.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack
-        run: dotnet pack Conduit.sln --configuration Release --output nupkgs
+        run: dotnet pack PlaxionMediator.sln --configuration Release --output nupkgs
 
       - name: NuGet login
         uses: NuGet/login@v1

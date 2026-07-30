@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -8,14 +8,14 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src')) OR $(MSBuildProjectName.Contains('Conduit.Testing'))">
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src')) OR $(MSBuildProjectName.Contains('PlaxionMediator.Testing'))">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Authors>Conduit Contributors</Authors>
-    <Company>Conduit</Company>
-    <Copyright>Copyright © Conduit Contributors</Copyright>
+    <Authors>PlaxionMediator Contributors</Authors>
+    <Company>PlaxionMediator</Company>
+    <Copyright>Copyright Â© PlaxionMediator Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/avmp2208/Conduit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/avmp2208/Conduit</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/avmp2208/PlaxionMediator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/avmp2208/PlaxionMediator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -24,7 +24,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src')) OR $(MSBuildProjectName.Contains('Conduit.Testing'))">
+  <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src')) OR $(MSBuildProjectName.Contains('PlaxionMediator.Testing'))">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
