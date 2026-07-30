@@ -1,5 +1,13 @@
 ﻿# PlaxionMediator
 
+<p align="center">
+  <img src="assets/plaxionlogo.png" alt="PlaxionMediator Banner" width="400" />
+</p>
+
+<p align="center">
+  <a href="https://plaxion.dev">plaxion.dev</a>
+</p>
+
 **PlaxionMediator** is a next-generation .NET request pipeline framework â€” a from-scratch, Native AOT-safe alternative to MediatR built on zero-reflection, source-generator-first architecture.
 
 Define immutable requests, write a single handler, call `AddPlaxionMediator()`, and dispatch with `ISender.Send`. Missing handlers are compile-time errors, not runtime surprises.

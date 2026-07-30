@@ -13,6 +13,7 @@
     <NoWarn>$(NoWarn);NU5128;RS2008;RS1038</NoWarn>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <Version>0.1.0</Version>
+    <PackageIcon>plaxionlogonuget.png</PackageIcon>
     <!-- netstandard2.0 needs polyfills; avoid pulling modern BCL assumptions -->
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -20,6 +21,10 @@
     <PublishAot>false</PublishAot>
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
