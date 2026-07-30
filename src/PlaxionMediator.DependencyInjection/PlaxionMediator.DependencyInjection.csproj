@@ -18,8 +18,8 @@
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
-    <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Ensure analyzer/generator DLLs are packed under analyzers/dotnet/cs when packing this package -->
