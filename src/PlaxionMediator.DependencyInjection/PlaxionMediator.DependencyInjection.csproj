@@ -18,6 +18,8 @@
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <!-- Ensure analyzer/generator DLLs are packed under analyzers/dotnet/cs when packing this package -->
@@ -26,11 +28,8 @@
   </PropertyGroup>
   <Target Name="PackTransitiveAnalyzers" DependsOnTargets="ResolveProjectReferences">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)PlaxionMediator.SourceGenerators.dll"
-                              Condition="Exists('$(OutputPath)PlaxionMediator.SourceGenerators.dll')"
-                              PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)PlaxionMediator.Analyzers.dll"
-                              Condition="Exists('$(OutputPath)PlaxionMediator.Analyzers.dll')"
+      <TfmSpecificPackageFile Include="@(_ResolvedProjectReferencePaths)" 
+                              Condition="'%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.SourceGenerators' or '%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.Analyzers'"
                               PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>

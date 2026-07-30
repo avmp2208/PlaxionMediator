@@ -17,5 +17,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- Ensure analyzer/generator DLLs are packed under analyzers/dotnet/cs when packing this package -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackTransitiveAnalyzers</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="PackTransitiveAnalyzers" DependsOnTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(_ResolvedProjectReferencePaths)" 
+                              Condition="'%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.SourceGenerators' or '%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.Analyzers'"
+                              PackagePath="analyzers/dotnet/cs" />
+    </ItemGroup>
+  </Target>
 </Project>
