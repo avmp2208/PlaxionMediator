@@ -2,7 +2,22 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
-## v0.1.4 (Unreleased)
+## v0.2.0
+
+### Added
+- New package **`PlaxionMediator.AspNetCore`**: `UsePlaxionMediatorExceptionHandling()` middleware that translates `PlaxionMediatorException` subtypes (`HandlerNotFoundException`, `PipelineExecutionException`) into RFC 7807 `application/problem+json` responses via `PlaxionMediatorProblemDetailsFactory`. Any other exception type is rethrown untouched, so unrelated application errors are never swallowed.
+- New package **`PlaxionMediator.MinimalApis`**: `MapPlaxionMediatorPost/Get/Put/Delete/Patch<TRequest, TResponse>()` extension methods on `IEndpointRouteBuilder` for low-boilerplate Minimal API route mapping — `Post`/`Put`/`Patch` bind `TRequest` from the JSON body, `Get`/`Delete` bind from route/query values via `[AsParameters]`, and all of them call `ISender.Send` and return `TypedResults.Ok(response)`.
+- Both new packages are **opt-in** (`dotnet add package PlaxionMediator.AspNetCore` / `PlaxionMediator.MinimalApis`) and are **not** pulled in transitively by `PlaxionMediator.DependencyInjection`, so console/worker apps that only need the DI bundle aren't forced to reference ASP.NET Core.
+- Two new Roslyn analyzers in `PlaxionMediator.Analyzers`: `PlaxionMediator005` (warns when a `MapPlaxionMediatorGet`/`MapPlaxionMediatorDelete` request type has no bindable route/query members) and `PlaxionMediator006` (warns on blocking `.Result`/`.Wait()`/`.GetAwaiter().GetResult()` calls inside request/notification handlers).
+- New sample app `samples/PlaxionMediator.Sample.WebApi`: a full `Item` CRUD API (`POST`/`GET` single/list/`PUT`/`PATCH`/`DELETE`) demonstrating both new packages end-to-end, with `UsePlaxionMediatorExceptionHandling()` wired in and `PublishAot` support.
+- New test projects `PlaxionMediator.AspNetCore.Tests`, `PlaxionMediator.MinimalApis.Tests`, and `PlaxionMediator.Sample.WebApi.Tests` (unit + `WebApplicationFactory`-based integration tests), plus new analyzer snapshot tests for `PlaxionMediator005`/`006`.
+- Postman collections and a shared environment added under `docs/postman-tests` for manually exercising both sample apps (`PlaxionMediator.Sample.MinimalApi` and `PlaxionMediator.Sample.WebApi`).
+- Image-free `READMEpackage.md` (packed as each package's NuGet `README.md`) since NuGet.org doesn't render the logo embedded in the main GitHub `README.md`; a GitHub Wiki page set was added under `docs/wiki`.
+
+### Changed
+- `publish.yml` now allows pre-release/preview tags (e.g. `v0.2.0-preview.1`) to be published to NuGet from any branch, while stable (non-hyphenated) tags still require the tagged commit to be on `master`.
+
+## v0.1.4
 
 ### Added
 - `PlaxionMediator.Testing` moved from `test/` to `src/` and is now shipped as its own NuGet package, referenced transitively by `PlaxionMediator.DependencyInjection` — installing the DI package now automatically pulls in the testing helpers (e.g. `FakeSender`) for consumers.
