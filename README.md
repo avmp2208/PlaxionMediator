@@ -20,6 +20,13 @@ dotnet add package PlaxionMediator.DependencyInjection
 
 `PlaxionMediator.DependencyInjection` brings in the core runtime packages and the source generator transitively.
 
+Building an ASP.NET Core / Minimal API web app? Add the opt-in web packages as well (they are **not** pulled in transitively, so console/worker apps aren't forced to reference ASP.NET Core):
+
+```bash
+dotnet add package PlaxionMediator.AspNetCore
+dotnet add package PlaxionMediator.MinimalApis
+```
+
 ## Quickstart
 
 ```csharp
@@ -62,6 +69,33 @@ app.MapGet("/ping", async (ISender sender, CancellationToken ct) =>
 app.Run();
 ```
 
+### `PlaxionMediator.AspNetCore` + `PlaxionMediator.MinimalApis` (v0.2.0+)
+
+Skip hand-written mediator glue entirely: `MapPlaxionMediatorPost/Get/Put/Delete/Patch` bind the request, call `ISender.Send`, and return `TypedResults.Ok(...)`; `UsePlaxionMediatorExceptionHandling()` turns `PlaxionMediatorException` subtypes into RFC 7807 `ProblemDetails` responses.
+
+```csharp
+using PlaxionMediator.AspNetCore;
+using PlaxionMediator.MinimalApis;
+
+public sealed record CreateItemRequest(string Name) : IRequest<ItemDto>;
+public sealed record GetItemRequest(Guid Id) : IRequest<ItemDto>;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddPlaxionMediator();
+
+var app = builder.Build();
+
+// Register BEFORE routing/endpoints so handler exceptions are caught.
+app.UsePlaxionMediatorExceptionHandling();
+
+app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items");
+app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id}");
+
+app.Run();
+```
+
+See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`docs/postman-tests`](docs/postman-tests) for ready-to-run request examples against both sample apps.
+
 ## Why PlaxionMediator?
 
 - **Zero reflection** at runtime â€” dispatch and DI registration are generated
@@ -81,6 +115,10 @@ app.Run();
 | `PlaxionMediator.SourceGenerators` | Incremental generator (analyzer package) |
 | `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, â€¦) |
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
+| `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
+| `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` Minimal API endpoint helpers |
+
+> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator.DependencyInjection`, so plain console/worker apps never pull in the ASP.NET Core framework surface.
 
 ## License
 

@@ -18,15 +18,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify tag is on master
+      - name: Verify tag is on master (stable releases only)
         if: startsWith(github.ref, 'refs/tags/')
         run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          if [[ "$TAG_VERSION" == *-* ]]; then
+            echo "Tag $GITHUB_REF looks like a pre-release/preview version ($TAG_VERSION)."
+            echo "Preview tags are allowed to be pushed from any branch. Skipping master check."
+            exit 0
+          fi
+
           git fetch origin master --depth=1000
           if git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
             echo "Tag $GITHUB_REF points to a commit that is on master. Proceeding."
           else
             echo "Tag $GITHUB_REF points to a commit that is NOT on master (likely a feature branch)."
-            echo "Publishing is only allowed for tags created on/merged into master. Aborting."
+            echo "Publishing stable (non-preview) tags is only allowed for tags created on/merged into master. Aborting."
+            echo "If you intended a preview release, use a version with a pre-release suffix, e.g. v0.2.0-preview.1"
             exit 1
           fi
 
