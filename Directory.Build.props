@@ -24,7 +24,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <!-- NuGet.org does not render images in package READMEs, so packages ship a lightweight,
+       image-free README (READMEpackage.md) instead of the root README.md (which embeds the logo). -->
   <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src')) OR $(MSBuildProjectName.Contains('PlaxionMediator.Testing'))">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)READMEpackage.md" Pack="true" PackagePath="\README.md" />
   </ItemGroup>
 </Project>
