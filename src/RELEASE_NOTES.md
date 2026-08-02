@@ -68,7 +68,7 @@ All notable changes to `PlaxionMediator` and its companion packages are document
 ## v0.1.1
 
 ### Added
-- Initial public release of **PlaxionMediator** — a from-scratch, Native AOT-safe alternative to MediatR, built on a zero-reflection, source-generator-first architecture.
+- Initial public release of **PlaxionMediator** — a from-scratch, Native AOT-safe request pipeline platform for developers, built on a zero-reflection, source-generator-first architecture.
 - Core packages: `PlaxionMediator.Abstractions`, `PlaxionMediator.Core`, `PlaxionMediator.Pipeline`, `PlaxionMediator.SourceGenerators`, `PlaxionMediator.Analyzers`, and `PlaxionMediator.DependencyInjection`.
 - `AddPlaxionMediator()` DI extension method for compile-time handler discovery and registration — no runtime reflection.
 - Support for immutable requests/handlers (`IRequest<T>` / `IRequestHandler<T, TResponse>`), notifications/events, and pipeline behaviors.
