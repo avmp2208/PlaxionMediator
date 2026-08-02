@@ -2,7 +2,7 @@
 
 > 📖 Full documentation, samples, architecture docs and the project logo are on GitHub: **[avmp2208/PlaxionMediator](https://github.com/avmp2208/PlaxionMediator#readme)**
 
-**PlaxionMediator** is a next-generation .NET request pipeline framework — a from-scratch, Native AOT-safe alternative to MediatR built on zero-reflection, source-generator-first architecture.
+**PlaxionMediator** is a next-generation .NET request pipeline platform for developers — a from-scratch, Native AOT-safe framework built on zero-reflection, source-generator-first architecture.
 
 Define immutable requests, write a single handler, call `AddPlaxionMediator()`, and dispatch with `ISender.Send`. Missing handlers are compile-time errors, not runtime surprises.
 

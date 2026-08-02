@@ -8,7 +8,7 @@
   <a href="https://plaxion.dev">plaxion.dev</a>
 </p>
 
-**PlaxionMediator** is a next-generation .NET request pipeline framework â€” a from-scratch, Native AOT-safe alternative to MediatR built on zero-reflection, source-generator-first architecture.
+**PlaxionMediator** is a next-generation .NET request pipeline platform for developers — a from-scratch, Native AOT-safe framework built on zero-reflection, source-generator-first architecture.
 
 Define immutable requests, write a single handler, call `AddPlaxionMediator()`, and dispatch with `ISender.Send`. Missing handlers are compile-time errors, not runtime surprises.
 
@@ -44,7 +44,7 @@ public sealed class PingHandler : IRequestHandler<Ping, string>
         => ValueTask.FromResult($"Pong: {request.Message}");
 }
 
-// 3. Register (handlers discovered at compile time â€” zero reflection)
+// 3. Register (handlers discovered at compile time — zero reflection)
 var services = new ServiceCollection();
 services.AddPlaxionMediator();
 await using var sp = services.BuildServiceProvider();
@@ -98,9 +98,9 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 
 ## Why PlaxionMediator?
 
-- **Zero reflection** at runtime â€” dispatch and DI registration are generated
+- **Zero reflection** at runtime — dispatch and DI registration are generated
 - **Native AOT / trim safe** by construction
-- **Compile-time safety** â€” missing or duplicate handlers fail the build (`PlaxionMediator001` / `PlaxionMediator002`)
+- **Compile-time safety** — missing or duplicate handlers fail the build (`PlaxionMediator001` / `PlaxionMediator002`)
 - **Immutable-by-default** requests (`sealed record`)
 - **Split `ISender` / `IPublisher`** contracts with clear failure semantics
 
@@ -113,7 +113,7 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 | `PlaxionMediator.Pipeline` | Delegate-chain pipeline primitives |
 | `PlaxionMediator.DependencyInjection` | `AddPlaxionMediator()` + generator integration |
 | `PlaxionMediator.SourceGenerators` | Incremental generator (analyzer package) |
-| `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, â€¦) |
+| `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, …) |
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` Minimal API endpoint helpers |
@@ -122,4 +122,4 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 
 ## License
 
-MIT â€” see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
