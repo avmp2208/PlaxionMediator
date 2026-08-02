@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace PlaxionMediator.DependencyInjection;
+namespace PlaxionMediator;
 
 /// <summary>
 /// Bridge invoked by <see cref="PlaxionMediatorServiceCollectionExtensions.AddPlaxionMediator"/>.

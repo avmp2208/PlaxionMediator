@@ -3,7 +3,7 @@ using BenchmarkDotNet.Order;
 using Microsoft.Extensions.DependencyInjection;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 
 namespace PlaxionMediator.Benchmarks;
 

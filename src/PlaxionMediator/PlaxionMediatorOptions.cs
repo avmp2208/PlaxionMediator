@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace PlaxionMediator.DependencyInjection;
+namespace PlaxionMediator;
 
 /// <summary>
 /// Central options object controlling default lifetimes and global behavior ordering.

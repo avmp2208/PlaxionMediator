@@ -2,7 +2,7 @@
 using System.Reflection;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 using PlaxionMediator.Pipeline;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

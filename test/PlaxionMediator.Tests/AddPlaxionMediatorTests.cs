@@ -1,9 +1,9 @@
 ﻿using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlaxionMediator.DependencyInjection.Tests;
+namespace PlaxionMediator.Tests;
 
 public sealed class AddPlaxionMediatorTests
 {

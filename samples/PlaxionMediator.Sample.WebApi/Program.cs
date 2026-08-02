@@ -3,7 +3,7 @@ using System.Linq;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
 
 var builder = WebApplication.CreateBuilder(args);
