@@ -2,6 +2,14 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.3.1
+
+### Changed
+- **Renamed core dependency injection package**: `PlaxionMediator.DependencyInjection` is now simply **`PlaxionMediator`**. This change simplifies the package identity on NuGet.org and reduces boilerplate in `using` directives.
+- Updated project structure, solution files, and all internal references to reflect the new `PlaxionMediator` naming convention.
+- Migrated all source code namespaces, sample applications, and benchmarks to the new `PlaxionMediator` root namespace.
+- Refreshed all documentation (READMEs, Wiki, architecture guides) with the updated package ID and code snippets.
+
 ## v0.3.0
 
 ### Added
