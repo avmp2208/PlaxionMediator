@@ -70,6 +70,26 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
     }
 
     [Fact]
+    public async Task PostNotifyParallel_ReturnsAccepted()
+    {
+        var client = _factory.CreateClient();
+        var response = await client.PostAsJsonAsync("/notify-parallel?message=parallel-notification", "");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetStream_ReturnsItems()
+    {
+        var client = _factory.CreateClient();
+        var response = await client.GetAsync("/stream?count=4");
+        response.EnsureSuccessStatusCode();
+        var data = await response.Content.ReadFromJsonAsync<StreamResponse>();
+        Assert.NotNull(data);
+        Assert.Equal(new[] { 0, 1, 2, 3 }, data.Items);
+    }
+
+    [Fact]
     public async Task PostTestClass_ReturnsTestClass()
     {
         var client = _factory.CreateClient();
@@ -140,6 +160,29 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
         Assert.Equal("Nested: hello", data.Result);
     }
 
+    [Fact]
+    public async Task GetStreamTicks_ReturnsCorrectCount()
+    {
+        var client = _factory.CreateClient();
+        int count = 2;
+        int intervalMs = 10;
+        var response = await client.GetAsync($"/stream/ticks?count={count}&intervalMs={intervalMs}");
+        response.EnsureSuccessStatusCode();
+        var ticks = await response.Content.ReadFromJsonAsync<List<DateTime>>();
+        Assert.NotNull(ticks);
+        Assert.Equal(count, ticks.Count);
+    }
+
+    [Fact]
+    public async Task PostTelemetry_ReturnsAccepted()
+    {
+        var client = _factory.CreateClient();
+        var response = await client.PostAsJsonAsync("/telemetry", new { Metric = "cpu", Value = 42.0 });
+        response.EnsureSuccessStatusCode();
+        Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
+    }
+
     private record PingResponse(string Result);
     private record FlowResponse(string Result, string[] Steps);
+    private record StreamResponse(int[] Items);
 }

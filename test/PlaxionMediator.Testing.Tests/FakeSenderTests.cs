@@ -54,4 +54,32 @@ public sealed class FakeSenderTests
         Assert.Empty(sender.SentRequests);
         await Assert.ThrowsAsync<HandlerNotFoundException>(async () => await sender.Send(new Ping("b")));
     }
+
+    private sealed record StreamPing(int Count) : IStreamRequest<int>;
+
+    [Fact]
+    public async Task WhenStream_Yields_Configured_Items()
+    {
+        FakeSender sender = new();
+        sender.WhenStream<StreamPing, int>((request, ct) => Stream(request.Count, ct));
+
+        List<int> items = [];
+        await foreach (int item in sender.CreateStream(new StreamPing(3)))
+        {
+            items.Add(item);
+        }
+
+        Assert.Equal(new[] { 0, 1, 2 }, items);
+        Assert.Single(sender.SentRequests);
+
+        static async IAsyncEnumerable<int> Stream(int count, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                yield return i;
+                await Task.Yield();
+            }
+        }
+    }
 }

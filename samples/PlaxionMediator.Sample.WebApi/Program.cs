@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
+using PlaxionMediator.Core;
 using PlaxionMediator.DependencyInjection;
 using PlaxionMediator.MinimalApis;
 
@@ -62,6 +63,35 @@ app.MapGet("/boom/pipeline", () =>
         "Pipeline stage failed.",
         new InvalidOperationException("Simulated behavior fault"),
         "SampleBehavior");
+});
+
+app.MapPost("/notify", async (string message, IPublisher publisher, CancellationToken ct) =>
+{
+    await publisher.Publish(new ItemCreatedNotification(message), ct);
+    return Results.Accepted();
+});
+
+app.MapPost("/notify-parallel", async (string message, IPublisher publisher, CancellationToken ct) =>
+{
+    await publisher.Publish(new ItemUpdatedNotification(message), ct);
+    return Results.Accepted(value: new { strategy = "Parallel" });
+});
+
+app.MapGet("/stream/items", async (int? count, ISender sender, CancellationToken ct) =>
+{
+    int n = count is > 0 ? count.Value : 3;
+    var names = new List<string>();
+    await foreach (string name in sender.CreateStream(new ListItemNamesRequest(n), ct))
+    {
+        names.Add(name);
+    }
+
+    return Results.Ok(names);
+});
+
+app.MapGet("/stream/ticks", (int? count, int? intervalMs, ISender sender, CancellationToken ct) =>
+{
+    return sender.CreateStream(new StreamTicksRequest(count ?? 5, intervalMs ?? 1000), ct);
 });
 
 app.Run();
@@ -227,6 +257,75 @@ public sealed class DeleteItemHandler : IRequestHandler<DeleteItemRequest, Delet
     {
         bool deleted = _store.TryRemove(request.Id, out _);
         return ValueTask.FromResult(new DeleteItemResponse(request.Id, deleted));
+    }
+}
+
+// --- Notifications & streaming ---
+
+public sealed record ItemCreatedNotification(string Name) : INotification;
+
+public sealed class ItemCreatedLogHandler : INotificationHandler<ItemCreatedNotification>
+{
+    public ValueTask Handle(ItemCreatedNotification notification, CancellationToken cancellationToken)
+        => ValueTask.CompletedTask;
+}
+
+public sealed class ItemCreatedAuditHandler : INotificationHandler<ItemCreatedNotification>
+{
+    public ValueTask Handle(ItemCreatedNotification notification, CancellationToken cancellationToken)
+        => ValueTask.CompletedTask;
+}
+
+[NotificationPublishStrategy(PublishStrategy.Parallel)]
+public sealed record ItemUpdatedNotification(string Name) : INotification;
+
+public sealed class ItemUpdatedLogHandler : INotificationHandler<ItemUpdatedNotification>
+{
+    public async ValueTask Handle(ItemUpdatedNotification notification, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+    }
+}
+
+public sealed class ItemUpdatedMetricsHandler : INotificationHandler<ItemUpdatedNotification>
+{
+    public async ValueTask Handle(ItemUpdatedNotification notification, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+    }
+}
+
+public sealed record ListItemNamesRequest(int Count) : IStreamRequest<string>;
+
+public sealed class ListItemNamesHandler : IStreamRequestHandler<ListItemNamesRequest, string>
+{
+    public async IAsyncEnumerable<string> Handle(
+        ListItemNamesRequest request,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        for (int i = 0; i < request.Count; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return $"item-{i}";
+            await Task.Yield();
+        }
+    }
+}
+
+public sealed record StreamTicksRequest(int Count, int IntervalMs) : IStreamRequest<DateTime>;
+
+public sealed class StreamTicksHandler : IStreamRequestHandler<StreamTicksRequest, DateTime>
+{
+    public async IAsyncEnumerable<DateTime> Handle(
+        StreamTicksRequest request,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        for (int i = 0; i < request.Count; i++)
+        {
+            // Observable delay to showcase real-time streaming and cancellation
+            await Task.Delay(request.IntervalMs, cancellationToken);
+            yield return DateTime.UtcNow;
+        }
     }
 }
 

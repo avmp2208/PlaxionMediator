@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.MinimalApis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Sample.WebApi.Tests", "test\PlaxionMediator.Sample.WebApi.Tests\PlaxionMediator.Sample.WebApi.Tests.csproj", "{00B6D639-35EC-4E85-8398-4015F071425F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Benchmarks", "src\PlaxionMediator.Benchmarks\PlaxionMediator.Benchmarks.csproj", "{D85F035F-91A1-416C-9ECB-B673825BBC19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -327,6 +329,18 @@ Global
 		{00B6D639-35EC-4E85-8398-4015F071425F}.Release|x64.Build.0 = Release|Any CPU
 		{00B6D639-35EC-4E85-8398-4015F071425F}.Release|x86.ActiveCfg = Release|Any CPU
 		{00B6D639-35EC-4E85-8398-4015F071425F}.Release|x86.Build.0 = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|x64.Build.0 = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Debug|x86.Build.0 = Debug|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|x64.ActiveCfg = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|x64.Build.0 = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|x86.ActiveCfg = Release|Any CPU
+		{D85F035F-91A1-416C-9ECB-B673825BBC19}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -354,5 +368,6 @@ Global
 		{CBA10B31-E922-4F6F-81C2-65F63F51491F} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
 		{70680790-9B71-4600-8AD6-2A29739ECE22} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
 		{00B6D639-35EC-4E85-8398-4015F071425F} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
+		{D85F035F-91A1-416C-9ECB-B673825BBC19} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

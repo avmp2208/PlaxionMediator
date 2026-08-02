@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -52,6 +52,17 @@ internal static class SourceEmitter
                 .AppendLine("), options.DefaultHandlerLifetime));");
         }
 
+        foreach (StreamRequestHandlerModel handler in model.StreamRequestHandlers)
+        {
+            sb.Append("        services.TryAdd(new ServiceDescriptor(typeof(IStreamRequestHandler<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append(">), typeof(")
+                .Append(handler.HandlerFullyQualifiedName)
+                .AppendLine("), options.DefaultHandlerLifetime));");
+        }
+
         sb.AppendLine("        services.TryAddScoped<PlaxionMediatorSender>();");
         sb.AppendLine("        services.TryAddScoped<ISender>(sp => sp.GetRequiredService<PlaxionMediatorSender>());");
         sb.AppendLine("        services.TryAddScoped<IPublisher>(sp => sp.GetRequiredService<PlaxionMediatorSender>());");
@@ -68,6 +79,7 @@ internal static class SourceEmitter
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using System.Linq;");
+        sb.AppendLine("using System.Runtime.CompilerServices;");
         sb.AppendLine("using System.Threading;");
         sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using PlaxionMediator.Abstractions;");
@@ -86,6 +98,31 @@ internal static class SourceEmitter
         sb.AppendLine("        _services = services ?? throw new ArgumentNullException(nameof(services));");
         sb.AppendLine("    }");
         sb.AppendLine();
+        EmitSend(sb, model);
+        EmitCreateStream(sb, model);
+        EmitPublish(sb, model);
+
+        sb.AppendLine("    private static async ValueTask<TResponse> Adapt<TActual, TResponse>(ValueTask<TActual> source)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        TActual result = await source.ConfigureAwait(false);");
+        sb.AppendLine("        return (TResponse)(object)result!;");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    private static async IAsyncEnumerable<TResponse> AdaptStream<TActual, TResponse>(");
+        sb.AppendLine("        IAsyncEnumerable<TActual> source,");
+        sb.AppendLine("        [EnumeratorCancellation] CancellationToken cancellationToken)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        await foreach (TActual item in source.WithCancellation(cancellationToken).ConfigureAwait(false))");
+        sb.AppendLine("        {");
+        sb.AppendLine("            yield return (TResponse)(object)item!;");
+        sb.AppendLine("        }");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        return sb.ToString();
+    }
+
+    private static void EmitSend(StringBuilder sb, GenerationModel model)
+    {
         sb.AppendLine("    public ValueTask<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)");
         sb.AppendLine("    {");
         sb.AppendLine("        if (request is null) throw new ArgumentNullException(nameof(request));");
@@ -160,7 +197,79 @@ internal static class SourceEmitter
             sb.AppendLine();
             methodIndex++;
         }
+    }
 
+    private static void EmitCreateStream(StringBuilder sb, GenerationModel model)
+    {
+        sb.AppendLine("    public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        if (request is null) throw new ArgumentNullException(nameof(request));");
+        sb.AppendLine();
+
+        if (model.StreamRequestHandlers.Length == 0)
+        {
+            sb.AppendLine("        throw new HandlerNotFoundException(request.GetType());");
+        }
+        else
+        {
+            sb.AppendLine("        switch (request)");
+            sb.AppendLine("        {");
+            int index = 0;
+            foreach (StreamRequestHandlerModel handler in model.StreamRequestHandlers)
+            {
+                string methodName = "CreateStreamCore_" + index;
+                sb.Append("            case ")
+                    .Append(handler.RequestFullyQualifiedName)
+                    .Append(" r: return AdaptStream<")
+                    .Append(handler.ResponseFullyQualifiedName)
+                    .Append(", TResponse>(")
+                    .Append(methodName)
+                    .AppendLine("(r, cancellationToken), cancellationToken);");
+                index++;
+            }
+
+            sb.AppendLine("            default: throw new HandlerNotFoundException(request.GetType());");
+            sb.AppendLine("        }");
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine();
+
+        int methodIndex = 0;
+        foreach (StreamRequestHandlerModel handler in model.StreamRequestHandlers)
+        {
+            string methodName = "CreateStreamCore_" + methodIndex;
+            sb.Append("    private async IAsyncEnumerable<")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append("> ")
+                .Append(methodName)
+                .Append('(')
+                .Append(handler.RequestFullyQualifiedName)
+                .AppendLine(" request, [EnumeratorCancellation] CancellationToken cancellationToken)");
+            sb.AppendLine("    {");
+            sb.Append("        IStreamRequestHandler<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append("> handler = _services.GetRequiredService<IStreamRequestHandler<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .AppendLine(">>();");
+            sb.AppendLine("        cancellationToken.ThrowIfCancellationRequested();");
+            sb.AppendLine("        await foreach (" + handler.ResponseFullyQualifiedName + " item in handler.Handle(request, cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))");
+            sb.AppendLine("        {");
+            sb.AppendLine("            cancellationToken.ThrowIfCancellationRequested();");
+            sb.AppendLine("            yield return item;");
+            sb.AppendLine("        }");
+            sb.AppendLine("    }");
+            sb.AppendLine();
+            methodIndex++;
+        }
+    }
+
+    private static void EmitPublish(StringBuilder sb, GenerationModel model)
+    {
         sb.AppendLine("    public async ValueTask Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)");
         sb.AppendLine("        where TNotification : INotification");
         sb.AppendLine("    {");
@@ -202,44 +311,93 @@ internal static class SourceEmitter
         foreach (IGrouping<string, NotificationHandlerModel> group in notificationGroups)
         {
             string methodName = "PublishCore_" + pubIndex;
+            string strategy = group.Select(h => h.PublishStrategy).FirstOrDefault() ?? "Sequential";
+            bool parallel = string.Equals(strategy, "Parallel", System.StringComparison.Ordinal);
+
             sb.Append("    private async ValueTask ")
                 .Append(methodName)
                 .Append('(')
                 .Append(group.Key)
                 .AppendLine(" notification, CancellationToken cancellationToken)");
             sb.AppendLine("    {");
-            sb.Append("        IEnumerable<INotificationHandler<")
+            sb.Append("        // PublishStrategy.")
+                .Append(strategy)
+                .AppendLine(" (source-generator emitted)");
+            sb.Append("        INotificationHandler<")
                 .Append(group.Key)
-                .Append(">> handlers = _services.GetServices<INotificationHandler<")
+                .Append(">[] handlers = _services.GetServices<INotificationHandler<")
                 .Append(group.Key)
-                .AppendLine(">>();");
-            sb.AppendLine("        List<Exception>? exceptions = null;");
-            sb.AppendLine("        foreach (INotificationHandler<" + group.Key + "> handler in handlers)");
-            sb.AppendLine("        {");
-            sb.AppendLine("            try");
-            sb.AppendLine("            {");
-            sb.AppendLine("                await handler.Handle(notification, cancellationToken).ConfigureAwait(false);");
-            sb.AppendLine("            }");
-            sb.AppendLine("            catch (Exception ex)");
-            sb.AppendLine("            {");
-            sb.AppendLine("                exceptions ??= new List<Exception>();");
-            sb.AppendLine("                exceptions.Add(ex);");
-            sb.AppendLine("            }");
-            sb.AppendLine("        }");
-            sb.AppendLine();
-            sb.AppendLine("        if (exceptions is { Count: 1 }) throw exceptions[0];");
-            sb.AppendLine("        if (exceptions is { Count: > 1 }) throw new AggregateException(exceptions);");
+                .AppendLine(">>().ToArray();");
+
+            if (parallel)
+            {
+                sb.AppendLine("        if (handlers.Length == 0)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            return;");
+                sb.AppendLine("        }");
+                sb.AppendLine();
+                sb.AppendLine("        Task<Exception?>[] tasks = new Task<Exception?>[handlers.Length];");
+                sb.AppendLine("        for (int i = 0; i < handlers.Length; i++)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            INotificationHandler<" + group.Key + "> handler = handlers[i];");
+                sb.AppendLine("            tasks[i] = InvokeParallel(handler, notification, cancellationToken);");
+                sb.AppendLine("        }");
+                sb.AppendLine();
+                sb.AppendLine("        Exception?[] results = await Task.WhenAll(tasks).ConfigureAwait(false);");
+                sb.AppendLine("        List<Exception>? exceptions = null;");
+                sb.AppendLine("        for (int i = 0; i < results.Length; i++)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            if (results[i] is null)");
+                sb.AppendLine("            {");
+                sb.AppendLine("                continue;");
+                sb.AppendLine("            }");
+                sb.AppendLine();
+                sb.AppendLine("            exceptions ??= new List<Exception>();");
+                sb.AppendLine("            exceptions.Add(results[i]!);");
+                sb.AppendLine("        }");
+                sb.AppendLine();
+                sb.AppendLine("        if (exceptions is { Count: 1 }) throw exceptions[0];");
+                sb.AppendLine("        if (exceptions is { Count: > 1 }) throw new AggregateException(exceptions);");
+                sb.AppendLine();
+                sb.AppendLine("        static async Task<Exception?> InvokeParallel(");
+                sb.AppendLine("            INotificationHandler<" + group.Key + "> handler,");
+                sb.AppendLine("            " + group.Key + " notification,");
+                sb.AppendLine("            CancellationToken cancellationToken)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            try");
+                sb.AppendLine("            {");
+                sb.AppendLine("                await handler.Handle(notification, cancellationToken).ConfigureAwait(false);");
+                sb.AppendLine("                return null;");
+                sb.AppendLine("            }");
+                sb.AppendLine("            catch (Exception ex)");
+                sb.AppendLine("            {");
+                sb.AppendLine("                return ex;");
+                sb.AppendLine("            }");
+                sb.AppendLine("        }");
+            }
+            else
+            {
+                sb.AppendLine("        List<Exception>? exceptions = null;");
+                sb.AppendLine("        foreach (INotificationHandler<" + group.Key + "> handler in handlers)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            try");
+                sb.AppendLine("            {");
+                sb.AppendLine("                await handler.Handle(notification, cancellationToken).ConfigureAwait(false);");
+                sb.AppendLine("            }");
+                sb.AppendLine("            catch (Exception ex)");
+                sb.AppendLine("            {");
+                sb.AppendLine("                exceptions ??= new List<Exception>();");
+                sb.AppendLine("                exceptions.Add(ex);");
+                sb.AppendLine("            }");
+                sb.AppendLine("        }");
+                sb.AppendLine();
+                sb.AppendLine("        if (exceptions is { Count: 1 }) throw exceptions[0];");
+                sb.AppendLine("        if (exceptions is { Count: > 1 }) throw new AggregateException(exceptions);");
+            }
+
             sb.AppendLine("    }");
             sb.AppendLine();
             pubIndex++;
         }
-
-        sb.AppendLine("    private static async ValueTask<TResponse> Adapt<TActual, TResponse>(ValueTask<TActual> source)");
-        sb.AppendLine("    {");
-        sb.AppendLine("        TActual result = await source.ConfigureAwait(false);");
-        sb.AppendLine("        return (TResponse)(object)result!;");
-        sb.AppendLine("    }");
-        sb.AppendLine("}");
-        return sb.ToString();
     }
 }

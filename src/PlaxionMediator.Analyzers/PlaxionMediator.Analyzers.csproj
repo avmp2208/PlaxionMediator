@@ -4,7 +4,7 @@
     <RootNamespace>PlaxionMediator.Analyzers</RootNamespace>
     <AssemblyName>PlaxionMediator.Analyzers</AssemblyName>
     <PackageId>PlaxionMediator.Analyzers</PackageId>
-    <Description>Roslyn analyzers for PlaxionMediator (missing handler, multiple handlers, mutable request, missing CancellationToken, request binding, handler blocking calls).</Description>
+    <Description>Roslyn analyzers for PlaxionMediator (registration, pipeline, cancellation, performance, streaming, and lifetime diagnostics).</Description>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>true</IncludeBuildOutput>
