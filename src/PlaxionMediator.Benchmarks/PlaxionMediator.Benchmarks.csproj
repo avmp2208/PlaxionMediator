@@ -18,7 +18,7 @@
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
-    <ProjectReference Include="..\PlaxionMediator.DependencyInjection\PlaxionMediator.DependencyInjection.csproj" />
+    <ProjectReference Include="..\PlaxionMediator\PlaxionMediator.csproj" />
     <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false"

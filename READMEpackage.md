@@ -9,10 +9,10 @@ Define immutable requests, write a single handler, call `AddPlaxionMediator()`, 
 ## Install
 
 ```bash
-dotnet add package PlaxionMediator.DependencyInjection
+dotnet add package PlaxionMediator
 ```
 
-`PlaxionMediator.DependencyInjection` brings in the core runtime packages and the source generator transitively.
+`PlaxionMediator` brings in the core runtime packages and the source generator transitively.
 
 Building a web API? Also add:
 
@@ -26,7 +26,7 @@ dotnet add package PlaxionMediator.MinimalApis
 ```csharp
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 
 // 1. Define an immutable request
 public sealed record Ping(string Message) : IRequest<string>;
@@ -71,7 +71,7 @@ app.Run();
 | `PlaxionMediator.Abstractions` | Contracts (`IRequest<>`, handlers, behaviors, notifications) |
 | `PlaxionMediator.Core` | `ISender`, `IPublisher`, exceptions |
 | `PlaxionMediator.Pipeline` | Delegate-chain pipeline primitives |
-| `PlaxionMediator.DependencyInjection` | `AddPlaxionMediator()` + generator integration |
+| `PlaxionMediator` | `AddPlaxionMediator()` + generator integration |
 | `PlaxionMediator.SourceGenerators` | Incremental generator (analyzer package) |
 | `PlaxionMediator.Analyzers` | Roslyn analyzers (missing handler, mutable request, blocking calls, …) |
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |

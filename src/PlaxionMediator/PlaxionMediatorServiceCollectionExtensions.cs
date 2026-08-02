@@ -3,7 +3,7 @@ using PlaxionMediator.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace PlaxionMediator.DependencyInjection;
+namespace PlaxionMediator;
 
 /// <summary>
 /// <see cref="IServiceCollection"/> extensions for registering PlaxionMediator.

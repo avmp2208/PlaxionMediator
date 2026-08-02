@@ -17,6 +17,6 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
-    <ProjectReference Include="..\..\src\PlaxionMediator.DependencyInjection\PlaxionMediator.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator\PlaxionMediator.csproj" />
   </ItemGroup>
 </Project>

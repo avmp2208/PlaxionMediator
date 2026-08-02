@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.SourceGener
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Analyzers", "src\PlaxionMediator.Analyzers\PlaxionMediator.Analyzers.csproj", "{67B819E5-285A-40BC-8DE1-2FF63E726701}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.DependencyInjection", "src\PlaxionMediator.DependencyInjection\PlaxionMediator.DependencyInjection.csproj", "{203D9E4B-5A43-428E-9730-6944F57D8BC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator", "src\PlaxionMediator\PlaxionMediator.csproj", "{203D9E4B-5A43-428E-9730-6944F57D8BC8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Testing", "src\PlaxionMediator.Testing\PlaxionMediator.Testing.csproj", "{A3448536-EB1D-4919-895F-19D92F29DFE4}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.SourceGener
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Analyzers.Tests", "test\PlaxionMediator.Analyzers.Tests\PlaxionMediator.Analyzers.Tests.csproj", "{AB3A3381-6BCB-41A6-903B-CA5F980CC0AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.DependencyInjection.Tests", "test\PlaxionMediator.DependencyInjection.Tests\PlaxionMediator.DependencyInjection.Tests.csproj", "{DE1908D0-495C-4446-960F-3515284E47E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Tests", "test\PlaxionMediator.Tests\PlaxionMediator.Tests.csproj", "{DE1908D0-495C-4446-960F-3515284E47E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Testing.Tests", "test\PlaxionMediator.Testing.Tests\PlaxionMediator.Testing.Tests.csproj", "{DA308016-594C-4957-8623-6AF972825664}"
 EndProject

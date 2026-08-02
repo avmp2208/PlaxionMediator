@@ -15,7 +15,7 @@ internal static class SourceEmitter
         sb.AppendLine("using System.Runtime.CompilerServices;");
         sb.AppendLine("using PlaxionMediator.Abstractions;");
         sb.AppendLine("using PlaxionMediator.Core;");
-        sb.AppendLine("using PlaxionMediator.DependencyInjection;");
+        sb.AppendLine("using PlaxionMediator;");
         sb.AppendLine("using Microsoft.Extensions.DependencyInjection;");
         sb.AppendLine("using Microsoft.Extensions.DependencyInjection.Extensions;");
         sb.AppendLine();

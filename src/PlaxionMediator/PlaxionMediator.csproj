@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>PlaxionMediator.DependencyInjection</RootNamespace>
-    <AssemblyName>PlaxionMediator.DependencyInjection</AssemblyName>
-    <PackageId>PlaxionMediator.DependencyInjection</PackageId>
+    <RootNamespace>PlaxionMediator</RootNamespace>
+    <AssemblyName>PlaxionMediator</AssemblyName>
+    <PackageId>PlaxionMediator</PackageId>
     <Description>Dependency injection extensions (AddPlaxionMediator) for the PlaxionMediator request pipeline framework.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>

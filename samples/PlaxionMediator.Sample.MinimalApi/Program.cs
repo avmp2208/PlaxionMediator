@@ -1,7 +1,7 @@
 ﻿using System.Reflection.PortableExecutable;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
-using PlaxionMediator.DependencyInjection;
+using PlaxionMediator;
 
 var builder = WebApplication.CreateBuilder(args);
 
