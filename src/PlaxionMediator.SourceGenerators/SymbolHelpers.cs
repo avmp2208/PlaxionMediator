@@ -7,8 +7,11 @@ internal static class SymbolHelpers
 {
     public const string RequestHandlerMetadataName = "PlaxionMediator.Abstractions.IRequestHandler`2";
     public const string NotificationHandlerMetadataName = "PlaxionMediator.Abstractions.INotificationHandler`1";
+    public const string StreamRequestHandlerMetadataName = "PlaxionMediator.Abstractions.IStreamRequestHandler`2";
     public const string RequestMetadataName = "PlaxionMediator.Abstractions.IRequest`1";
+    public const string StreamRequestMetadataName = "PlaxionMediator.Abstractions.IStreamRequest`1";
     public const string NotificationMetadataName = "PlaxionMediator.Abstractions.INotification";
+    public const string NotificationPublishStrategyAttributeMetadataName = "PlaxionMediator.Abstractions.NotificationPublishStrategyAttribute";
 
     public static string ToFullyQualifiedName(ITypeSymbol symbol)
     {

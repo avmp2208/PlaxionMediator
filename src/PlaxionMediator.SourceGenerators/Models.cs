@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace PlaxionMediator.SourceGenerators;
 
@@ -61,14 +61,21 @@ internal sealed class NotificationHandlerModel : IEquatable<NotificationHandlerM
 {
     public NotificationHandlerModel(
         string notificationFullyQualifiedName,
-        string handlerFullyQualifiedName)
+        string handlerFullyQualifiedName,
+        string publishStrategy)
     {
         NotificationFullyQualifiedName = notificationFullyQualifiedName;
         HandlerFullyQualifiedName = handlerFullyQualifiedName;
+        PublishStrategy = publishStrategy;
     }
 
     public string NotificationFullyQualifiedName { get; }
     public string HandlerFullyQualifiedName { get; }
+
+    /// <summary>
+    /// "Sequential" or "Parallel" — matches <c>PublishStrategy</c> enum names.
+    /// </summary>
+    public string PublishStrategy { get; }
 
     public bool Equals(NotificationHandlerModel? other)
     {
@@ -78,7 +85,8 @@ internal sealed class NotificationHandlerModel : IEquatable<NotificationHandlerM
         }
 
         return NotificationFullyQualifiedName == other.NotificationFullyQualifiedName
-               && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName;
+               && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName
+               && PublishStrategy == other.PublishStrategy;
     }
 
     public override bool Equals(object? obj) => Equals(obj as NotificationHandlerModel);
@@ -89,6 +97,53 @@ internal sealed class NotificationHandlerModel : IEquatable<NotificationHandlerM
         {
             int hash = 17;
             hash = (hash * 31) + NotificationFullyQualifiedName.GetHashCode();
+            hash = (hash * 31) + HandlerFullyQualifiedName.GetHashCode();
+            hash = (hash * 31) + PublishStrategy.GetHashCode();
+            return hash;
+        }
+    }
+}
+
+internal sealed class StreamRequestHandlerModel : IEquatable<StreamRequestHandlerModel>
+{
+    public StreamRequestHandlerModel(
+        string requestFullyQualifiedName,
+        string responseFullyQualifiedName,
+        string handlerFullyQualifiedName,
+        string requestDisplayName)
+    {
+        RequestFullyQualifiedName = requestFullyQualifiedName;
+        ResponseFullyQualifiedName = responseFullyQualifiedName;
+        HandlerFullyQualifiedName = handlerFullyQualifiedName;
+        RequestDisplayName = requestDisplayName;
+    }
+
+    public string RequestFullyQualifiedName { get; }
+    public string ResponseFullyQualifiedName { get; }
+    public string HandlerFullyQualifiedName { get; }
+    public string RequestDisplayName { get; }
+
+    public bool Equals(StreamRequestHandlerModel? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return RequestFullyQualifiedName == other.RequestFullyQualifiedName
+               && ResponseFullyQualifiedName == other.ResponseFullyQualifiedName
+               && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as StreamRequestHandlerModel);
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = (hash * 31) + RequestFullyQualifiedName.GetHashCode();
+            hash = (hash * 31) + ResponseFullyQualifiedName.GetHashCode();
             hash = (hash * 31) + HandlerFullyQualifiedName.GetHashCode();
             return hash;
         }
@@ -150,17 +205,20 @@ internal sealed class GenerationModel : IEquatable<GenerationModel>
     public GenerationModel(
         EquatableArray<RequestHandlerModel> requestHandlers,
         EquatableArray<NotificationHandlerModel> notificationHandlers,
+        EquatableArray<StreamRequestHandlerModel> streamRequestHandlers,
         EquatableArray<RequestModel> requests,
         string rootNamespace)
     {
         RequestHandlers = requestHandlers;
         NotificationHandlers = notificationHandlers;
+        StreamRequestHandlers = streamRequestHandlers;
         Requests = requests;
         RootNamespace = rootNamespace;
     }
 
     public EquatableArray<RequestHandlerModel> RequestHandlers { get; }
     public EquatableArray<NotificationHandlerModel> NotificationHandlers { get; }
+    public EquatableArray<StreamRequestHandlerModel> StreamRequestHandlers { get; }
     public EquatableArray<RequestModel> Requests { get; }
     public string RootNamespace { get; }
 
@@ -174,6 +232,7 @@ internal sealed class GenerationModel : IEquatable<GenerationModel>
         return RootNamespace == other.RootNamespace
                && RequestHandlers.Equals(other.RequestHandlers)
                && NotificationHandlers.Equals(other.NotificationHandlers)
+               && StreamRequestHandlers.Equals(other.StreamRequestHandlers)
                && Requests.Equals(other.Requests);
     }
 
@@ -187,6 +246,7 @@ internal sealed class GenerationModel : IEquatable<GenerationModel>
             hash = (hash * 31) + RootNamespace.GetHashCode();
             hash = (hash * 31) + RequestHandlers.GetHashCode();
             hash = (hash * 31) + NotificationHandlers.GetHashCode();
+            hash = (hash * 31) + StreamRequestHandlers.GetHashCode();
             hash = (hash * 31) + Requests.GetHashCode();
             return hash;
         }

@@ -1,9 +1,12 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using PlaxionMediator.Abstractions;
+using PlaxionMediator.Core;
+using PlaxionMediator.Pipeline;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PlaxionMediator.Analyzers.Tests;
 
@@ -17,6 +20,9 @@ internal static class AnalyzerTestHelper
         [
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(IRequest<>).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(ISender).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(PipelineBuilder).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(IServiceCollection).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
             MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
         ];
@@ -28,7 +34,8 @@ internal static class AnalyzerTestHelper
             {
                 string name = Path.GetFileNameWithoutExtension(path);
                 if (name is "System.Collections" or "System.Linq" or "System.Threading" or "System.Threading.Tasks"
-                    or "System.Runtime" or "System.Private.CoreLib" or "netstandard")
+                    or "System.Runtime" or "System.Private.CoreLib" or "netstandard"
+                    or "System.Collections.Concurrent" or "Microsoft.Extensions.DependencyInjection.Abstractions")
                 {
                     references.Add(MetadataReference.CreateFromFile(path));
                 }

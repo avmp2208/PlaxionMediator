@@ -1,0 +1,399 @@
+{
+  "info": {
+    "_postman_id": "9a2e4d10-1c7b-4e9a-8b2c-plaxion-minapi-01",
+    "name": "PlaxionMediator.Sample.MinimalApi",
+    "description": "MVP smoke-test sample exercising PlaxionMediator.Core/DependencyInjection directly (hand-written Minimal API delegates, no PlaxionMediator.AspNetCore/MinimalApis packages). Covers ISender, IPublisher, pipeline behaviors and notification fan-out.\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.MinimalApi`\n\nDefault URL: http://localhost:5000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Sanity check the sample is running."
+      }
+    },
+    {
+      "name": "Ping",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Result contains Pong', () => {",
+              "    pm.expect(pm.response.json().result).to.include('Pong');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/ping?message=hello",
+          "host": ["{{baseUrl}}"],
+          "path": ["ping"],
+          "query": [
+            { "key": "message", "value": "hello" }
+          ]
+        },
+        "description": "Sends a Ping request via ISender.Send; query string 'message' is bound as a plain minimal-API parameter (not via MapPlaxionMediator*)."
+      }
+    },
+    {
+      "name": "Ping (Cached short-circuit)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Result is CachedResult', () => {",
+              "    pm.expect(pm.response.json().result).to.eql('CachedResult');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/ping?message=cached",
+          "host": ["{{baseUrl}}"],
+          "path": ["ping"],
+          "query": [
+            { "key": "message", "value": "cached" }
+          ]
+        },
+        "description": "Demonstrates CacheBehavior<TRequest,TResponse> short-circuiting the pipeline (does not call next()) when Message == 'cached'."
+      }
+    },
+    {
+      "name": "Echo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Echo returns same message', () => {",
+              "    pm.expect(pm.response.json().result).to.eql('Hello PlaxionMediator');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Hello PlaxionMediator\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/echo",
+          "host": ["{{baseUrl}}"],
+          "path": ["echo"]
+        },
+        "description": "Dispatches EchoRequest (a record) via ISender.Send."
+      }
+    },
+    {
+      "name": "Echo (Class Request)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Result prefixed with ClassEcho', () => {",
+              "    pm.expect(pm.response.json().result).to.include('ClassEcho:');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Hello from a class request\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/echo-class",
+          "host": ["{{baseUrl}}"],
+          "path": ["echo-class"]
+        },
+        "description": "Dispatches EchoClassRequest, a plain (non-record) class implementing IRequest<string>, verifying non-record requests work too."
+      }
+    },
+    {
+      "name": "Test Class",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Result prefixed with TestClass', () => {",
+              "    pm.expect(pm.response.json().result).to.include('TestClass:');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"sample-type\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/test-class",
+          "host": ["{{baseUrl}}"],
+          "path": ["test-class"]
+        },
+        "description": "Dispatches TestClass request directly (bound as the JSON body itself, not a wrapper DTO)."
+      }
+    },
+    {
+      "name": "Notify",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 202 Accepted', () => pm.response.to.have.status(202));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/notify?message=broadcast-hello",
+          "host": ["{{baseUrl}}"],
+          "path": ["notify"],
+          "query": [
+            { "key": "message", "value": "broadcast-hello" }
+          ]
+        },
+        "description": "Publishes PingNotification via IPublisher.Publish, fanning out to two INotificationHandler<PingNotification> handlers (check the app console logs)."
+      }
+    },
+    {
+      "name": "Notify (Parallel)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 202 Accepted', () => pm.response.to.have.status(202));",
+              "pm.test('Strategy is Parallel', () => pm.expect(pm.response.json().strategy).to.eql('Parallel'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/notify-parallel?message=parallel-hello",
+          "host": ["{{baseUrl}}"],
+          "path": ["notify-parallel"],
+          "query": [
+            { "key": "message", "value": "parallel-hello" }
+          ]
+        },
+        "description": "Publishes ParallelPingNotification via IPublisher.Publish. Fan-out strategy is Parallel due to [NotificationPublishStrategy(PublishStrategy.Parallel)] on the notification type."
+      }
+    },
+    {
+      "name": "Stream (Buffered)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Items count is correct', () => pm.expect(pm.response.json().items.length).to.eql(3));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/stream?count=3",
+          "host": ["{{baseUrl}}"],
+          "path": ["stream"],
+          "query": [
+            { "key": "count", "value": "3" }
+          ]
+        },
+        "description": "Streams numbers via ISender.CreateStream but buffers them into a list in the endpoint before returning."
+      }
+    },
+    {
+      "name": "Stream Ticks (Live)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/stream/ticks?count=5&intervalMs=1000",
+          "host": ["{{baseUrl}}"],
+          "path": ["stream", "ticks"],
+          "query": [
+            { "key": "count", "value": "5" },
+            { "key": "intervalMs", "value": "1000" }
+          ]
+        },
+        "description": "Demonstrates true real-time streaming to the client by returning IAsyncEnumerable directly. Also observable cancellation if the request is aborted."
+      }
+    },
+    {
+      "name": "Telemetry (High Frequency)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 202 Accepted', () => pm.response.to.have.status(202));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"metric\": \"cpu_load\",\n  \"value\": 85.5\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/telemetry",
+          "host": ["{{baseUrl}}"],
+          "path": ["telemetry"]
+        },
+        "description": "Showcases a request marked with [HighFrequency]. Such requests are intended for high-throughput paths and may be subject to analyzer-enforced restrictions on behavior count."
+      }
+    },
+    {
+      "name": "Flow (Pipeline Behavior Order)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Result is FlowDone', () => pm.expect(body.result).to.eql('FlowDone'));",
+              "pm.test('Steps recorded in order', () => {",
+              "    pm.expect(body.steps).to.eql(['BehaviorA-Start', 'BehaviorB-Start', 'Handler', 'BehaviorB-End', 'BehaviorA-End']);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/flow",
+          "host": ["{{baseUrl}}"],
+          "path": ["flow"]
+        },
+        "description": "Demonstrates FlowBehaviorA -> FlowBehaviorB -> Handler pipeline composition order via FlowTracker."
+      }
+    },
+    {
+      "name": "Nested Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Result contains Nested prefix', () => {",
+              "    pm.expect(pm.response.json().result).to.include('Nested: hello');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/nested",
+          "host": ["{{baseUrl}}"],
+          "path": ["nested"]
+        },
+        "description": "NestedHandler calls ISender.Send from within another handler, verifying handlers can dispatch further requests."
+      }
+    },
+    {
+      "name": "Fail (Unhandled Exception)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500', () => pm.response.to.have.status(500));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/fail",
+          "host": ["{{baseUrl}}"],
+          "path": ["fail"]
+        },
+        "description": "FailHandler throws InvalidOperationException directly; this sample has no ProblemDetails middleware (that's PlaxionMediator.AspNetCore, added in Phase B / see the WebApi sample collection), so it surfaces as ASP.NET Core's default 500 response."
+      }
+    }
+  ]
+}

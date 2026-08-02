@@ -48,6 +48,11 @@ public sealed class DispatcherContractTests
 
             throw new HandlerNotFoundException(request.GetType());
         }
+
+        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(
+            IStreamRequest<TResponse> request,
+            CancellationToken cancellationToken = default)
+            => throw new HandlerNotFoundException(request.GetType());
     }
 
     private sealed class ManualPublisher : IPublisher

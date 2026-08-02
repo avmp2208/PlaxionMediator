@@ -27,3 +27,6 @@ jobs:
 
       - name: Test
         run: dotnet test PlaxionMediator.sln --no-build --configuration Release --verbosity normal
+
+      - name: Benchmark project smoke
+        run: dotnet run --project src/PlaxionMediator.Benchmarks/PlaxionMediator.Benchmarks.csproj --no-build --configuration Release -- --list flat

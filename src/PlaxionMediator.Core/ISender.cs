@@ -1,4 +1,4 @@
-﻿using PlaxionMediator.Abstractions;
+using PlaxionMediator.Abstractions;
 
 namespace PlaxionMediator.Core;
 
@@ -12,5 +12,13 @@ public interface ISender
     /// </summary>
     ValueTask<TResponse> Send<TResponse>(
         IRequest<TResponse> request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates an async stream for a streaming request. Cancellation is propagated to the handler
+    /// and to the returned enumerator for backpressure-friendly consumption.
+    /// </summary>
+    IAsyncEnumerable<TResponse> CreateStream<TResponse>(
+        IStreamRequest<TResponse> request,
         CancellationToken cancellationToken = default);
 }

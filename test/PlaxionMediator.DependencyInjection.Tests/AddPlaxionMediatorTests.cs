@@ -49,6 +49,11 @@ public sealed class AddPlaxionMediatorTests
             where TNotification : INotification
             => default;
 
+        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(
+            IStreamRequest<TResponse> request,
+            CancellationToken cancellationToken = default)
+            => throw new HandlerNotFoundException(request.GetType());
+
         private static async ValueTask<TResponse> Adapt<TActual, TResponse>(ValueTask<TActual> source)
         {
             TActual result = await source.ConfigureAwait(false);

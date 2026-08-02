@@ -103,6 +103,22 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
     }
 
     [Fact]
+    public async Task StreamTicks_StreamsCorrectNumberOfItems()
+    {
+        HttpClient client = _factory.CreateClient();
+        // Use a small count and short interval for the test
+        int count = 3;
+        int intervalMs = 10;
+        
+        HttpResponseMessage response = await client.GetAsync($"/stream/ticks?count={count}&intervalMs={intervalMs}");
+        response.EnsureSuccessStatusCode();
+
+        var ticks = await response.Content.ReadFromJsonAsync<List<DateTime>>();
+        Assert.NotNull(ticks);
+        Assert.Equal(count, ticks.Count);
+    }
+
+    [Fact]
     public async Task HandlerNotFound_Returns_ProblemJson()
     {
         HttpClient client = _factory.CreateClient();

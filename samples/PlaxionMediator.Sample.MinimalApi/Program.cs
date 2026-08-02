@@ -43,9 +43,28 @@ app.MapPost("/echo-class", async (Echo body, ISender sender, CancellationToken c
 
 app.MapPost("/notify", async (string message, IPublisher publisher, CancellationToken ct) =>
 {
-    // Testing notification fan-out
+    // Sequential notification fan-out (default PublishStrategy.Sequential)
     await publisher.Publish(new PingNotification(message), ct);
     return Results.Accepted();
+});
+
+app.MapPost("/notify-parallel", async (string message, IPublisher publisher, CancellationToken ct) =>
+{
+    // Parallel notification fan-out via [NotificationPublishStrategy(PublishStrategy.Parallel)]
+    await publisher.Publish(new ParallelPingNotification(message), ct);
+    return Results.Accepted(value: new { strategy = "Parallel" });
+});
+
+app.MapGet("/stream", async (int? count, ISender sender, CancellationToken ct) =>
+{
+    int n = count is > 0 ? count.Value : 5;
+    var items = new List<int>();
+    await foreach (int item in sender.CreateStream(new NumberStreamRequest(n), ct))
+    {
+        items.Add(item);
+    }
+
+    return Results.Ok(new { items });
 });
 
 //Create a min api for the TestClass tes below
@@ -71,6 +90,19 @@ app.MapGet("/nested", async (ISender sender, CancellationToken ct) =>
 {
     var result = await sender.Send(new NestedRequest("hello"), ct);
     return Results.Ok(new { result });
+});
+
+app.MapGet("/stream/ticks", (int? count, int? intervalMs, ISender sender, CancellationToken ct) =>
+{
+    // Real-time streaming (direct IAsyncEnumerable return)
+    return sender.CreateStream(new StreamTicksRequest(count ?? 5, intervalMs ?? 1000), ct);
+});
+
+app.MapPost("/telemetry", async (TelemetryData data, ISender sender, CancellationToken ct) =>
+{
+    // High-frequency request showcase
+    await sender.Send(new TelemetryRequest(data.Metric, data.Value), ct);
+    return Results.Accepted();
 });
 
 app.Run();
@@ -112,7 +144,7 @@ public class TestClass : IRequest<string>
     public string Type { get; init; } = string.Empty;
 }
 
-public class TestClassHandler : IRequestHandler<TestClass, string>
+public sealed class TestClassHandler : IRequestHandler<TestClass, string>
 {
     private readonly ILogger<TestClassHandler> _logger;
 
@@ -194,6 +226,52 @@ public sealed class PingNotificationHandler2 : INotificationHandler<PingNotifica
     }
 }
 
+[NotificationPublishStrategy(PublishStrategy.Parallel)]
+public sealed record ParallelPingNotification(string Message) : INotification;
+
+public sealed class ParallelPingNotificationHandler1 : INotificationHandler<ParallelPingNotification>
+{
+    private readonly ILogger<ParallelPingNotificationHandler1> _logger;
+    public ParallelPingNotificationHandler1(ILogger<ParallelPingNotificationHandler1> logger) => _logger = logger;
+
+    public async ValueTask Handle(ParallelPingNotification notification, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        _logger.LogInformation("Parallel notification handler 1 received: {Message}", notification.Message);
+    }
+}
+
+public sealed class ParallelPingNotificationHandler2 : INotificationHandler<ParallelPingNotification>
+{
+    private readonly ILogger<ParallelPingNotificationHandler2> _logger;
+    public ParallelPingNotificationHandler2(ILogger<ParallelPingNotificationHandler2> logger) => _logger = logger;
+
+    public async ValueTask Handle(ParallelPingNotification notification, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        _logger.LogInformation("Parallel notification handler 2 received: {Message}", notification.Message);
+    }
+}
+
+// --- Streaming ---
+
+public sealed record NumberStreamRequest(int Count) : IStreamRequest<int>;
+
+public sealed class NumberStreamHandler : IStreamRequestHandler<NumberStreamRequest, int>
+{
+    public async IAsyncEnumerable<int> Handle(
+        NumberStreamRequest request,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        for (int i = 0; i < request.Count; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return i;
+            await Task.Yield();
+        }
+    }
+}
+
 // --- Behaviors ---
 
 public sealed class FlowTracker
@@ -268,6 +346,38 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
         {
             _logger.LogError(ex, "Request {RequestName} failed", typeof(TRequest).Name);
             throw;
+        }
+    }
+}
+
+// --- High Frequency & New Streaming ---
+
+public sealed record TelemetryData(string Metric, double Value);
+
+[HighFrequency]
+public sealed record TelemetryRequest(string Metric, double Value) : IRequest<Unit>;
+
+public sealed class TelemetryHandler : IRequestHandler<TelemetryRequest, Unit>
+{
+    public ValueTask<Unit> Handle(TelemetryRequest request, CancellationToken cancellationToken)
+    {
+        // High-frequency handler: keep it lean
+        return ValueTask.FromResult(Unit.Value);
+    }
+}
+
+public sealed record StreamTicksRequest(int Count, int IntervalMs) : IStreamRequest<DateTime>;
+
+public sealed class StreamTicksHandler : IStreamRequestHandler<StreamTicksRequest, DateTime>
+{
+    public async IAsyncEnumerable<DateTime> Handle(
+        StreamTicksRequest request,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        for (int i = 0; i < request.Count; i++)
+        {
+            await Task.Delay(request.IntervalMs, cancellationToken);
+            yield return DateTime.UtcNow;
         }
     }
 }

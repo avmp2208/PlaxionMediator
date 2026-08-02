@@ -1,0 +1,369 @@
+{
+  "info": {
+    "_postman_id": "3c1d9b0a-6e2f-4b1a-9a3e-plaxion-webapi-01",
+    "name": "PlaxionMediator.Sample.WebApi",
+    "description": "CRUD sample built with PlaxionMediator.AspNetCore + PlaxionMediator.MinimalApis (Phase B). Exercises MapPlaxionMediatorPost/Get/Put/Patch/Delete and the ProblemDetails exception-handling middleware.\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.WebApi`\n\nDefault URL: http://localhost:5000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Sanity check the sample is running."
+      }
+    },
+    {
+      "name": "Create Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response has id and name', () => {",
+              "    pm.expect(body).to.have.property('id');",
+              "    pm.expect(body).to.have.property('name', 'Widget');",
+              "});",
+              "pm.collectionVariables.set('itemId', body.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Widget\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["items"]
+        },
+        "description": "Maps to MapPlaxionMediatorPost<CreateItemRequest, ItemDto>. Binds the request body directly."
+      }
+    },
+    {
+      "name": "Get Item By Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Returned item matches saved id', () => {",
+              "    pm.expect(body.id).to.eql(pm.collectionVariables.get('itemId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Maps to MapPlaxionMediatorGet<GetItemRequest, ItemDto>. {id} is bound from the route via [AsParameters]."
+      }
+    },
+    {
+      "name": "Get All Items",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["items"]
+        },
+        "description": "Maps to MapPlaxionMediatorGet<GetItemsRequest, IReadOnlyList<ItemDto>>. GetItemsRequest has no bindable members by design (lists all items)."
+      }
+    },
+    {
+      "name": "Update Item (PUT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Name updated', () => pm.expect(body.name).to.eql('Widget-Updated'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{itemId}}\",\n  \"name\": \"Widget-Updated\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["items"]
+        },
+        "description": "Maps to MapPlaxionMediatorPut<UpdateItemRequest, ItemDto>. TRequest (Id + Name) is bound entirely from the JSON body; the route does not carry the id."
+      }
+    },
+    {
+      "name": "Rename Item (PATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Name renamed', () => pm.expect(body.name).to.eql('Widget-Patched'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{itemId}}\",\n  \"name\": \"Widget-Patched\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items/rename",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "rename"]
+        },
+        "description": "Maps to MapPlaxionMediatorPatch<RenameItemRequest, ItemDto>. Binds the full request from the JSON body, same as PUT. PlaxionMediator does not implement JSON Merge Patch/JSON Patch semantics."
+      }
+    },
+    {
+      "name": "Delete Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Deleted flag is true', () => pm.expect(body.deleted).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Maps to MapPlaxionMediatorDelete<DeleteItemRequest, DeleteItemResponse>. {id} is bound from the route."
+      }
+    },
+    {
+      "name": "Notify (Sequential)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/notify?message=HelloSequential",
+          "host": ["{{baseUrl}}"],
+          "path": ["notify"],
+          "query": [
+            { "key": "message", "value": "HelloSequential" }
+          ]
+        },
+        "description": "Publishes ItemCreatedNotification (Sequential). Check console logs for handler execution."
+      }
+    },
+    {
+      "name": "Notify (Parallel)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/notify-parallel?message=HelloParallel",
+          "host": ["{{baseUrl}}"],
+          "path": ["notify-parallel"],
+          "query": [
+            { "key": "message", "value": "HelloParallel" }
+          ]
+        },
+        "description": "Publishes ItemUpdatedNotification (Parallel via [NotificationPublishStrategy]). Check console logs."
+      }
+    },
+    {
+      "name": "Stream Items (Buffered)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/stream/items?count=3",
+          "host": ["{{baseUrl}}"],
+          "path": ["stream", "items"],
+          "query": [
+            { "key": "count", "value": "3" }
+          ]
+        },
+        "description": "Streams items via ISender.CreateStream but buffers them into a list in the endpoint before returning."
+      }
+    },
+    {
+      "name": "Stream Ticks (Live)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/stream/ticks?count=5&intervalMs=1000",
+          "host": ["{{baseUrl}}"],
+          "path": ["stream", "ticks"],
+          "query": [
+            { "key": "count", "value": "5" },
+            { "key": "intervalMs", "value": "1000" }
+          ]
+        },
+        "description": "Demonstrates true real-time streaming to the client by returning IAsyncEnumerable directly. Also observable cancellation if the request is aborted."
+      }
+    },
+    {
+      "name": "Get Item By Id (Not Found -> Raw 500, unmapped exception)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500', () => pm.response.to.have.status(500));",
+              "pm.test('Content-Type is NOT problem+json (unmapped exception falls through raw)', () => {",
+              "    const contentType = pm.response.headers.get('Content-Type') || '';",
+              "    pm.expect(contentType).to.not.include('application/problem+json');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/00000000-0000-0000-0000-000000000000",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "00000000-0000-0000-0000-000000000000"]
+        },
+        "description": "GetItemHandler throws KeyNotFoundException for a missing id; this is NOT one of the mapped PlaxionMediatorException subtypes, so it propagates as a normal ASP.NET Core 500 (no problem+json body). Kept here to demonstrate current sample behavior."
+      }
+    },
+    {
+      "name": "Force HandlerNotFoundException -> ProblemDetails",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500', () => pm.response.to.have.status(500));",
+              "pm.test('Content-Type is problem+json', () => {",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Type is handler-not-found', () => {",
+              "    pm.expect(body.type).to.include('handler-not-found');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/boom/handler-not-found",
+          "host": ["{{baseUrl}}"],
+          "path": ["boom", "handler-not-found"]
+        },
+        "description": "Forces PlaxionMediator.Core.HandlerNotFoundException directly, verifying UsePlaxionMediatorExceptionHandling() maps it to an RFC 7807 problem+json response."
+      }
+    },
+    {
+      "name": "Force PipelineExecutionException -> ProblemDetails",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500', () => pm.response.to.have.status(500));",
+              "pm.test('Content-Type is problem+json', () => {",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Type is pipeline-execution', () => {",
+              "    pm.expect(body.type).to.include('pipeline-execution');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/boom/pipeline",
+          "host": ["{{baseUrl}}"],
+          "path": ["boom", "pipeline"]
+        },
+        "description": "Forces PlaxionMediator.Core.PipelineExecutionException directly, verifying UsePlaxionMediatorExceptionHandling() maps it to an RFC 7807 problem+json response with the inner exception summarized in extensions."
+      }
+    }
+  ]
+}

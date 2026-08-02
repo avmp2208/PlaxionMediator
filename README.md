@@ -94,7 +94,7 @@ app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id}");
 app.Run();
 ```
 
-See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`docs/postman-tests`](docs/postman-tests) for ready-to-run request examples against both sample apps.
+See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
 
 ## Why PlaxionMediator?
 
