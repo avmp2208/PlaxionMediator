@@ -28,6 +28,7 @@ public static class PipelineBehaviorResolver
     private static readonly ConcurrentDictionary<Type, Mode> Modes = new();
     private static IServiceCollection? s_serviceCollection;
     private static int s_globalCachePolicy; // 0 unknown, 1 cache-per-scope ok, 2 must resolve each call
+    private static int s_anyBehaviorsPolicy; // 0 unknown, 1 none registered, 2 at least one registered
 
     /// <summary>
     /// Captures the service collection so lifetime policy can be determined after the container is built.
@@ -40,6 +41,25 @@ public static class PipelineBehaviorResolver
         s_serviceCollection = services;
         // Collection may still receive registrations after AddPlaxionMediator; recompute on first use.
         Volatile.Write(ref s_globalCachePolicy, 0);
+        Volatile.Write(ref s_anyBehaviorsPolicy, 0);
+    }
+
+    /// <summary>
+    /// Returns true when the captured service collection has no <see cref="IPipelineBehavior{TRequest,TResponse}"/>
+    /// registrations (open or closed). Used by generated dispatch to skip per-type behavior lookup.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool HasNoPipelineBehaviors()
+    {
+        int policy = Volatile.Read(ref s_anyBehaviorsPolicy);
+        if (policy == 0)
+        {
+            policy = ComputeAnyBehaviorsPolicy();
+            Volatile.Write(ref s_anyBehaviorsPolicy, policy);
+        }
+
+        return policy == 1;
     }
 
     /// <summary>
@@ -134,6 +154,26 @@ public static class PipelineBehaviorResolver
             }
 
             if (descriptor.Lifetime == ServiceLifetime.Transient)
+            {
+                return 2;
+            }
+        }
+
+        return 1;
+    }
+
+    private static int ComputeAnyBehaviorsPolicy()
+    {
+        IServiceCollection? collection = s_serviceCollection;
+        if (collection is null)
+        {
+            // Unknown container — assume behaviors may exist.
+            return 2;
+        }
+
+        for (int i = 0; i < collection.Count; i++)
+        {
+            if (IsPipelineBehaviorService(collection[i].ServiceType))
             {
                 return 2;
             }

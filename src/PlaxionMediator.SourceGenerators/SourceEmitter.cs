@@ -192,6 +192,8 @@ internal static class SourceEmitter
         foreach (RequestHandlerModel handler in model.RequestHandlers)
         {
             string methodName = "SendCore_" + methodIndex;
+            // AggressiveInlining helps the empty-pipeline TypeVariety path fold into Send's switch.
+            sb.AppendLine("    [MethodImpl(MethodImplOptions.AggressiveInlining)]");
             sb.Append("    private ValueTask<")
                 .Append(handler.ResponseFullyQualifiedName)
                 .Append("> ")
@@ -220,6 +222,12 @@ internal static class SourceEmitter
             sb.Append("                _cachedHandler").Append(methodIndex).AppendLine(" = handler;");
             sb.AppendLine("            }");
             sb.AppendLine("        }");
+            // Global fast path: no pipeline behaviors registered anywhere → skip per-type lookup.
+            sb.AppendLine("        if (PipelineBehaviorResolver.HasNoPipelineBehaviors())");
+            sb.AppendLine("        {");
+            sb.AppendLine("            return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("        }");
+            sb.AppendLine();
             sb.Append("        System.Collections.Generic.IReadOnlyList<IPipelineBehavior<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
@@ -234,7 +242,8 @@ internal static class SourceEmitter
             sb.AppendLine("            return handler.Handle(request, cancellationToken);");
             sb.AppendLine("        }");
             sb.AppendLine();
-            sb.AppendLine("        return PipelineComposer.ExecuteAsync(request, behaviors, handler.Handle, cancellationToken);");
+            // Pass the handler instance (not handler.Handle method-group) to avoid a per-call Func alloc.
+            sb.AppendLine("        return PipelineComposer.ExecuteAsync(request, behaviors, handler, cancellationToken);");
             sb.AppendLine("    }");
             sb.AppendLine();
             methodIndex++;

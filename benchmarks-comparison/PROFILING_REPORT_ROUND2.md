@@ -468,3 +468,55 @@ Round 1 killed the big P1/P3 problems (compose lambdas, per-call `GetServices().
 3. **Do not** spend effort on further DI caching for this benchmark shape — profiles show **zero** hot-path DI frames.
 
 No optimizations were implemented in this round (analysis/report only).
+
+---
+
+## Round 2 Post-Optimization (2026-08-03)
+
+> Appended after implementing R1 then R3 then R2 from this report. Analysis sections above are unchanged.  
+> Full write-up: `OPTIMIZATION_REPORT_ROUND2.md`. Fresh BDN numbers: `RESULTS.md` (Round 2 section).  
+> Real profiling artifacts (gitignored): `profiling-results/round2-r1/`, `round2-r3/`, `round2-r2/`.
+
+### What was KEPT
+
+| ID | Change | Validation |
+|----|--------|------------|
+| **R1 KEPT** | TLS+ConcurrentBag `PipelineRunner`; bind `Next` once; async complete via `IValueTaskSource`; generated code passes `IRequestHandler` (no method-group `Func`) | BDN: constant **-192 B/call** at 1/5/10/20; alloc **parity with Mediator**. Trace topN: `Next` exclusive ~1.8% to ~0.03%. Tests green. |
+| **R3 KEPT** | Removed `ExecuteCore`; single inlined `ExecuteAsync` to `Rent().Run()` entry | BDN Send5 ~403 to ~393 ns (~2.6%) vs R1-only; `ExecuteCore` frame gone. Tests green. |
+| **R2 KEPT** | `HasNoPipelineBehaviors()` global fast path + `AggressiveInlining` on `SendCore_*` | BDN TypeVariety50 **4121 to ~3410 ns** (~17%); profiler ops/s 170k to 244k. Tests green. Full Mediator-parity dispatch tables **not** attempted. |
+
+R4 fixed chains **NOT ATTEMPTED** (R1 already closed alloc residual). R5/R6 **not touched**.
+
+### After-state BDN (authoritative latency/alloc)
+
+| Scenario | Plaxion (round-1) | Plaxion (round-2 final) | Mediator (round-2 final) |
+|----------|------------------:|------------------------:|-------------------------:|
+| Send5 | 403 ns / 832 B | **396 ns / 640 B** | 306 ns / 640 B |
+| Send20 | 1500 ns / 2752 B | **1549 ns* / 2560 B** | 1298 ns / 2560 B |
+| TypeVariety50 | 4121 ns / 0 B | **3410 ns / 0 B** | 902 ns / 0 B |
+
+\*Send20 full-suite mean had high StdDev (71 ns); isolated R1/R3 runs were ~1484-1500 ns. **Allocated** is stable and matches Mediator.
+
+### After-state profiling throughput (5s, Plaxion only, no mid-run gcdump)
+
+| Capture | Scenario | Ops/s |
+|---------|----------|------:|
+| `round2-r1` | Send5 | 2,044,482 |
+| `round2-r1` | Send20 | 516,861 |
+| `round2-r3` | Send5 | 2,068,111 |
+| `round2-r3` | Send20 | 515,933 |
+| `round2-r2` | TypeVariety50 | 243,837 |
+
+Compare to round-2 analysis table (heavier profile + gcdump): Send5 1.42M, Send20 354k, TypeVariety50 170k — directionally improved; absolute ops/s not comparable 1:1 across profiler configs.
+
+### Residual after round 2
+
+1. **Pipeline latency only** vs Mediator (~+90 ns Send5) with **identical allocations** — index trampoline / exception-wrap path vs Mediator flatter generated chain. Primary remaining lever: R4 fixed chains (high complexity).
+2. **TypeVariety ~3.8x** (was ~4.6x) — still multi-type switch/`SendCore_*` shape; needs larger codegen investment for Mediator parity.
+3. **Notifications** remain a Plaxion strength.
+
+### Constraint checks
+
+- Public API unchanged.
+- Full `dotnet test PlaxionMediator.sln -c Release` passed after every KEPT step.
+- Comparison adapters / benchmark class sources not modified.
