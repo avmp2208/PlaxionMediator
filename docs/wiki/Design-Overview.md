@@ -13,8 +13,8 @@ PlaxionMediator's design principles:
 
 - `IRequest<TResponse>` / `IRequestHandler<TRequest, TResponse>` — one request, exactly one handler, returns `TResponse`.
 - `INotification` / `INotificationHandler<TNotification>` — one notification, zero or more handlers (fan-out).
-- `IPipelineBehavior<TRequest, TResponse>` — middleware around a request's `Handle` call (logging, validation, etc. in later phases).
-- `PlaxionMediatorException` (abstract) → `HandlerNotFoundException`, `PipelineExecutionException` (both `sealed`) — the only exception types the framework itself throws.
+- `IPipelineBehavior<TRequest, TResponse>` — middleware around a request's `Handle` call (Validation, Caching, Retry, etc.).
+- `PlaxionMediatorException` (abstract) → `HandlerNotFoundException`, `PipelineExecutionException`, `PlaxionMediatorValidationException` — the core exception types the framework itself throws.
 
 ## Request lifecycle
 
