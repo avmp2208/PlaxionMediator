@@ -20,11 +20,13 @@ dotnet add package PlaxionMediator
 
 `PlaxionMediator` brings in the core runtime packages and the source generator transitively.
 
-Building an ASP.NET Core / Minimal API web app? Add the opt-in web packages as well (they are **not** pulled in transitively, so console/worker apps aren't forced to reference ASP.NET Core):
+Building an ASP.NET Core / Minimal API web app? Add the opt-in companion packages as well (they are **not** pulled in transitively, so console/worker apps aren't forced to reference ASP.NET Core or validation dependencies):
 
 ```bash
 dotnet add package PlaxionMediator.AspNetCore
 dotnet add package PlaxionMediator.MinimalApis
+dotnet add package PlaxionMediator.Validation
+dotnet add package PlaxionMediator.Validation.FluentValidation
 ```
 
 ## Quickstart
@@ -94,6 +96,34 @@ app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id}");
 app.Run();
 ```
 
+### Validation (v0.4.0+)
+
+Enable global request validation by adding `ValidationBehavior<,>` to the pipeline and registering your validators.
+
+```csharp
+using PlaxionMediator.Validation;
+using PlaxionMediator.Validation.FluentValidation;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddPlaxionMediator(o =>
+{
+    // 1. Add validation as a global behavior
+    o.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+});
+
+// 2. Register FluentValidation validators from an assembly
+builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
+
+var app = builder.Build();
+
+// 3. Validation failures now return 400 ProblemDetails automatically
+app.UsePlaxionMediatorExceptionHandling();
+app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items");
+
+app.Run();
+```
+
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
 
 ## Why PlaxionMediator?
@@ -117,8 +147,10 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` Minimal API endpoint helpers |
+| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
+| `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 
-> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in the ASP.NET Core framework surface.
+> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 
 ## License
 

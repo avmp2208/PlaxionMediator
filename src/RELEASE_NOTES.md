@@ -2,6 +2,21 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.4.0
+
+### Added
+- **New validation framework**: `PlaxionMediator.Validation` package provides a new `IPlaxionMediatorValidator<TRequest>` interface and `ValidationBehavior<TRequest, TResponse>` pipeline behavior. Validation is performed before the request reaches the handler, and failures throw a `PlaxionMediatorValidationException`.
+- **FluentValidation adapter**: `PlaxionMediator.Validation.FluentValidation` package allows using existing `FluentValidation` validators seamlessly within the PlaxionMediator pipeline via `FluentValidationAdapter<TRequest>`.
+- **ProblemDetails integration**: Validation failures now automatically surface as RFC 7807 `application/problem+json` responses (HTTP 400 Bad Request) when using `PlaxionMediator.AspNetCore`. The response body includes a structured list of validation errors with `propertyName` and `errorMessage` fields.
+- **Sample WebApi updates**: `samples/PlaxionMediator.Sample.WebApi` now demonstrates global validation behavior and FluentValidation integration for its CRUD endpoints.
+- **Extensive test coverage**: 46 new tests added across the validation ecosystem:
+  - 23 unit tests for the core `PlaxionMediator.Validation` logic.
+  - 13 unit tests for the `PlaxionMediator.Validation.FluentValidation` adapter.
+  - 10 new integration tests in `PlaxionMediator.Sample.WebApi.Tests` verifying end-to-end validation error mapping.
+
+### Changed
+- Both validation packages are **opt-in** (`dotnet add package PlaxionMediator.Validation` / `PlaxionMediator.Validation.FluentValidation`) and are **not** bundled transitively into the core `PlaxionMediator` package, following the project's zero-bloat philosophy.
+
 ## v0.3.1
 
 ### Changed

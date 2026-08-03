@@ -1,4 +1,5 @@
-﻿using PlaxionMediator.Abstractions;
+using PlaxionMediator.Abstractions;
+using PlaxionMediator.Core;
 
 namespace PlaxionMediator.Pipeline;
 
@@ -39,9 +40,14 @@ public static class PipelineComposer
                 {
                     throw;
                 }
+                catch (PlaxionMediatorException)
+                {
+                    // Intentional framework exceptions (e.g. validation) must surface unwrapped.
+                    throw;
+                }
                 catch (Exception ex)
                 {
-                    throw new PlaxionMediator.Core.PipelineExecutionException(
+                    throw new PipelineExecutionException(
                         $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
                         ex,
                         behavior.GetType().Name);

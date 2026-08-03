@@ -25,5 +25,8 @@
 
     <!-- Benchmarks -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="11.12.0" />
   </ItemGroup>
 </Project>

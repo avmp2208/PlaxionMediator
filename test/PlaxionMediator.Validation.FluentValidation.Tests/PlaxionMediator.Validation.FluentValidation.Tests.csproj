@@ -2,20 +2,19 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>PlaxionMediator.AspNetCore.Tests</RootNamespace>
+    <RootNamespace>PlaxionMediator.Validation.FluentValidation.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\PlaxionMediator.AspNetCore\PlaxionMediator.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Validation.FluentValidation\PlaxionMediator.Validation.FluentValidation.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
   </ItemGroup>
 </Project>

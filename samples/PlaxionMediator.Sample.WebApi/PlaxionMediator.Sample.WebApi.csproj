@@ -20,6 +20,8 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.AspNetCore\PlaxionMediator.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.MinimalApis\PlaxionMediator.MinimalApis.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Validation.FluentValidation\PlaxionMediator.Validation.FluentValidation.csproj" />
 
     <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"
                       OutputItemType="Analyzer"

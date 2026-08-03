@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlaxionMediator.Core;
+using PlaxionMediator.Validation;
 
 namespace PlaxionMediator.AspNetCore;
 
@@ -27,6 +28,10 @@ internal sealed class PlaxionMediatorExceptionHandlingMiddleware
         try
         {
             await _next(context).ConfigureAwait(false);
+        }
+        catch (PlaxionMediatorValidationException ex)
+        {
+            await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex)).ConfigureAwait(false);
         }
         catch (HandlerNotFoundException ex)
         {

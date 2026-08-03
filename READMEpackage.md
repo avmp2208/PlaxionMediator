@@ -14,11 +14,13 @@ dotnet add package PlaxionMediator
 
 `PlaxionMediator` brings in the core runtime packages and the source generator transitively.
 
-Building a web API? Also add:
+Building a web API? Also add the opt-in companion packages as needed:
 
 ```bash
 dotnet add package PlaxionMediator.AspNetCore
 dotnet add package PlaxionMediator.MinimalApis
+dotnet add package PlaxionMediator.Validation
+dotnet add package PlaxionMediator.Validation.FluentValidation
 ```
 
 ## Quickstart
@@ -64,6 +66,19 @@ app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id}");
 app.Run();
 ```
 
+### Validation (v0.4.0+)
+
+```csharp
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+});
+builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
+
+// ... failures return 400 ProblemDetails automatically
+app.UsePlaxionMediatorExceptionHandling();
+```
+
 ## Packages
 
 | Package | Role |
@@ -77,6 +92,8 @@ app.Run();
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` endpoint helpers |
+| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
+| `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 
 ## License
 

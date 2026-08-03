@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlaxionMediator.Core;
+using PlaxionMediator.Validation;
 
 namespace PlaxionMediator.AspNetCore.Tests;
 
@@ -70,5 +71,30 @@ public sealed class ProblemDetailsFactoryTests
 
         Assert.False(problem.Extensions.ContainsKey("stageName"));
         Assert.True(problem.Extensions.ContainsKey("innerException"));
+    }
+
+    [Fact]
+    public void Create_Validation_Maps_Status_Title_Type_And_Errors()
+    {
+        var exception = new PlaxionMediatorValidationException(
+        [
+            new PlaxionMediatorValidationFailure("Name", "Name is required."),
+            new PlaxionMediatorValidationFailure("Id", "Id must not be empty."),
+        ]);
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception);
+
+        Assert.Equal(StatusCodes.Status400BadRequest, problem.Status);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ValidationTitle, problem.Title);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ValidationType, problem.Type);
+        Assert.Equal(exception.Message, problem.Detail);
+
+        Assert.True(problem.Extensions.TryGetValue("errors", out object? errorsObj));
+        var errors = Assert.IsType<List<Dictionary<string, string>>>(errorsObj);
+        Assert.Equal(2, errors.Count);
+        Assert.Equal("Name", errors[0]["propertyName"]);
+        Assert.Equal("Name is required.", errors[0]["errorMessage"]);
+        Assert.Equal("Id", errors[1]["propertyName"]);
+        Assert.Equal("Id must not be empty.", errors[1]["errorMessage"]);
     }
 }

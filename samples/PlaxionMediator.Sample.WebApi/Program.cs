@@ -1,14 +1,21 @@
 using System.Collections.Concurrent;
 using System.Linq;
+using FluentValidation;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
 using PlaxionMediator.Core;
 using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
+using PlaxionMediator.Validation;
+using PlaxionMediator.Validation.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddPlaxionMediator();
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+});
+builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 builder.Services.AddSingleton<ItemStore>();
 
 var app = builder.Build();
@@ -20,7 +27,8 @@ app.MapGet("/", () => "PlaxionMediator WebApi sample is running.");
 
 app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items")
     .WithName("CreateItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id:guid}")
     .WithName("GetItem")
@@ -37,13 +45,15 @@ app.MapPlaxionMediatorGet<GetItemsRequest, IReadOnlyList<ItemDto>>("/items")
 // PUT binds TRequest from JSON body (Id + Name). Route id is not merged into body-bound requests.
 app.MapPlaxionMediatorPut<UpdateItemRequest, ItemDto>("/items")
     .WithName("UpdateItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 // PATCH binds TRequest from JSON body, same as PUT. PlaxionMediator does not implement
 // JSON Merge Patch/JSON Patch semantics; RenameItemRequest here still carries the full desired name.
 app.MapPlaxionMediatorPatch<RenameItemRequest, ItemDto>("/items/rename")
     .WithName("RenameItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapPlaxionMediatorDelete<DeleteItemRequest, DeleteItemResponse>("/items/{id:guid}")
     .WithName("DeleteItem")
@@ -141,11 +151,23 @@ public sealed class ItemStore
     public bool TryRemove(Guid id, out ItemDto? item) => _items.TryRemove(id, out item);
 
     public IReadOnlyList<ItemDto> GetAll() => _items.Values.ToList();
+
+    public int Count => _items.Count;
 }
 
 // --- Requests & Handlers ---
 
 public sealed record CreateItemRequest(string Name) : IRequest<ItemDto>;
+
+public sealed class CreateItemRequestValidator : AbstractValidator<CreateItemRequest>
+{
+    public CreateItemRequestValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
 
 public sealed class CreateItemHandler : IRequestHandler<CreateItemRequest, ItemDto>
 {
@@ -155,11 +177,6 @@ public sealed class CreateItemHandler : IRequestHandler<CreateItemRequest, ItemD
 
     public ValueTask<ItemDto> Handle(CreateItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         return ValueTask.FromResult(_store.Add(request.Name.Trim()));
     }
 }
@@ -197,6 +214,17 @@ public sealed class GetItemsHandler : IRequestHandler<GetItemsRequest, IReadOnly
 
 public sealed record UpdateItemRequest(Guid Id, string Name) : IRequest<ItemDto>;
 
+public sealed class UpdateItemRequestValidator : AbstractValidator<UpdateItemRequest>
+{
+    public UpdateItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
+
 public sealed class UpdateItemHandler : IRequestHandler<UpdateItemRequest, ItemDto>
 {
     private readonly ItemStore _store;
@@ -205,11 +233,6 @@ public sealed class UpdateItemHandler : IRequestHandler<UpdateItemRequest, ItemD
 
     public ValueTask<ItemDto> Handle(UpdateItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         if (!_store.TryUpdate(request.Id, request.Name.Trim(), out ItemDto? item) || item is null)
         {
             throw new KeyNotFoundException($"Item '{request.Id}' was not found.");
@@ -221,6 +244,17 @@ public sealed class UpdateItemHandler : IRequestHandler<UpdateItemRequest, ItemD
 
 public sealed record RenameItemRequest(Guid Id, string Name) : IRequest<ItemDto>;
 
+public sealed class RenameItemRequestValidator : AbstractValidator<RenameItemRequest>
+{
+    public RenameItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
+
 public sealed class RenameItemHandler : IRequestHandler<RenameItemRequest, ItemDto>
 {
     private readonly ItemStore _store;
@@ -229,11 +263,6 @@ public sealed class RenameItemHandler : IRequestHandler<RenameItemRequest, ItemD
 
     public ValueTask<ItemDto> Handle(RenameItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         if (!_store.TryUpdate(request.Id, request.Name.Trim(), out ItemDto? item) || item is null)
         {
             throw new KeyNotFoundException($"Item '{request.Id}' was not found.");
