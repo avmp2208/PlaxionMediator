@@ -22,6 +22,8 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.MinimalApis\PlaxionMediator.MinimalApis.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Validation.FluentValidation\PlaxionMediator.Validation.FluentValidation.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
 
     <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"
                       OutputItemType="Analyzer"

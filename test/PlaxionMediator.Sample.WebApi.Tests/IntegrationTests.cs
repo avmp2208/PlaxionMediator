@@ -339,6 +339,101 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
         Assert.Equal("Original", fetched.Name);
     }
 
+    [Fact]
+    public async Task GetItem_Second_Call_Is_Served_From_Cache_Without_Reinvoking_Handler()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Cached-Widget");
+
+        HttpResponseMessage first = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        ItemDto? firstBody = await first.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(firstBody);
+        Assert.Equal(created.Id, firstBody.Id);
+
+        HttpResponseMessage invocationsAfterFirst = await client.GetAsync("/demo/cache/get-item-invocations");
+        invocationsAfterFirst.EnsureSuccessStatusCode();
+        InvocationCountDto? countAfterFirst =
+            await invocationsAfterFirst.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterFirst);
+        int baseline = countAfterFirst.Count;
+        Assert.True(baseline >= 1);
+
+        HttpResponseMessage second = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, second.StatusCode);
+        ItemDto? secondBody = await second.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(secondBody);
+        Assert.Equal(firstBody.Name, secondBody.Name);
+        Assert.Equal(firstBody.Id, secondBody.Id);
+
+        HttpResponseMessage invocationsAfterSecond = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterSecond =
+            await invocationsAfterSecond.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterSecond);
+        Assert.Equal(baseline, countAfterSecond.Count);
+    }
+
+    [Fact]
+    public async Task GetItem_Cache_Is_Invalidated_After_Update()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Before-Cache-Invalidation");
+
+        HttpResponseMessage warm = await client.GetAsync($"/items/{created.Id}");
+        warm.EnsureSuccessStatusCode();
+
+        HttpResponseMessage invocationsAfterWarm = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterWarm =
+            await invocationsAfterWarm.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterWarm);
+        int baseline = countAfterWarm.Count;
+
+        HttpResponseMessage updateResponse = await client.PutAsJsonAsync(
+            "/items",
+            new { Id = created.Id, Name = "After-Cache-Invalidation" });
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        HttpResponseMessage afterUpdate = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, afterUpdate.StatusCode);
+        ItemDto? body = await afterUpdate.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(body);
+        Assert.Equal("After-Cache-Invalidation", body.Name);
+
+        HttpResponseMessage invocationsAfterUpdateGet = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterUpdateGet =
+            await invocationsAfterUpdateGet.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterUpdateGet);
+        Assert.Equal(baseline + 1, countAfterUpdateGet.Count);
+    }
+
+    [Fact]
+    public async Task UnstableOperation_Eventually_Succeeds_After_Simulated_Transient_Failures()
+    {
+        HttpClient client = _factory.CreateClient();
+
+        HttpResponseMessage configure = await client.PostAsJsonAsync(
+            "/demo/unstable/configure",
+            new { FailuresBeforeSuccess = 2 });
+        configure.EnsureSuccessStatusCode();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            "/demo/unstable",
+            new { Payload = "hello-retry" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        UnstableOperationResponse? body =
+            await response.Content.ReadFromJsonAsync<UnstableOperationResponse>();
+        Assert.NotNull(body);
+        Assert.Equal("hello-retry", body.Payload);
+        Assert.Equal(3, body.Attempts); // 2 failures + 1 success
+
+        HttpResponseMessage status = await client.GetAsync("/demo/unstable/status");
+        status.EnsureSuccessStatusCode();
+        UnstableConfigDto? statusBody = await status.Content.ReadFromJsonAsync<UnstableConfigDto>();
+        Assert.NotNull(statusBody);
+        Assert.Equal(3, statusBody.Attempts);
+    }
+
     private static async Task<ItemDto> CreateItemAsync(HttpClient client, string name)
     {
         HttpResponseMessage createResponse = await client.PostAsJsonAsync("/items", new { Name = name });
@@ -350,4 +445,7 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
 
     private sealed record ItemDto(Guid Id, string Name);
     private sealed record DeleteItemResponse(Guid Id, bool Deleted);
+    private sealed record InvocationCountDto(int Count);
+    private sealed record UnstableOperationResponse(string Payload, int Attempts);
+    private sealed record UnstableConfigDto(int FailuresBeforeSuccess, int Attempts);
 }

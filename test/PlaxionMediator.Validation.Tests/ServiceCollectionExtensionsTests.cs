@@ -61,6 +61,26 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [Fact]
+    public void UsePlaxionMediatorValidationBehavior_Adds_Behavior_To_Options()
+    {
+        PlaxionMediatorOptions options = new();
+        options.UsePlaxionMediatorValidationBehavior();
+
+        Assert.Contains(typeof(ValidationBehavior<,>), options.GlobalBehaviors);
+        Assert.Single(options.GlobalBehaviors);
+    }
+
+    [Fact]
+    public void UsePlaxionMediatorValidationBehavior_Is_Idempotent()
+    {
+        PlaxionMediatorOptions options = new();
+        options.UsePlaxionMediatorValidationBehavior();
+        options.UsePlaxionMediatorValidationBehavior();
+
+        Assert.Single(options.GlobalBehaviors);
+    }
+
+    [Fact]
     public void GlobalBehaviors_Registers_ValidationBehavior_Open_Generic()
     {
         ServiceCollection services = new();

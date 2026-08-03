@@ -27,6 +27,8 @@ dotnet add package PlaxionMediator.AspNetCore
 dotnet add package PlaxionMediator.MinimalApis
 dotnet add package PlaxionMediator.Validation
 dotnet add package PlaxionMediator.Validation.FluentValidation
+dotnet add package PlaxionMediator.Caching
+dotnet add package PlaxionMediator.Retry
 ```
 
 ## Quickstart
@@ -109,7 +111,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPlaxionMediator(o =>
 {
     // 1. Add validation as a global behavior
-    o.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+    o.UsePlaxionMediatorValidationBehavior();
 });
 
 // 2. Register FluentValidation validators from an assembly
@@ -122,6 +124,48 @@ app.UsePlaxionMediatorExceptionHandling();
 app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items");
 
 app.Run();
+```
+
+### Caching & Retry (v0.4.0+)
+
+Optimize performance with `CachingBehavior<,>` and resilience with `RetryBehavior<,>`.
+
+```csharp
+using PlaxionMediator.Caching;
+using PlaxionMediator.Retry;
+
+builder.Services.AddPlaxionMediator(o =>
+{
+    // Recommended order: Validation → Caching → Retry → Handler
+    o.UsePlaxionMediatorValidationBehavior();
+    o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorRetryBehavior();
+});
+
+builder.Services.AddPlaxionMediatorCaching(o => o.DefaultCacheDuration = TimeSpan.FromMinutes(5));
+builder.Services.AddPlaxionMediatorRetry(o => 
+{
+    o.MaxRetryAttempts = 3;
+    o.BackoffStrategy = RetryBackoffStrategy.Exponential;
+});
+```
+
+Define a cacheable request:
+
+```csharp
+public sealed record GetItemRequest(Guid Id) : IRequest<ItemDto>, ICacheableRequest<ItemDto>
+{
+    public string CacheKey => $"item:{Id}";
+}
+```
+
+Define a retryable request:
+
+```csharp
+public sealed record UnstableRequest(string Data) : IRequest<string>, IRetryableRequest
+{
+    public int? MaxRetryAttempts => 5; // Per-request override
+}
 ```
 
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
@@ -149,8 +193,10 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` Minimal API endpoint helpers |
 | `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
+| `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
+| `PlaxionMediator.Retry` | `IRetryableRequest` and `RetryBehavior<,>` |
 
-> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
+> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation`/`PlaxionMediator.Caching`/`PlaxionMediator.Retry` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 
 ## License
 

@@ -21,6 +21,8 @@ dotnet add package PlaxionMediator.AspNetCore
 dotnet add package PlaxionMediator.MinimalApis
 dotnet add package PlaxionMediator.Validation
 dotnet add package PlaxionMediator.Validation.FluentValidation
+dotnet add package PlaxionMediator.Caching
+dotnet add package PlaxionMediator.Retry
 ```
 
 ## Quickstart
@@ -71,9 +73,18 @@ app.Run();
 ```csharp
 builder.Services.AddPlaxionMediator(o =>
 {
-    o.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+    o.UsePlaxionMediatorValidationBehavior();
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
+
+// Caching & Retry (v0.4.0+)
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorRetryBehavior();
+});
+builder.Services.AddPlaxionMediatorCaching();
+builder.Services.AddPlaxionMediatorRetry();
 
 // ... failures return 400 ProblemDetails automatically
 app.UsePlaxionMediatorExceptionHandling();
@@ -94,6 +105,8 @@ app.UsePlaxionMediatorExceptionHandling();
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` endpoint helpers |
 | `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
+| `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
+| `PlaxionMediator.Retry` | `IRetryableRequest` and `RetryBehavior<,>` |
 
 ## License
 

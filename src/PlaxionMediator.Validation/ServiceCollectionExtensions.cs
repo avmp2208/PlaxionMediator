@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PlaxionMediator;
 
 namespace PlaxionMediator.Validation;
 
@@ -9,6 +10,23 @@ namespace PlaxionMediator.Validation;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Enables the <see cref="ValidationBehavior{TRequest, TResponse}"/> in the PlaxionMediator pipeline.
+    /// </summary>
+    /// <param name="options">The mediator options.</param>
+    /// <returns>The same <paramref name="options"/> instance for chaining.</returns>
+    public static PlaxionMediatorOptions UsePlaxionMediatorValidationBehavior(this PlaxionMediatorOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (!options.GlobalBehaviors.Contains(typeof(ValidationBehavior<,>)))
+        {
+            options.GlobalBehaviors.Add(typeof(ValidationBehavior<,>));
+        }
+
+        return options;
+    }
+
     /// <summary>
     /// Registers <typeparamref name="TValidator"/> as an <see cref="IPlaxionMediatorValidator{TRequest}"/>.
     /// </summary>

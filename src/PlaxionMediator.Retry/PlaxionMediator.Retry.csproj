@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>PlaxionMediator.Validation</RootNamespace>
-    <AssemblyName>PlaxionMediator.Validation</AssemblyName>
-    <PackageId>PlaxionMediator.Validation</PackageId>
-    <Description>Request validation pipeline behavior and validator contracts for PlaxionMediator.</Description>
+    <RootNamespace>PlaxionMediator.Retry</RootNamespace>
+    <AssemblyName>PlaxionMediator.Retry</AssemblyName>
+    <PackageId>PlaxionMediator.Retry</PackageId>
+    <Description>Transient-fault retry pipeline behavior with exponential backoff for PlaxionMediator.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <Version>0.4.0</Version>
@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
-    <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
     <ProjectReference Include="..\PlaxionMediator\PlaxionMediator.csproj" />
   </ItemGroup>
 </Project>

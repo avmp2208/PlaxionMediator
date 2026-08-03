@@ -101,5 +101,5 @@ node_modules/
 
 # PlaxionMediator specific
 .junie/
-docs/
+docs/architecture/
 ReleaseProcess/
