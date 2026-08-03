@@ -392,3 +392,81 @@ Harness CLI:
 ## Bottom line
 
 PlaxionMediator’s **zero-behavior and notification** paths are already competitive. The dominant, actionable gap versus Mediator (and the remaining drag versus a tighter MediatR) is **per-Send pipeline construction**: `GetServices().ToArray()` + **`PipelineComposer` async-lambda composition**. Fixing that internally—without touching the public mediator API—is the highest-leverage optimization and is fully justified by the profiles captured in this session.
+
+---
+
+## Post-Optimization Update (2026-08-03)
+
+> All five internal optimizations from `OPTIMIZATION_REPORT.md` were applied and KEPT.  
+> Fresh Plaxion-only captures: Send0 / Send5 / Send20 / TypeVariety50 (`DurationSeconds=5`).  
+> Historical pre-opt sections above are retained for comparison.
+
+### Harness throughput (Plaxion, post-opt)
+
+| Scenario | Pre-opt ops/s | Post-opt ops/s | Δ |
+|----------|--------------:|---------------:|--:|
+| Send0 | 13,230,045 | **18,870,944** | **+43%** |
+| Send5 | 1,264,159 | **1,978,111** | **+57%** |
+| Send20 | 383,955 | **526,684** | **+37%** |
+| TypeVariety50 | 153,997 | **256,031** | **+66%** |
+
+### BenchmarkDotNet allocation reference (post-opt `RESULTS.md`)
+
+| Scenario | Plaxion pre | Plaxion post | MediatR | Mediator |
+|----------|------------:|-------------:|--------:|---------:|
+| Send 0 behaviors | 0 B | 0 B | 264 B | 0 B |
+| Send 5 behaviors | 1,392 B | **832 B** | 1,896 B | 640 B |
+| Send 20 behaviors | 4,992 B | **2,752 B** | 6,576 B | 2,560 B |
+| Type variety ×50 | 0 B | 0 B | 13,200 B | 0 B |
+
+Approx residual vs Mediator on behavior chains: **~192 B/call** (runner object + cached next delegate), down from ~240 B/behavior overhead previously.
+
+### CPU hot paths (post-opt)
+
+#### Plaxion / Send5
+
+| Frame | Exclusive | Notes |
+|-------|----------:|-------|
+| `PipelineComposer.Compose` | **gone** | Pre-opt was **9.77%** exclusive |
+| `PipelineComposer.ExecuteCore` | **0.11%** | Thin entry into index-based runner |
+| `__Canon].Next` (`PipelineRunner.Next`) | **~1.8%** | Single trampoline (not O(n) lambdas) |
+| `ICollectionToArray` / `GetServices().ToArray` | **gone from topN** | Behavior arrays cached when safe |
+| `PlaxionMediatorSender.Send` | 3.32% | Outer dispatch; relative share rose after Compose removal |
+| Behavior `MoveNext` frames | ~0.9% each | Expected async behavior work |
+
+#### Plaxion / Send0
+
+| Frame | Exclusive |
+|-------|----------:|
+| `PlaxionMediatorSender.Send` | 0.09% |
+| DI resolve / GetServices | not in meaningful top exclusive |
+
+#### Plaxion / TypeVariety50
+
+Harness **256k ops/s** (was 154k). BDN mean **4121 ns** vs MediatR **5105 ns** / Mediator **894 ns**. Scope-local handler fields removed per-call `GetRequiredService` after first use; empty behavior path is process-cached `Array.Empty`.
+
+### Findings status after optimization
+
+| ID | Pre-opt finding | Post-opt status |
+|----|-----------------|-----------------|
+| P1 | Compose async-lambda O(n) alloc/CPU | **Addressed** — index runner; Compose exclusive eliminated |
+| P2 | Handler DI × type variety | **Addressed** — scope-local typed handler cache |
+| P3 | `GetServices().ToArray` every Send | **Addressed** — empty cache + scope cache (non-Transient) |
+| P4 | Always `Adapt<>` | **Addressed** — `CastOrAdapt` + `Unsafe.As` when types match |
+| P5 | Exception try/catch bulk on success path | **Addressed** — NoInlining throw helpers; semantics unchanged |
+
+### Residual gaps (unchanged public API)
+
+1. Mediator still ~4–5× faster on TypeVariety50 (compile-time direct invoke, no DI).
+2. ~192 B/call residual on multi-behavior Send vs Mediator (runner + next delegate).
+3. Optional next steps: pool `PipelineRunner`, emit fixed behavior chains when known at gen time, denser type dispatch.
+
+### Reproduce post-opt captures
+
+```powershell
+cd benchmarks-comparison
+.\scripts\run-profiling.ps1 -Frameworks Plaxion -Scenarios Send0,Send5,Send20,TypeVariety50 -DurationSeconds 5
+dotnet-trace report profiling-results\Plaxion\Send5\Plaxion_Send5_cpu.nettrace topN -n 50
+```
+
+Full write-up of code changes and per-optimization BDN numbers: **`OPTIMIZATION_REPORT.md`**.

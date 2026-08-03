@@ -92,16 +92,46 @@ internal static class SourceEmitter
         sb.AppendLine("internal sealed class PlaxionMediatorSender : ISender, IPublisher");
         sb.AppendLine("{");
         sb.AppendLine("    private readonly IServiceProvider _services;");
+        sb.AppendLine("    private readonly bool _cacheHandlersPerScope;");
+        sb.AppendLine("    // Scope-local cache of resolved behavior arrays (used only when no Transient behaviors are registered).");
+        sb.AppendLine("    private System.Collections.Generic.Dictionary<System.Type, object>? _behaviorScopeCache;");
+        // One nullable handler field per known request type (populated lazily when caching is enabled).
+        int handlerFieldIndex = 0;
+        foreach (RequestHandlerModel handlerModel in model.RequestHandlers)
+        {
+            sb.Append("    private IRequestHandler<")
+                .Append(handlerModel.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handlerModel.ResponseFullyQualifiedName)
+                .Append(">? _cachedHandler")
+                .Append(handlerFieldIndex)
+                .AppendLine(";");
+            handlerFieldIndex++;
+        }
+
         sb.AppendLine();
         sb.AppendLine("    public PlaxionMediatorSender(IServiceProvider services)");
         sb.AppendLine("    {");
         sb.AppendLine("        _services = services ?? throw new ArgumentNullException(nameof(services));");
+        sb.AppendLine("        _cacheHandlersPerScope = RequestHandlerResolver.CanCacheHandlersPerScope();");
         sb.AppendLine("    }");
         sb.AppendLine();
         EmitSend(sb, model);
         EmitCreateStream(sb, model);
         EmitPublish(sb, model);
 
+        sb.AppendLine("    [MethodImpl(MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine("    private static ValueTask<TResponse> CastOrAdapt<TActual, TResponse>(ValueTask<TActual> source)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        // Fast path: identical closed response types — reinterpret ValueTask without async state machine.");
+        sb.AppendLine("        if (typeof(TActual) == typeof(TResponse))");
+        sb.AppendLine("        {");
+        sb.AppendLine("            return Unsafe.As<ValueTask<TActual>, ValueTask<TResponse>>(ref source);");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+        sb.AppendLine("        return Adapt<TActual, TResponse>(source);");
+        sb.AppendLine("    }");
+        sb.AppendLine();
         sb.AppendLine("    private static async ValueTask<TResponse> Adapt<TActual, TResponse>(ValueTask<TActual> source)");
         sb.AppendLine("    {");
         sb.AppendLine("        TActual result = await source.ConfigureAwait(false);");
@@ -140,9 +170,10 @@ internal static class SourceEmitter
             foreach (RequestHandlerModel handler in model.RequestHandlers)
             {
                 string methodName = "SendCore_" + index;
+                // CastOrAdapt elides the async adapter when TActual == TResponse (JIT folds the typeof check).
                 sb.Append("            case ")
                     .Append(handler.RequestFullyQualifiedName)
-                    .Append(" r: return Adapt<")
+                    .Append(" r: return CastOrAdapt<")
                     .Append(handler.ResponseFullyQualifiedName)
                     .Append(", TResponse>(")
                     .Append(methodName)
@@ -169,25 +200,36 @@ internal static class SourceEmitter
                 .Append(handler.RequestFullyQualifiedName)
                 .AppendLine(" request, CancellationToken cancellationToken)");
             sb.AppendLine("    {");
+            // Resolve handler with optional scope-local cache (safe for Scoped/Singleton registrations).
             sb.Append("        IRequestHandler<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .Append("> handler = _services.GetRequiredService<IRequestHandler<")
+                .Append(">? handler = _cachedHandler")
+                .Append(methodIndex)
+                .AppendLine(";");
+            sb.AppendLine("        if (handler is null)");
+            sb.AppendLine("        {");
+            sb.Append("            handler = _services.GetRequiredService<IRequestHandler<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
                 .AppendLine(">>();");
-            sb.Append("        IPipelineBehavior<")
+            sb.AppendLine("            if (_cacheHandlersPerScope)");
+            sb.AppendLine("            {");
+            sb.Append("                _cachedHandler").Append(methodIndex).AppendLine(" = handler;");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            sb.Append("        System.Collections.Generic.IReadOnlyList<IPipelineBehavior<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .Append(">[] behaviors = _services.GetServices<IPipelineBehavior<")
+                .Append(">> behaviors = PipelineBehaviorResolver.GetBehaviors<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .AppendLine(">>().ToArray();");
-            sb.AppendLine("        if (behaviors.Length == 0)");
+                .AppendLine(">(_services, ref _behaviorScopeCache);");
+            sb.AppendLine("        if (behaviors.Count == 0)");
             sb.AppendLine("        {");
             sb.AppendLine("            return handler.Handle(request, cancellationToken);");
             sb.AppendLine("        }");
