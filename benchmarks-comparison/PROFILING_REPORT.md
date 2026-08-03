@@ -470,3 +470,24 @@ dotnet-trace report profiling-results\Plaxion\Send5\Plaxion_Send5_cpu.nettrace t
 ```
 
 Full write-up of code changes and per-optimization BDN numbers: **`OPTIMIZATION_REPORT.md`**.
+
+---
+
+## Round 2 residual-gap profiling (2026-08-03)
+
+A second, deeper profiling pass (call trees, flame shape, DI/interface counts, inlining, runner alloc analysis) is in:
+
+### → [`PROFILING_REPORT_ROUND2.md`](./PROFILING_REPORT_ROUND2.md)
+
+**Round-2 capture matrix:** Plaxion + Mediator + MediatR × Send5 / Send20 / TypeVariety50 (9 combos), artifacts under `profiling-results/round2/` (gitignored).
+
+**Headline residuals vs Mediator (post-opt):**
+
+| Residual | Evidence-backed size | Top recommendation |
+|----------|----------------------|--------------------|
+| Behavior-Send alloc | **+192 B/call constant** (runner + delegates) | Remove/pool `PipelineRunner` + cache handler `Func` |
+| Send5 / Send20 latency | 1.23× / 1.14× | Same entry-path slim + optional deeper codegen |
+| TypeVariety50 | **~4.6×** slower, 0 B | Only if multi-type dispatch is a product priority |
+| Hot-path DI | **~0 frames/interval** | No further DI work justified |
+
+Round 2 is **analysis only** — no additional optimizations were implemented there.
