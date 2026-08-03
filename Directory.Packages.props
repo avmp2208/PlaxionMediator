@@ -25,5 +25,11 @@
 
     <!-- Benchmarks -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="11.12.0" />
+
+    <!-- Caching -->
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
   </ItemGroup>
 </Project>

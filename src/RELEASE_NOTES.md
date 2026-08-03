@@ -2,6 +2,27 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.4.0
+
+### Added
+- **New validation framework**: `PlaxionMediator.Validation` package provides a new `IPlaxionMediatorValidator<TRequest>` interface and `ValidationBehavior<TRequest, TResponse>` pipeline behavior. Validation is performed before the request reaches the handler, and failures throw a `PlaxionMediatorValidationException`.
+- **FluentValidation adapter**: `PlaxionMediator.Validation.FluentValidation` package allows using existing `FluentValidation` validators seamlessly within the PlaxionMediator pipeline via `FluentValidationAdapter<TRequest>`.
+- **ProblemDetails integration**: Validation failures now automatically surface as RFC 7807 `application/problem+json` responses (HTTP 400 Bad Request) when using `PlaxionMediator.AspNetCore`. The response body includes a structured list of validation errors with `propertyName` and `errorMessage` fields.
+- **Sample WebApi updates**: `samples/PlaxionMediator.Sample.WebApi` now demonstrates global validation behavior and FluentValidation integration for its CRUD endpoints.
+- **New Caching and Retry packages**:
+  - **`PlaxionMediator.Caching`**: Introduces `ICacheableRequest<TResponse>` and `CachingBehavior<TRequest, TResponse>`. Provides an `IPlaxionMediatorCacheInvalidator` for manual invalidation. Uses `Microsoft.Extensions.Caching.Memory` for the default implementation.
+  - **`PlaxionMediator.Retry`**: Introduces `IRetryableRequest` and `RetryBehavior<TRequest, TResponse>` with support for `Constant` and `Exponential` backoff strategies.
+- **Extensive test coverage**: 93 new tests added across the validation, caching, and retry ecosystem:
+  - 23 unit tests for the core `PlaxionMediator.Validation` logic.
+  - 13 unit tests for the `PlaxionMediator.Validation.FluentValidation` adapter.
+  - 23 unit tests for `PlaxionMediator.Caching`.
+  - 21 unit tests for `PlaxionMediator.Retry`.
+  - 13 new integration tests in `PlaxionMediator.Sample.WebApi.Tests` (10 for validation, 2 for caching, 1 for retry).
+
+### Changed
+- **Simplified Pipeline API**: New extension methods `UsePlaxionMediatorValidationBehavior()`, `UsePlaxionMediatorCachingBehavior()`, and `UsePlaxionMediatorRetryBehavior()` on `PlaxionMediatorOptions` allow enabling global behaviors without referencing their internal open-generic types directly.
+- All new packages (Validation, Caching, Retry) are **opt-in** and are **not** bundled transitively into the core `PlaxionMediator` package, following the project's zero-bloat philosophy.
+
 ## v0.3.1
 
 ### Changed

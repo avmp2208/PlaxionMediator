@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlaxionMediator.Core;
+using PlaxionMediator.Validation;
 
 namespace PlaxionMediator.AspNetCore;
 
@@ -11,12 +12,16 @@ internal static class PlaxionMediatorProblemDetailsFactory
 {
     internal const string HandlerNotFoundType = "https://plaxionmediator.dev/errors/handler-not-found";
     internal const string PipelineExecutionType = "https://plaxionmediator.dev/errors/pipeline-execution";
+    internal const string ValidationType = "https://plaxionmediator.dev/errors/validation";
 
     internal const string HandlerNotFoundTitle =
         "A required PlaxionMediator handler could not be resolved at runtime — this indicates a build-time invariant was violated.";
 
     internal const string PipelineExecutionTitle =
         "A PlaxionMediator pipeline stage failed while handling the request.";
+
+    internal const string ValidationTitle =
+        "One or more validation errors occurred.";
 
     /// <summary>
     /// Creates problem details for a missing handler failure.
@@ -71,5 +76,35 @@ internal static class PlaxionMediatorProblemDetailsFactory
         }
 
         return problemDetails;
+    }
+
+    /// <summary>
+    /// Creates problem details for a request validation failure (HTTP 400).
+    /// </summary>
+    public static ProblemDetails Create(PlaxionMediatorValidationException exception)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+
+        var errors = new List<Dictionary<string, string>>(exception.Failures.Count);
+        foreach (PlaxionMediatorValidationFailure failure in exception.Failures)
+        {
+            errors.Add(new Dictionary<string, string>
+            {
+                ["propertyName"] = failure.PropertyName,
+                ["errorMessage"] = failure.ErrorMessage,
+            });
+        }
+
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = ValidationTitle,
+            Type = ValidationType,
+            Detail = exception.Message,
+            Extensions =
+            {
+                ["errors"] = errors,
+            },
+        };
     }
 }

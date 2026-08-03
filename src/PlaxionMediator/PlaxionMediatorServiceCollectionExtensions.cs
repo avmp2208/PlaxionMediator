@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
+using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,8 +25,9 @@ public static class PlaxionMediatorServiceCollectionExtensions
         PlaxionMediatorOptions options = new();
         configure?.Invoke(options);
         services.TryAddSingleton(options);
+        RegisterGlobalBehaviors(services, options);
 
-        // Generated registration (handlers, sender, publisher) â€” no-op if generator did not run.
+        // Generated registration (handlers, sender, publisher) — no-op if generator did not run.
         PlaxionMediatorGeneratedRegistrationBridge.Invoke(services, options);
 
         return services;
@@ -44,7 +46,26 @@ public static class PlaxionMediatorServiceCollectionExtensions
         PlaxionMediatorOptions options = new();
         configure?.Invoke(options);
         services.TryAddSingleton(options);
+        RegisterGlobalBehaviors(services, options);
         return services;
+    }
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.",
+        Justification = "GlobalBehaviors are explicit open-generic types supplied by the application author (e.g. typeof(ValidationBehavior<,>)); constructors are preserved by the consumer reference.")]
+    private static void RegisterGlobalBehaviors(IServiceCollection services, PlaxionMediatorOptions options)
+    {
+        foreach (Type behaviorType in options.GlobalBehaviors)
+        {
+            ArgumentNullException.ThrowIfNull(behaviorType);
+
+            services.TryAddEnumerable(
+                ServiceDescriptor.Describe(
+                    typeof(IPipelineBehavior<,>),
+                    behaviorType,
+                    options.DefaultBehaviorLifetime));
+        }
     }
 
     /// <summary>

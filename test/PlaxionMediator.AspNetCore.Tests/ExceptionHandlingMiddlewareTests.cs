@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlaxionMediator.Core;
+using PlaxionMediator.Validation;
 
 namespace PlaxionMediator.AspNetCore.Tests;
 
@@ -42,6 +43,29 @@ public sealed class ExceptionHandlingMiddlewareTests
         Assert.Equal(
             typeof(InvalidOperationException).FullName,
             doc.RootElement.GetProperty("innerException").GetProperty("type").GetString());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Validation_Writes_ProblemJson_With_Errors()
+    {
+        var exception = new PlaxionMediatorValidationException(
+        [
+            new PlaxionMediatorValidationFailure("Name", "Name is required."),
+        ]);
+
+        (int status, string? contentType, string body) = await InvokeAndReadAsync(_ => throw exception);
+
+        Assert.Equal(StatusCodes.Status400BadRequest, status);
+        Assert.Equal("application/problem+json", contentType);
+        using JsonDocument doc = JsonDocument.Parse(body);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ValidationType, doc.RootElement.GetProperty("type").GetString());
+        Assert.Equal(400, doc.RootElement.GetProperty("status").GetInt32());
+        Assert.Equal(
+            "Name",
+            doc.RootElement.GetProperty("errors")[0].GetProperty("propertyName").GetString());
+        Assert.Equal(
+            "Name is required.",
+            doc.RootElement.GetProperty("errors")[0].GetProperty("errorMessage").GetString());
     }
 
     [Fact]

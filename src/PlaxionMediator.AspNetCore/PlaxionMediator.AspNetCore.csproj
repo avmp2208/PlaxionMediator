@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

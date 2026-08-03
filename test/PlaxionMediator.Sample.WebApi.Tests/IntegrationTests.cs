@@ -151,6 +151,301 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
         Assert.Equal("Simulated behavior fault", doc.RootElement.GetProperty("innerException").GetProperty("message").GetString());
     }
 
+    [Fact]
+    public async Task CreateItem_Valid_Succeeds()
+    {
+        HttpClient client = _factory.CreateClient();
+        HttpResponseMessage response = await client.PostAsJsonAsync("/items", new { Name = "Valid-Widget" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        ItemDto? created = await response.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(created);
+        Assert.Equal("Valid-Widget", created.Name);
+        Assert.NotEqual(Guid.Empty, created.Id);
+    }
+
+    [Fact]
+    public async Task CreateItem_EmptyName_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        HttpResponseMessage response = await client.PostAsJsonAsync("/items", new { Name = "" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Equal("https://plaxionmediator.dev/errors/validation", doc.RootElement.GetProperty("type").GetString());
+        Assert.Equal(400, doc.RootElement.GetProperty("status").GetInt32());
+        Assert.True(doc.RootElement.TryGetProperty("errors", out JsonElement errors));
+        Assert.True(errors.GetArrayLength() >= 1);
+        Assert.Contains(
+            errors.EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Name");
+    }
+
+    [Fact]
+    public async Task CreateItem_NameTooLong_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        string tooLong = new('x', 201);
+        HttpResponseMessage response = await client.PostAsJsonAsync("/items", new { Name = tooLong });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Equal("https://plaxionmediator.dev/errors/validation", doc.RootElement.GetProperty("type").GetString());
+        Assert.Contains(
+            doc.RootElement.GetProperty("errors").EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Name");
+    }
+
+    [Fact]
+    public async Task CreateItem_Invalid_Does_Not_Execute_Handler_SideEffects()
+    {
+        HttpClient client = _factory.CreateClient();
+
+        HttpResponseMessage listBefore = await client.GetAsync("/items");
+        List<ItemDto>? before = await listBefore.Content.ReadFromJsonAsync<List<ItemDto>>();
+        Assert.NotNull(before);
+        int countBefore = before.Count;
+
+        HttpResponseMessage invalid = await client.PostAsJsonAsync("/items", new { Name = "" });
+        Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+
+        HttpResponseMessage listAfter = await client.GetAsync("/items");
+        List<ItemDto>? after = await listAfter.Content.ReadFromJsonAsync<List<ItemDto>>();
+        Assert.NotNull(after);
+        Assert.Equal(countBefore, after.Count);
+    }
+
+    [Fact]
+    public async Task UpdateItem_Valid_Succeeds()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Before");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            "/items",
+            new { Id = created.Id, Name = "After" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        ItemDto? updated = await response.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(updated);
+        Assert.Equal(created.Id, updated.Id);
+        Assert.Equal("After", updated.Name);
+    }
+
+    [Fact]
+    public async Task UpdateItem_EmptyGuid_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            "/items",
+            new { Id = Guid.Empty, Name = "Name" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Equal("https://plaxionmediator.dev/errors/validation", doc.RootElement.GetProperty("type").GetString());
+        Assert.Contains(
+            doc.RootElement.GetProperty("errors").EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Id");
+    }
+
+    [Fact]
+    public async Task UpdateItem_EmptyName_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Keep");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            "/items",
+            new { Id = created.Id, Name = "" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Contains(
+            doc.RootElement.GetProperty("errors").EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Name");
+
+        // Handler must not have mutated the item.
+        HttpResponseMessage getResponse = await client.GetAsync($"/items/{created.Id}");
+        ItemDto? fetched = await getResponse.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(fetched);
+        Assert.Equal("Keep", fetched.Name);
+    }
+
+    [Fact]
+    public async Task RenameItem_Valid_Succeeds()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Original");
+
+        HttpRequestMessage patchRequest = new(HttpMethod.Patch, "/items/rename")
+        {
+            Content = JsonContent.Create(new { Id = created.Id, Name = "Renamed" }),
+        };
+        HttpResponseMessage response = await client.SendAsync(patchRequest);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        ItemDto? renamed = await response.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(renamed);
+        Assert.Equal("Renamed", renamed.Name);
+    }
+
+    [Fact]
+    public async Task RenameItem_EmptyGuid_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        HttpRequestMessage patchRequest = new(HttpMethod.Patch, "/items/rename")
+        {
+            Content = JsonContent.Create(new { Id = Guid.Empty, Name = "Name" }),
+        };
+        HttpResponseMessage response = await client.SendAsync(patchRequest);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Equal("https://plaxionmediator.dev/errors/validation", doc.RootElement.GetProperty("type").GetString());
+        Assert.Contains(
+            doc.RootElement.GetProperty("errors").EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Id");
+    }
+
+    [Fact]
+    public async Task RenameItem_NameTooLong_Returns_Validation_ProblemJson()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Original");
+
+        HttpRequestMessage patchRequest = new(HttpMethod.Patch, "/items/rename")
+        {
+            Content = JsonContent.Create(new { Id = created.Id, Name = new string('y', 201) }),
+        };
+        HttpResponseMessage response = await client.SendAsync(patchRequest);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+        Assert.Contains(
+            doc.RootElement.GetProperty("errors").EnumerateArray(),
+            e => e.GetProperty("propertyName").GetString() == "Name");
+
+        HttpResponseMessage getResponse = await client.GetAsync($"/items/{created.Id}");
+        ItemDto? fetched = await getResponse.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(fetched);
+        Assert.Equal("Original", fetched.Name);
+    }
+
+    [Fact]
+    public async Task GetItem_Second_Call_Is_Served_From_Cache_Without_Reinvoking_Handler()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Cached-Widget");
+
+        HttpResponseMessage first = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        ItemDto? firstBody = await first.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(firstBody);
+        Assert.Equal(created.Id, firstBody.Id);
+
+        HttpResponseMessage invocationsAfterFirst = await client.GetAsync("/demo/cache/get-item-invocations");
+        invocationsAfterFirst.EnsureSuccessStatusCode();
+        InvocationCountDto? countAfterFirst =
+            await invocationsAfterFirst.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterFirst);
+        int baseline = countAfterFirst.Count;
+        Assert.True(baseline >= 1);
+
+        HttpResponseMessage second = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, second.StatusCode);
+        ItemDto? secondBody = await second.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(secondBody);
+        Assert.Equal(firstBody.Name, secondBody.Name);
+        Assert.Equal(firstBody.Id, secondBody.Id);
+
+        HttpResponseMessage invocationsAfterSecond = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterSecond =
+            await invocationsAfterSecond.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterSecond);
+        Assert.Equal(baseline, countAfterSecond.Count);
+    }
+
+    [Fact]
+    public async Task GetItem_Cache_Is_Invalidated_After_Update()
+    {
+        HttpClient client = _factory.CreateClient();
+        ItemDto created = await CreateItemAsync(client, "Before-Cache-Invalidation");
+
+        HttpResponseMessage warm = await client.GetAsync($"/items/{created.Id}");
+        warm.EnsureSuccessStatusCode();
+
+        HttpResponseMessage invocationsAfterWarm = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterWarm =
+            await invocationsAfterWarm.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterWarm);
+        int baseline = countAfterWarm.Count;
+
+        HttpResponseMessage updateResponse = await client.PutAsJsonAsync(
+            "/items",
+            new { Id = created.Id, Name = "After-Cache-Invalidation" });
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+
+        HttpResponseMessage afterUpdate = await client.GetAsync($"/items/{created.Id}");
+        Assert.Equal(HttpStatusCode.OK, afterUpdate.StatusCode);
+        ItemDto? body = await afterUpdate.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(body);
+        Assert.Equal("After-Cache-Invalidation", body.Name);
+
+        HttpResponseMessage invocationsAfterUpdateGet = await client.GetAsync("/demo/cache/get-item-invocations");
+        InvocationCountDto? countAfterUpdateGet =
+            await invocationsAfterUpdateGet.Content.ReadFromJsonAsync<InvocationCountDto>();
+        Assert.NotNull(countAfterUpdateGet);
+        Assert.Equal(baseline + 1, countAfterUpdateGet.Count);
+    }
+
+    [Fact]
+    public async Task UnstableOperation_Eventually_Succeeds_After_Simulated_Transient_Failures()
+    {
+        HttpClient client = _factory.CreateClient();
+
+        HttpResponseMessage configure = await client.PostAsJsonAsync(
+            "/demo/unstable/configure",
+            new { FailuresBeforeSuccess = 2 });
+        configure.EnsureSuccessStatusCode();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            "/demo/unstable",
+            new { Payload = "hello-retry" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        UnstableOperationResponse? body =
+            await response.Content.ReadFromJsonAsync<UnstableOperationResponse>();
+        Assert.NotNull(body);
+        Assert.Equal("hello-retry", body.Payload);
+        Assert.Equal(3, body.Attempts); // 2 failures + 1 success
+
+        HttpResponseMessage status = await client.GetAsync("/demo/unstable/status");
+        status.EnsureSuccessStatusCode();
+        UnstableConfigDto? statusBody = await status.Content.ReadFromJsonAsync<UnstableConfigDto>();
+        Assert.NotNull(statusBody);
+        Assert.Equal(3, statusBody.Attempts);
+    }
+
+    private static async Task<ItemDto> CreateItemAsync(HttpClient client, string name)
+    {
+        HttpResponseMessage createResponse = await client.PostAsJsonAsync("/items", new { Name = name });
+        createResponse.EnsureSuccessStatusCode();
+        ItemDto? created = await createResponse.Content.ReadFromJsonAsync<ItemDto>();
+        Assert.NotNull(created);
+        return created;
+    }
+
     private sealed record ItemDto(Guid Id, string Name);
     private sealed record DeleteItemResponse(Guid Id, bool Deleted);
+    private sealed record InvocationCountDto(int Count);
+    private sealed record UnstableOperationResponse(string Payload, int Attempts);
+    private sealed record UnstableConfigDto(int FailuresBeforeSuccess, int Attempts);
 }

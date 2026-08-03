@@ -1,15 +1,44 @@
 using System.Collections.Concurrent;
 using System.Linq;
+using FluentValidation;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
+using PlaxionMediator.Caching;
 using PlaxionMediator.Core;
 using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
+using PlaxionMediator.Retry;
+using PlaxionMediator.Validation;
+using PlaxionMediator.Validation.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddPlaxionMediator();
+// Global behavior order (outermost → innermost → handler):
+// Validation → Caching → Retry → Handler
+// Validation fails fast; caching short-circuits before retry/handler on hit; retry wraps the handler only.
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.UsePlaxionMediatorValidationBehavior();
+    o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorRetryBehavior();
+});
+builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
+builder.Services.AddPlaxionMediatorCaching(o =>
+{
+    o.DefaultCacheDuration = TimeSpan.FromMinutes(5);
+});
+builder.Services.AddPlaxionMediatorRetry(o =>
+{
+    // Keep sample/integration tests fast; production apps typically use larger delays.
+    o.MaxRetryAttempts = 5;
+    o.BaseDelay = TimeSpan.FromMilliseconds(1);
+    o.BackoffStrategy = RetryBackoffStrategy.Exponential;
+    // Looser coupling: Retry does not reference Validation; sample wires the exception type explicitly.
+    o.NonRetryableExceptionTypes.Add(typeof(PlaxionMediatorValidationException));
+});
 builder.Services.AddSingleton<ItemStore>();
+builder.Services.AddSingleton<GetItemInvocationCounter>();
+builder.Services.AddSingleton<TransientFailureSimulator>();
 
 var app = builder.Build();
 
@@ -20,7 +49,8 @@ app.MapGet("/", () => "PlaxionMediator WebApi sample is running.");
 
 app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items")
     .WithName("CreateItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapPlaxionMediatorGet<GetItemRequest, ItemDto>("/items/{id:guid}")
     .WithName("GetItem")
@@ -37,17 +67,38 @@ app.MapPlaxionMediatorGet<GetItemsRequest, IReadOnlyList<ItemDto>>("/items")
 // PUT binds TRequest from JSON body (Id + Name). Route id is not merged into body-bound requests.
 app.MapPlaxionMediatorPut<UpdateItemRequest, ItemDto>("/items")
     .WithName("UpdateItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 // PATCH binds TRequest from JSON body, same as PUT. PlaxionMediator does not implement
 // JSON Merge Patch/JSON Patch semantics; RenameItemRequest here still carries the full desired name.
 app.MapPlaxionMediatorPatch<RenameItemRequest, ItemDto>("/items/rename")
     .WithName("RenameItem")
-    .Produces<ItemDto>(StatusCodes.Status200OK);
+    .Produces<ItemDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
 
 app.MapPlaxionMediatorDelete<DeleteItemRequest, DeleteItemResponse>("/items/{id:guid}")
     .WithName("DeleteItem")
     .Produces<DeleteItemResponse>(StatusCodes.Status200OK);
+
+// Demo: retryable request that fails a configurable number of times before succeeding.
+app.MapPlaxionMediatorPost<UnstableOperationRequest, UnstableOperationResponse>("/demo/unstable")
+    .WithName("UnstableOperation")
+    .Produces<UnstableOperationResponse>(StatusCodes.Status200OK);
+
+// Diagnostics: how many times GetItemHandler ran (proves cache hits skip the handler).
+app.MapGet("/demo/cache/get-item-invocations", (GetItemInvocationCounter counter) =>
+    Results.Ok(new InvocationCountDto(counter.Count)));
+
+// Diagnostics: configure/reset the transient failure simulator used by /demo/unstable.
+app.MapPost("/demo/unstable/configure", (ConfigureUnstableDto body, TransientFailureSimulator simulator) =>
+{
+    simulator.Configure(body.FailuresBeforeSuccess);
+    return Results.Ok(new UnstableConfigDto(simulator.FailuresBeforeSuccess, simulator.Attempts));
+});
+
+app.MapGet("/demo/unstable/status", (TransientFailureSimulator simulator) =>
+    Results.Ok(new UnstableConfigDto(simulator.FailuresBeforeSuccess, simulator.Attempts)));
 
 // Forces HandlerNotFoundException so integration tests can assert problem+json mapping.
 // Thrown directly: introducing an IRequest without a handler would fail the build (PlaxionMediator001).
@@ -100,7 +151,59 @@ app.Run();
 
 public sealed record ItemDto(Guid Id, string Name);
 
-// --- Store ---
+public sealed record InvocationCountDto(int Count);
+
+public sealed record ConfigureUnstableDto(int FailuresBeforeSuccess);
+
+public sealed record UnstableConfigDto(int FailuresBeforeSuccess, int Attempts);
+
+public sealed record UnstableOperationResponse(string Payload, int Attempts);
+
+// --- Store & demo services ---
+
+/// <summary>
+/// Counts GetItemHandler executions so cache-hit integration tests can assert the handler was skipped.
+/// </summary>
+public sealed class GetItemInvocationCounter
+{
+    private int _count;
+
+    public int Count => Volatile.Read(ref _count);
+
+    public void Increment() => Interlocked.Increment(ref _count);
+
+    public void Reset() => Interlocked.Exchange(ref _count, 0);
+}
+
+/// <summary>
+/// Simulates a flaky dependency: fails <see cref="FailuresBeforeSuccess"/> times, then succeeds.
+/// </summary>
+public sealed class TransientFailureSimulator
+{
+    private int _failuresBeforeSuccess;
+    private int _attempts;
+
+    public int FailuresBeforeSuccess => Volatile.Read(ref _failuresBeforeSuccess);
+
+    public int Attempts => Volatile.Read(ref _attempts);
+
+    public void Configure(int failuresBeforeSuccess)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(failuresBeforeSuccess);
+        Interlocked.Exchange(ref _failuresBeforeSuccess, failuresBeforeSuccess);
+        Interlocked.Exchange(ref _attempts, 0);
+    }
+
+    public void ThrowIfShouldFail()
+    {
+        int attempt = Interlocked.Increment(ref _attempts);
+        int remainingBudget = Volatile.Read(ref _failuresBeforeSuccess);
+        if (attempt <= remainingBudget)
+        {
+            throw new InvalidOperationException($"Simulated transient failure (attempt {attempt}/{remainingBudget}).");
+        }
+    }
+}
 
 public sealed class ItemStore
 {
@@ -141,11 +244,23 @@ public sealed class ItemStore
     public bool TryRemove(Guid id, out ItemDto? item) => _items.TryRemove(id, out item);
 
     public IReadOnlyList<ItemDto> GetAll() => _items.Values.ToList();
+
+    public int Count => _items.Count;
 }
 
 // --- Requests & Handlers ---
 
 public sealed record CreateItemRequest(string Name) : IRequest<ItemDto>;
+
+public sealed class CreateItemRequestValidator : AbstractValidator<CreateItemRequest>
+{
+    public CreateItemRequestValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
 
 public sealed class CreateItemHandler : IRequestHandler<CreateItemRequest, ItemDto>
 {
@@ -155,25 +270,32 @@ public sealed class CreateItemHandler : IRequestHandler<CreateItemRequest, ItemD
 
     public ValueTask<ItemDto> Handle(CreateItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         return ValueTask.FromResult(_store.Add(request.Name.Trim()));
     }
 }
 
-public sealed record GetItemRequest(Guid Id) : IRequest<ItemDto>;
+public sealed record GetItemRequest(Guid Id) : IRequest<ItemDto>, ICacheableRequest<ItemDto>
+{
+    public string CacheKey => $"item:{Id}";
+
+    public TimeSpan? CacheDuration => TimeSpan.FromMinutes(5);
+}
 
 public sealed class GetItemHandler : IRequestHandler<GetItemRequest, ItemDto>
 {
     private readonly ItemStore _store;
+    private readonly GetItemInvocationCounter _counter;
 
-    public GetItemHandler(ItemStore store) => _store = store;
+    public GetItemHandler(ItemStore store, GetItemInvocationCounter counter)
+    {
+        _store = store;
+        _counter = counter;
+    }
 
     public ValueTask<ItemDto> Handle(GetItemRequest request, CancellationToken cancellationToken)
     {
+        _counter.Increment();
+
         if (!_store.TryGet(request.Id, out ItemDto? item) || item is null)
         {
             throw new KeyNotFoundException($"Item '{request.Id}' was not found.");
@@ -197,48 +319,72 @@ public sealed class GetItemsHandler : IRequestHandler<GetItemsRequest, IReadOnly
 
 public sealed record UpdateItemRequest(Guid Id, string Name) : IRequest<ItemDto>;
 
+public sealed class UpdateItemRequestValidator : AbstractValidator<UpdateItemRequest>
+{
+    public UpdateItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
+
 public sealed class UpdateItemHandler : IRequestHandler<UpdateItemRequest, ItemDto>
 {
     private readonly ItemStore _store;
+    private readonly IPlaxionMediatorCacheInvalidator _cacheInvalidator;
 
-    public UpdateItemHandler(ItemStore store) => _store = store;
+    public UpdateItemHandler(ItemStore store, IPlaxionMediatorCacheInvalidator cacheInvalidator)
+    {
+        _store = store;
+        _cacheInvalidator = cacheInvalidator;
+    }
 
     public ValueTask<ItemDto> Handle(UpdateItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         if (!_store.TryUpdate(request.Id, request.Name.Trim(), out ItemDto? item) || item is null)
         {
             throw new KeyNotFoundException($"Item '{request.Id}' was not found.");
         }
 
+        _cacheInvalidator.Remove($"item:{request.Id}");
         return ValueTask.FromResult(item);
     }
 }
 
 public sealed record RenameItemRequest(Guid Id, string Name) : IRequest<ItemDto>;
 
+public sealed class RenameItemRequestValidator : AbstractValidator<RenameItemRequest>
+{
+    public RenameItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(200);
+    }
+}
+
 public sealed class RenameItemHandler : IRequestHandler<RenameItemRequest, ItemDto>
 {
     private readonly ItemStore _store;
+    private readonly IPlaxionMediatorCacheInvalidator _cacheInvalidator;
 
-    public RenameItemHandler(ItemStore store) => _store = store;
+    public RenameItemHandler(ItemStore store, IPlaxionMediatorCacheInvalidator cacheInvalidator)
+    {
+        _store = store;
+        _cacheInvalidator = cacheInvalidator;
+    }
 
     public ValueTask<ItemDto> Handle(RenameItemRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            throw new ArgumentException("Name is required.", nameof(request));
-        }
-
         if (!_store.TryUpdate(request.Id, request.Name.Trim(), out ItemDto? item) || item is null)
         {
             throw new KeyNotFoundException($"Item '{request.Id}' was not found.");
         }
 
+        _cacheInvalidator.Remove($"item:{request.Id}");
         return ValueTask.FromResult(item);
     }
 }
@@ -250,13 +396,48 @@ public sealed record DeleteItemResponse(Guid Id, bool Deleted);
 public sealed class DeleteItemHandler : IRequestHandler<DeleteItemRequest, DeleteItemResponse>
 {
     private readonly ItemStore _store;
+    private readonly IPlaxionMediatorCacheInvalidator _cacheInvalidator;
 
-    public DeleteItemHandler(ItemStore store) => _store = store;
+    public DeleteItemHandler(ItemStore store, IPlaxionMediatorCacheInvalidator cacheInvalidator)
+    {
+        _store = store;
+        _cacheInvalidator = cacheInvalidator;
+    }
 
     public ValueTask<DeleteItemResponse> Handle(DeleteItemRequest request, CancellationToken cancellationToken)
     {
         bool deleted = _store.TryRemove(request.Id, out _);
+        if (deleted)
+        {
+            _cacheInvalidator.Remove($"item:{request.Id}");
+        }
+
         return ValueTask.FromResult(new DeleteItemResponse(request.Id, deleted));
+    }
+}
+
+// --- Retry demo ---
+
+public sealed record UnstableOperationRequest(string Payload) : IRequest<UnstableOperationResponse>, IRetryableRequest
+{
+    // Per-request overrides keep the demo deterministic and fast.
+    public int? MaxRetryAttempts => 5;
+
+    public TimeSpan? BaseDelay => TimeSpan.FromMilliseconds(1);
+}
+
+public sealed class UnstableOperationHandler : IRequestHandler<UnstableOperationRequest, UnstableOperationResponse>
+{
+    private readonly TransientFailureSimulator _simulator;
+
+    public UnstableOperationHandler(TransientFailureSimulator simulator) => _simulator = simulator;
+
+    public ValueTask<UnstableOperationResponse> Handle(
+        UnstableOperationRequest request,
+        CancellationToken cancellationToken)
+    {
+        _simulator.ThrowIfShouldFail();
+        return ValueTask.FromResult(new UnstableOperationResponse(request.Payload, _simulator.Attempts));
     }
 }
 

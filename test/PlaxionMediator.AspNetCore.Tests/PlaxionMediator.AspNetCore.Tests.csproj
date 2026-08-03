@@ -16,5 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PlaxionMediator.AspNetCore\PlaxionMediator.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
   </ItemGroup>
 </Project>

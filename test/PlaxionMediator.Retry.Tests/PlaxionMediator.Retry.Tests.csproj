@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PlaxionMediator.Retry.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator\PlaxionMediator.csproj" />
+  </ItemGroup>
+</Project>
