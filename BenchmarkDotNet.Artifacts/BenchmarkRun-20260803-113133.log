@@ -1,0 +1,2178 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 42 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\obj\Release\net9.0/" /p:OutDir="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0/" /p:OutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0/" in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944
+// command took 1.11 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\obj\Release\net9.0/" /p:OutDir="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0/" /p:OutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0/" --output "C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0/" in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944
+// command took 18.26 sec and exited with 0
+// ***** Done, took 00:00:19 (19.48 sec)   *****
+// Found 12 benchmarks:
+//   ConcurrencyBenchmarks.Concurrent_Plaxion_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Plaxion_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Plaxion_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Plaxion_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_MediatR_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_MediatR_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_MediatR_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_MediatR_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Mediator_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Mediator_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Mediator_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   ConcurrencyBenchmarks.Concurrent_Mediator_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Plaxion_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2332 1160 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Plaxion_1 --job Dry --benchmarkId 0 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3896200.00 ns, 3.8962 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3896200.00 ns, 3.8962 ms/op
+// GC:  0 0 0 1688 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 75668 has exited with code 0.
+
+Mean = 3.896 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.896 ms, Q1 = 3.896 ms, Median = 3.896 ms, Q3 = 3.896 ms, Max = 3.896 ms
+IQR = 0.000 ms, LowerFence = 3.896 ms, UpperFence = 3.896 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 41 (97.6%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Plaxion_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3396 3456 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Plaxion_8 --job Dry --benchmarkId 1 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 4269300.00 ns, 4.2693 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 4269300.00 ns, 4.2693 ms/op
+// GC:  0 0 0 1760 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 45552 has exited with code 0.
+
+Mean = 4.269 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.269 ms, Q1 = 4.269 ms, Median = 4.269 ms, Q3 = 4.269 ms, Max = 4.269 ms
+IQR = 0.000 ms, LowerFence = 4.269 ms, UpperFence = 4.269 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 40 (95.2%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Plaxion_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2268 2276 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Plaxion_32 --job Dry --benchmarkId 2 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 4744500.00 ns, 4.7445 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 4744500.00 ns, 4.7445 ms/op
+// GC:  0 0 0 3392 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 24796 has exited with code 0.
+
+Mean = 4.745 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.745 ms, Q1 = 4.745 ms, Median = 4.745 ms, Q3 = 4.745 ms, Max = 4.745 ms
+IQR = 0.000 ms, LowerFence = 4.745 ms, UpperFence = 4.745 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 39 (92.9%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Plaxion_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3396 3456 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Plaxion_128 --job Dry --benchmarkId 3 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 4675000.00 ns, 4.6750 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 4675000.00 ns, 4.6750 ms/op
+// GC:  0 0 0 11072 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 49784 has exited with code 0.
+
+Mean = 4.675 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.675 ms, Q1 = 4.675 ms, Median = 4.675 ms, Q3 = 4.675 ms, Max = 4.675 ms
+IQR = 0.000 ms, LowerFence = 4.675 ms, UpperFence = 4.675 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 38 (90.5%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_MediatR_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2712 2108 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_MediatR_1 --job Dry --benchmarkId 4 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3254300.00 ns, 3.2543 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3254300.00 ns, 3.2543 ms/op
+// GC:  0 0 0 4096 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 67328 has exited with code 0.
+
+Mean = 3.254 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.254 ms, Q1 = 3.254 ms, Median = 3.254 ms, Q3 = 3.254 ms, Max = 3.254 ms
+IQR = 0.000 ms, LowerFence = 3.254 ms, UpperFence = 3.254 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 37 (88.1%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_MediatR_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2712 2108 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_MediatR_8 --job Dry --benchmarkId 5 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3613400.00 ns, 3.6134 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3613400.00 ns, 3.6134 ms/op
+// GC:  0 0 0 3296 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 8844 has exited with code 0.
+
+Mean = 3.613 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.613 ms, Q1 = 3.613 ms, Median = 3.613 ms, Q3 = 3.613 ms, Max = 3.613 ms
+IQR = 0.000 ms, LowerFence = 3.613 ms, UpperFence = 3.613 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 36 (85.7%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_MediatR_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2656 3260 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_MediatR_32 --job Dry --benchmarkId 6 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3856200.00 ns, 3.8562 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3856200.00 ns, 3.8562 ms/op
+// GC:  0 0 0 9536 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 37632 has exited with code 0.
+
+Mean = 3.856 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.856 ms, Q1 = 3.856 ms, Median = 3.856 ms, Q3 = 3.856 ms, Max = 3.856 ms
+IQR = 0.000 ms, LowerFence = 3.856 ms, UpperFence = 3.856 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 35 (83.3%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_MediatR_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2724 2716 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_MediatR_128 --job Dry --benchmarkId 7 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3496800.00 ns, 3.4968 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3496800.00 ns, 3.4968 ms/op
+// GC:  0 0 0 35936 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 22188 has exited with code 0.
+
+Mean = 3.497 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.497 ms, Q1 = 3.497 ms, Median = 3.497 ms, Q3 = 3.497 ms, Max = 3.497 ms
+IQR = 0.000 ms, LowerFence = 3.497 ms, UpperFence = 3.497 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 34 (81.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Mediator_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3392 3280 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Mediator_1 --job Dry --benchmarkId 8 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10512700.00 ns, 10.5127 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10512700.00 ns, 10.5127 ms/op
+// GC:  0 0 0 1248 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 53348 has exited with code 0.
+
+Mean = 10.513 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.513 ms, Q1 = 10.513 ms, Median = 10.513 ms, Q3 = 10.513 ms, Max = 10.513 ms
+IQR = 0.000 ms, LowerFence = 10.513 ms, UpperFence = 10.513 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 33 (78.6%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Mediator_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2840 2700 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Mediator_8 --job Dry --benchmarkId 9 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10619400.00 ns, 10.6194 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10619400.00 ns, 10.6194 ms/op
+// GC:  0 0 0 1520 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 65456 has exited with code 0.
+
+Mean = 10.619 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.619 ms, Q1 = 10.619 ms, Median = 10.619 ms, Q3 = 10.619 ms, Max = 10.619 ms
+IQR = 0.000 ms, LowerFence = 10.619 ms, UpperFence = 10.619 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 32 (76.2%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Mediator_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2300 2636 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Mediator_32 --job Dry --benchmarkId 10 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10277800.00 ns, 10.2778 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10277800.00 ns, 10.2778 ms/op
+// GC:  0 0 0 3728 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 19996 has exited with code 0.
+
+Mean = 10.278 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.278 ms, Q1 = 10.278 ms, Median = 10.278 ms, Q3 = 10.278 ms, Max = 10.278 ms
+IQR = 0.000 ms, LowerFence = 10.278 ms, UpperFence = 10.278 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 31 (73.8%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: ConcurrencyBenchmarks.Concurrent_Mediator_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3384 3408 --benchmarkName Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks.Concurrent_Mediator_128 --job Dry --benchmarkId 11 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10476400.00 ns, 10.4764 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10476400.00 ns, 10.4764 ms/op
+// GC:  0 0 0 11120 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 36404 has exited with code 0.
+
+Mean = 10.476 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.476 ms, Q1 = 10.476 ms, Median = 10.476 ms, Q3 = 10.476 ms, Max = 10.476 ms
+IQR = 0.000 ms, LowerFence = 10.476 ms, UpperFence = 10.476 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 30 (71.4%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks-report.html
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.ConcurrencyBenchmarks-report-full.json
+
+// * Detailed results *
+ConcurrencyBenchmarks.Concurrent_MediatR_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.254 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.254 ms, Q1 = 3.254 ms, Median = 3.254 ms, Q3 = 3.254 ms, Max = 3.254 ms
+IQR = 0.000 ms, LowerFence = 3.254 ms, UpperFence = 3.254 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.254 ms ; 3.254 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_MediatR_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.497 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.497 ms, Q1 = 3.497 ms, Median = 3.497 ms, Q3 = 3.497 ms, Max = 3.497 ms
+IQR = 0.000 ms, LowerFence = 3.497 ms, UpperFence = 3.497 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.497 ms ; 3.497 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_MediatR_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.613 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.613 ms, Q1 = 3.613 ms, Median = 3.613 ms, Q3 = 3.613 ms, Max = 3.613 ms
+IQR = 0.000 ms, LowerFence = 3.613 ms, UpperFence = 3.613 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.613 ms ; 3.613 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_MediatR_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.856 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.856 ms, Q1 = 3.856 ms, Median = 3.856 ms, Q3 = 3.856 ms, Max = 3.856 ms
+IQR = 0.000 ms, LowerFence = 3.856 ms, UpperFence = 3.856 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.856 ms ; 3.856 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Plaxion_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.896 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.896 ms, Q1 = 3.896 ms, Median = 3.896 ms, Q3 = 3.896 ms, Max = 3.896 ms
+IQR = 0.000 ms, LowerFence = 3.896 ms, UpperFence = 3.896 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.896 ms ; 3.896 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Plaxion_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 4.269 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.269 ms, Q1 = 4.269 ms, Median = 4.269 ms, Q3 = 4.269 ms, Max = 4.269 ms
+IQR = 0.000 ms, LowerFence = 4.269 ms, UpperFence = 4.269 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[4.269 ms ; 4.269 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Plaxion_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 4.675 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.675 ms, Q1 = 4.675 ms, Median = 4.675 ms, Q3 = 4.675 ms, Max = 4.675 ms
+IQR = 0.000 ms, LowerFence = 4.675 ms, UpperFence = 4.675 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[4.675 ms ; 4.675 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Plaxion_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 4.745 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.745 ms, Q1 = 4.745 ms, Median = 4.745 ms, Q3 = 4.745 ms, Max = 4.745 ms
+IQR = 0.000 ms, LowerFence = 4.745 ms, UpperFence = 4.745 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[4.744 ms ; 4.745 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Mediator_32: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.278 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.278 ms, Q1 = 10.278 ms, Median = 10.278 ms, Q3 = 10.278 ms, Max = 10.278 ms
+IQR = 0.000 ms, LowerFence = 10.278 ms, UpperFence = 10.278 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.278 ms ; 10.278 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Mediator_128: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.476 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.476 ms, Q1 = 10.476 ms, Median = 10.476 ms, Q3 = 10.476 ms, Max = 10.476 ms
+IQR = 0.000 ms, LowerFence = 10.476 ms, UpperFence = 10.476 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.476 ms ; 10.476 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Mediator_1: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.513 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.513 ms, Q1 = 10.513 ms, Median = 10.513 ms, Q3 = 10.513 ms, Max = 10.513 ms
+IQR = 0.000 ms, LowerFence = 10.513 ms, UpperFence = 10.513 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.513 ms ; 10.513 ms) | @
+---------------------------------------------------
+
+ConcurrencyBenchmarks.Concurrent_Mediator_8: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.619 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.619 ms, Q1 = 10.619 ms, Median = 10.619 ms, Q3 = 10.619 ms, Max = 10.619 ms
+IQR = 0.000 ms, LowerFence = 10.619 ms, UpperFence = 10.619 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.619 ms ; 10.619 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host] : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Dry    : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                  | Mean      | Error | Completed Work Items | Lock Contentions | Allocated |
+|------------------------ |----------:|------:|---------------------:|-----------------:|----------:|
+| Concurrent_MediatR_1    |  3.254 ms |    NA |                    - |                - |      4 KB |
+| Concurrent_MediatR_128  |  3.497 ms |    NA |                    - |                - |  35.09 KB |
+| Concurrent_MediatR_8    |  3.613 ms |    NA |                    - |                - |   3.22 KB |
+| Concurrent_MediatR_32   |  3.856 ms |    NA |                    - |                - |   9.31 KB |
+| Concurrent_Plaxion_1    |  3.896 ms |    NA |                    - |                - |   1.65 KB |
+| Concurrent_Plaxion_8    |  4.269 ms |    NA |                    - |                - |   1.72 KB |
+| Concurrent_Plaxion_128  |  4.675 ms |    NA |                    - |                - |  10.81 KB |
+| Concurrent_Plaxion_32   |  4.745 ms |    NA |                    - |                - |   3.31 KB |
+| Concurrent_Mediator_32  | 10.278 ms |    NA |                    - |                - |   3.64 KB |
+| Concurrent_Mediator_128 | 10.476 ms |    NA |                    - |                - |  10.86 KB |
+| Concurrent_Mediator_1   | 10.513 ms |    NA |                    - |                - |   1.22 KB |
+| Concurrent_Mediator_8   | 10.619 ms |    NA |                    - |                - |   1.48 KB |
+
+// * Warnings *
+MinIterationTime
+  ConcurrencyBenchmarks.Concurrent_MediatR_1: Dry    -> The minimum observed iteration time is 3.254ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_MediatR_128: Dry  -> The minimum observed iteration time is 3.497ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_MediatR_8: Dry    -> The minimum observed iteration time is 3.613ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_MediatR_32: Dry   -> The minimum observed iteration time is 3.856ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Plaxion_1: Dry    -> The minimum observed iteration time is 3.896ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Plaxion_8: Dry    -> The minimum observed iteration time is 4.269ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Plaxion_128: Dry  -> The minimum observed iteration time is 4.675ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Plaxion_32: Dry   -> The minimum observed iteration time is 4.745ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Mediator_32: Dry  -> The minimum observed iteration time is 10.278ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Mediator_128: Dry -> The minimum observed iteration time is 10.476ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Mediator_1: Dry   -> The minimum observed iteration time is 10.513ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  ConcurrencyBenchmarks.Concurrent_Mediator_8: Dry   -> The minimum observed iteration time is 10.619ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+  Summary -> The exporter MarkdownExporter-github is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  Mean                 : Arithmetic mean of all measurements
+  Error                : Half of 99.9% confidence interval
+  Completed Work Items : The number of work items that have been processed in ThreadPool (per single operation)
+  Lock Contentions     : The number of times there was contention upon trying to take a Monitor's lock (per single operation)
+  Allocated            : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms                 : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+// * Diagnostic Output - ThreadingDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:03 (3.33 sec), executed benchmarks: 12
+
+// Found 12 benchmarks:
+//   NotificationFanOutBenchmarks.Publish_Plaxion_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Plaxion_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Plaxion_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Plaxion_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_MediatR_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_MediatR_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_MediatR_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_MediatR_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Mediator_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Mediator_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Mediator_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   NotificationFanOutBenchmarks.Publish_Mediator_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Plaxion_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 1248 2580 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Plaxion_1Handler --job Dry --benchmarkId 12 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3430100.00 ns, 3.4301 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3430100.00 ns, 3.4301 ms/op
+// GC:  0 0 0 2664 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 24852 has exited with code 0.
+
+Mean = 3.430 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.430 ms, Q1 = 3.430 ms, Median = 3.430 ms, Q3 = 3.430 ms, Max = 3.430 ms
+IQR = 0.000 ms, LowerFence = 3.430 ms, UpperFence = 3.430 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 29 (69.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Plaxion_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 1176 2596 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Plaxion_10Handlers --job Dry --benchmarkId 13 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3897400.00 ns, 3.8974 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3897400.00 ns, 3.8974 ms/op
+// GC:  0 0 0 3440 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 49468 has exited with code 0.
+
+Mean = 3.897 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.897 ms, Q1 = 3.897 ms, Median = 3.897 ms, Q3 = 3.897 ms, Max = 3.897 ms
+IQR = 0.000 ms, LowerFence = 3.897 ms, UpperFence = 3.897 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 28 (66.7%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Plaxion_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2456 3460 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Plaxion_50Handlers --job Dry --benchmarkId 14 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 4618400.00 ns, 4.6184 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 4618400.00 ns, 4.6184 ms/op
+// GC:  0 0 0 9144 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 55524 has exited with code 0.
+
+Mean = 4.618 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.618 ms, Q1 = 4.618 ms, Median = 4.618 ms, Q3 = 4.618 ms, Max = 4.618 ms
+IQR = 0.000 ms, LowerFence = 4.618 ms, UpperFence = 4.618 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 27 (64.3%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Plaxion_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3232 1344 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Plaxion_100Handlers --job Dry --benchmarkId 15 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 5972600.00 ns, 5.9726 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 5972600.00 ns, 5.9726 ms/op
+// GC:  0 0 0 15544 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 20448 has exited with code 0.
+
+Mean = 5.973 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.973 ms, Q1 = 5.973 ms, Median = 5.973 ms, Q3 = 5.973 ms, Max = 5.973 ms
+IQR = 0.000 ms, LowerFence = 5.973 ms, UpperFence = 5.973 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 26 (61.9%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_MediatR_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2452 3196 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_MediatR_1Handler --job Dry --benchmarkId 16 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3886600.00 ns, 3.8866 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3886600.00 ns, 3.8866 ms/op
+// GC:  0 0 0 2488 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 22536 has exited with code 0.
+
+Mean = 3.887 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.887 ms, Q1 = 3.887 ms, Median = 3.887 ms, Q3 = 3.887 ms, Max = 3.887 ms
+IQR = 0.000 ms, LowerFence = 3.887 ms, UpperFence = 3.887 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 25 (59.5%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_MediatR_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3156 3176 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_MediatR_10Handlers --job Dry --benchmarkId 17 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3885000.00 ns, 3.8850 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3885000.00 ns, 3.8850 ms/op
+// GC:  0 0 0 5232 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 29752 has exited with code 0.
+
+Mean = 3.885 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.885 ms, Q1 = 3.885 ms, Median = 3.885 ms, Q3 = 3.885 ms, Max = 3.885 ms
+IQR = 0.000 ms, LowerFence = 3.885 ms, UpperFence = 3.885 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 24 (57.1%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_MediatR_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2604 1244 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_MediatR_50Handlers --job Dry --benchmarkId 18 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 5103100.00 ns, 5.1031 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 5103100.00 ns, 5.1031 ms/op
+// GC:  0 0 0 14832 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 26912 has exited with code 0.
+
+Mean = 5.103 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.103 ms, Q1 = 5.103 ms, Median = 5.103 ms, Q3 = 5.103 ms, Max = 5.103 ms
+IQR = 0.000 ms, LowerFence = 5.103 ms, UpperFence = 5.103 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 23 (54.8%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_MediatR_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 1236 2452 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_MediatR_100Handlers --job Dry --benchmarkId 19 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 5882200.00 ns, 5.8822 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 5882200.00 ns, 5.8822 ms/op
+// GC:  0 0 0 26832 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 48204 has exited with code 0.
+
+Mean = 5.882 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.882 ms, Q1 = 5.882 ms, Median = 5.882 ms, Q3 = 5.882 ms, Max = 5.882 ms
+IQR = 0.000 ms, LowerFence = 5.882 ms, UpperFence = 5.882 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 22 (52.4%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Mediator_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2604 2304 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Mediator_1Handler --job Dry --benchmarkId 20 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 9751600.00 ns, 9.7516 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 9751600.00 ns, 9.7516 ms/op
+// GC:  0 0 0 1528 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 27176 has exited with code 0.
+
+Mean = 9.752 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 9.752 ms, Q1 = 9.752 ms, Median = 9.752 ms, Q3 = 9.752 ms, Max = 9.752 ms
+IQR = 0.000 ms, LowerFence = 9.752 ms, UpperFence = 9.752 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 21 (50.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Mediator_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3244 1340 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Mediator_10Handlers --job Dry --benchmarkId 21 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10895700.00 ns, 10.8957 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10895700.00 ns, 10.8957 ms/op
+// GC:  0 0 0 2608 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 43880 has exited with code 0.
+
+Mean = 10.896 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.896 ms, Q1 = 10.896 ms, Median = 10.896 ms, Q3 = 10.896 ms, Max = 10.896 ms
+IQR = 0.000 ms, LowerFence = 10.896 ms, UpperFence = 10.896 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 20 (47.6%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Mediator_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2308 2584 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Mediator_50Handlers --job Dry --benchmarkId 22 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11518900.00 ns, 11.5189 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11518900.00 ns, 11.5189 ms/op
+// GC:  0 0 0 7408 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 11000 has exited with code 0.
+
+Mean = 11.519 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.519 ms, Q1 = 11.519 ms, Median = 11.519 ms, Q3 = 11.519 ms, Max = 11.519 ms
+IQR = 0.000 ms, LowerFence = 11.519 ms, UpperFence = 11.519 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 19 (45.2%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: NotificationFanOutBenchmarks.Publish_Mediator_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2620 2608 --benchmarkName Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks.Publish_Mediator_100Handlers --job Dry --benchmarkId 23 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 15841600.00 ns, 15.8416 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 15841600.00 ns, 15.8416 ms/op
+// GC:  0 0 0 13408 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 55508 has exited with code 0.
+
+Mean = 15.842 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 15.842 ms, Q1 = 15.842 ms, Median = 15.842 ms, Q3 = 15.842 ms, Max = 15.842 ms
+IQR = 0.000 ms, LowerFence = 15.842 ms, UpperFence = 15.842 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 18 (42.9%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks-report.html
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.NotificationFanOutBenchmarks-report-full.json
+
+// * Detailed results *
+NotificationFanOutBenchmarks.Publish_Plaxion_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.430 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.430 ms, Q1 = 3.430 ms, Median = 3.430 ms, Q3 = 3.430 ms, Max = 3.430 ms
+IQR = 0.000 ms, LowerFence = 3.430 ms, UpperFence = 3.430 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.430 ms ; 3.430 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_MediatR_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.885 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.885 ms, Q1 = 3.885 ms, Median = 3.885 ms, Q3 = 3.885 ms, Max = 3.885 ms
+IQR = 0.000 ms, LowerFence = 3.885 ms, UpperFence = 3.885 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.885 ms ; 3.885 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_MediatR_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.887 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.887 ms, Q1 = 3.887 ms, Median = 3.887 ms, Q3 = 3.887 ms, Max = 3.887 ms
+IQR = 0.000 ms, LowerFence = 3.887 ms, UpperFence = 3.887 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.887 ms ; 3.887 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Plaxion_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.897 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.897 ms, Q1 = 3.897 ms, Median = 3.897 ms, Q3 = 3.897 ms, Max = 3.897 ms
+IQR = 0.000 ms, LowerFence = 3.897 ms, UpperFence = 3.897 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.897 ms ; 3.897 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Plaxion_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 4.618 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.618 ms, Q1 = 4.618 ms, Median = 4.618 ms, Q3 = 4.618 ms, Max = 4.618 ms
+IQR = 0.000 ms, LowerFence = 4.618 ms, UpperFence = 4.618 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[4.618 ms ; 4.618 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_MediatR_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 5.103 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.103 ms, Q1 = 5.103 ms, Median = 5.103 ms, Q3 = 5.103 ms, Max = 5.103 ms
+IQR = 0.000 ms, LowerFence = 5.103 ms, UpperFence = 5.103 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[5.103 ms ; 5.103 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_MediatR_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 5.882 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.882 ms, Q1 = 5.882 ms, Median = 5.882 ms, Q3 = 5.882 ms, Max = 5.882 ms
+IQR = 0.000 ms, LowerFence = 5.882 ms, UpperFence = 5.882 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[5.882 ms ; 5.882 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Plaxion_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 5.973 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.973 ms, Q1 = 5.973 ms, Median = 5.973 ms, Q3 = 5.973 ms, Max = 5.973 ms
+IQR = 0.000 ms, LowerFence = 5.973 ms, UpperFence = 5.973 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[5.973 ms ; 5.973 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Mediator_1Handler: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 9.752 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 9.752 ms, Q1 = 9.752 ms, Median = 9.752 ms, Q3 = 9.752 ms, Max = 9.752 ms
+IQR = 0.000 ms, LowerFence = 9.752 ms, UpperFence = 9.752 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[9.752 ms ; 9.752 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Mediator_10Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.896 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.896 ms, Q1 = 10.896 ms, Median = 10.896 ms, Q3 = 10.896 ms, Max = 10.896 ms
+IQR = 0.000 ms, LowerFence = 10.896 ms, UpperFence = 10.896 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.896 ms ; 10.896 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Mediator_50Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 11.519 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.519 ms, Q1 = 11.519 ms, Median = 11.519 ms, Q3 = 11.519 ms, Max = 11.519 ms
+IQR = 0.000 ms, LowerFence = 11.519 ms, UpperFence = 11.519 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.519 ms ; 11.519 ms) | @
+---------------------------------------------------
+
+NotificationFanOutBenchmarks.Publish_Mediator_100Handlers: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 15.842 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 15.842 ms, Q1 = 15.842 ms, Median = 15.842 ms, Q3 = 15.842 ms, Max = 15.842 ms
+IQR = 0.000 ms, LowerFence = 15.842 ms, UpperFence = 15.842 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[15.842 ms ; 15.842 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host] : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Dry    : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                       | Mean      | Error | Allocated |
+|----------------------------- |----------:|------:|----------:|
+| Publish_Plaxion_1Handler     |  3.430 ms |    NA |    2.6 KB |
+| Publish_MediatR_10Handlers   |  3.885 ms |    NA |   5.11 KB |
+| Publish_MediatR_1Handler     |  3.887 ms |    NA |   2.43 KB |
+| Publish_Plaxion_10Handlers   |  3.897 ms |    NA |   3.36 KB |
+| Publish_Plaxion_50Handlers   |  4.618 ms |    NA |   8.93 KB |
+| Publish_MediatR_50Handlers   |  5.103 ms |    NA |  14.48 KB |
+| Publish_MediatR_100Handlers  |  5.882 ms |    NA |   26.2 KB |
+| Publish_Plaxion_100Handlers  |  5.973 ms |    NA |  15.18 KB |
+| Publish_Mediator_1Handler    |  9.752 ms |    NA |   1.49 KB |
+| Publish_Mediator_10Handlers  | 10.896 ms |    NA |   2.55 KB |
+| Publish_Mediator_50Handlers  | 11.519 ms |    NA |   7.23 KB |
+| Publish_Mediator_100Handlers | 15.842 ms |    NA |  13.09 KB |
+
+// * Warnings *
+MinIterationTime
+  NotificationFanOutBenchmarks.Publish_Plaxion_1Handler: Dry     -> The minimum observed iteration time is 3.43ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_MediatR_10Handlers: Dry   -> The minimum observed iteration time is 3.885ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_MediatR_1Handler: Dry     -> The minimum observed iteration time is 3.887ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Plaxion_10Handlers: Dry   -> The minimum observed iteration time is 3.897ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Plaxion_50Handlers: Dry   -> The minimum observed iteration time is 4.618ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_MediatR_50Handlers: Dry   -> The minimum observed iteration time is 5.103ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_MediatR_100Handlers: Dry  -> The minimum observed iteration time is 5.882ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Plaxion_100Handlers: Dry  -> The minimum observed iteration time is 5.973ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Mediator_1Handler: Dry    -> The minimum observed iteration time is 9.752ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Mediator_10Handlers: Dry  -> The minimum observed iteration time is 10.896ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Mediator_50Handlers: Dry  -> The minimum observed iteration time is 11.519ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  NotificationFanOutBenchmarks.Publish_Mediator_100Handlers: Dry -> The minimum observed iteration time is 15.842ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+  Summary -> The exporter MarkdownExporter-github is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:03 (3.5 sec), executed benchmarks: 12
+
+// Found 15 benchmarks:
+//   PipelineBehaviorBenchmarks.Send_Plaxion_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Plaxion_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Plaxion_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Plaxion_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Plaxion_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_MediatR_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_MediatR_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_MediatR_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_MediatR_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_MediatR_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Mediator_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Mediator_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Mediator_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Mediator_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   PipelineBehaviorBenchmarks.Send_Mediator_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Plaxion_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3208 2292 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Plaxion_0Behaviors --job Dry --benchmarkId 24 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3965600.00 ns, 3.9656 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3965600.00 ns, 3.9656 ms/op
+// GC:  0 0 0 1928 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 58808 has exited with code 0.
+
+Mean = 3.966 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.966 ms, Q1 = 3.966 ms, Median = 3.966 ms, Q3 = 3.966 ms, Max = 3.966 ms
+IQR = 0.000 ms, LowerFence = 3.966 ms, UpperFence = 3.966 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 17 (40.5%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Plaxion_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3176 1236 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Plaxion_1Behavior --job Dry --benchmarkId 25 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 6082600.00 ns, 6.0826 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 6082600.00 ns, 6.0826 ms/op
+// GC:  0 0 0 2816 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 48916 has exited with code 0.
+
+Mean = 6.083 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 6.083 ms, Q1 = 6.083 ms, Median = 6.083 ms, Q3 = 6.083 ms, Max = 6.083 ms
+IQR = 0.000 ms, LowerFence = 6.083 ms, UpperFence = 6.083 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 16 (38.1%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Plaxion_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2320 3492 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Plaxion_5Behaviors --job Dry --benchmarkId 26 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 8817400.00 ns, 8.8174 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 8817400.00 ns, 8.8174 ms/op
+// GC:  0 0 0 3776 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 5316 has exited with code 0.
+
+Mean = 8.817 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 8.817 ms, Q1 = 8.817 ms, Median = 8.817 ms, Q3 = 8.817 ms, Max = 8.817 ms
+IQR = 0.000 ms, LowerFence = 8.817 ms, UpperFence = 8.817 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 15 (35.7%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Plaxion_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3460 2620 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Plaxion_10Behaviors --job Dry --benchmarkId 27 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10207800.00 ns, 10.2078 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10207800.00 ns, 10.2078 ms/op
+// GC:  0 0 0 4976 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 44556 has exited with code 0.
+
+Mean = 10.208 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.208 ms, Q1 = 10.208 ms, Median = 10.208 ms, Q3 = 10.208 ms, Max = 10.208 ms
+IQR = 0.000 ms, LowerFence = 10.208 ms, UpperFence = 10.208 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 14 (33.3%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Plaxion_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3508 3240 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Plaxion_20Behaviors --job Dry --benchmarkId 28 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 14525500.00 ns, 14.5255 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 14525500.00 ns, 14.5255 ms/op
+// GC:  0 0 0 6504 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 68964 has exited with code 0.
+
+Mean = 14.525 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 14.525 ms, Q1 = 14.525 ms, Median = 14.525 ms, Q3 = 14.525 ms, Max = 14.525 ms
+IQR = 0.000 ms, LowerFence = 14.525 ms, UpperFence = 14.525 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 13 (31.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_MediatR_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3560 3540 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_MediatR_0Behaviors --job Dry --benchmarkId 29 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 2885100.00 ns, 2.8851 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 2885100.00 ns, 2.8851 ms/op
+// GC:  0 0 0 3560 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 3996 has exited with code 0.
+
+Mean = 2.885 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 2.885 ms, Q1 = 2.885 ms, Median = 2.885 ms, Q3 = 2.885 ms, Max = 2.885 ms
+IQR = 0.000 ms, LowerFence = 2.885 ms, UpperFence = 2.885 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 12 (28.6%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_MediatR_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3560 3540 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_MediatR_1Behavior --job Dry --benchmarkId 30 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 3966600.00 ns, 3.9666 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 3966600.00 ns, 3.9666 ms/op
+// GC:  0 0 0 3656 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 27164 has exited with code 0.
+
+Mean = 3.967 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.967 ms, Q1 = 3.967 ms, Median = 3.967 ms, Q3 = 3.967 ms, Max = 3.967 ms
+IQR = 0.000 ms, LowerFence = 3.967 ms, UpperFence = 3.967 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 11 (26.2%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_MediatR_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3560 3540 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_MediatR_5Behaviors --job Dry --benchmarkId 31 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 5842100.00 ns, 5.8421 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 5842100.00 ns, 5.8421 ms/op
+// GC:  0 0 0 5392 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 56732 has exited with code 0.
+
+Mean = 5.842 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.842 ms, Q1 = 5.842 ms, Median = 5.842 ms, Q3 = 5.842 ms, Max = 5.842 ms
+IQR = 0.000 ms, LowerFence = 5.842 ms, UpperFence = 5.842 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 10 (23.8%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_MediatR_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2576 3140 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_MediatR_10Behaviors --job Dry --benchmarkId 32 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 7851500.00 ns, 7.8515 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 7851500.00 ns, 7.8515 ms/op
+// GC:  0 0 0 7336 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 63308 has exited with code 0.
+
+Mean = 7.851 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 7.851 ms, Q1 = 7.851 ms, Median = 7.851 ms, Q3 = 7.851 ms, Max = 7.851 ms
+IQR = 0.000 ms, LowerFence = 7.851 ms, UpperFence = 7.851 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 9 (21.4%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_MediatR_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3592 2304 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_MediatR_20Behaviors --job Dry --benchmarkId 33 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11630200.00 ns, 11.6302 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11630200.00 ns, 11.6302 ms/op
+// GC:  0 0 0 9584 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 38576 has exited with code 0.
+
+Mean = 11.630 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.630 ms, Q1 = 11.630 ms, Median = 11.630 ms, Q3 = 11.630 ms, Max = 11.630 ms
+IQR = 0.000 ms, LowerFence = 11.630 ms, UpperFence = 11.630 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 8 (19.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Mediator_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2456 3508 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Mediator_0Behaviors --job Dry --benchmarkId 34 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 10537800.00 ns, 10.5378 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 10537800.00 ns, 10.5378 ms/op
+// GC:  0 0 0 784 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 17532 has exited with code 0.
+
+Mean = 10.538 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.538 ms, Q1 = 10.538 ms, Median = 10.538 ms, Q3 = 10.538 ms, Max = 10.538 ms
+IQR = 0.000 ms, LowerFence = 10.538 ms, UpperFence = 10.538 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 7 (16.7%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Mediator_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3192 2604 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Mediator_1Behavior --job Dry --benchmarkId 35 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11697700.00 ns, 11.6977 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11697700.00 ns, 11.6977 ms/op
+// GC:  0 0 0 912 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 16824 has exited with code 0.
+
+Mean = 11.698 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.698 ms, Q1 = 11.698 ms, Median = 11.698 ms, Q3 = 11.698 ms, Max = 11.698 ms
+IQR = 0.000 ms, LowerFence = 11.698 ms, UpperFence = 11.698 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 6 (14.3%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Mediator_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3240 3164 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Mediator_5Behaviors --job Dry --benchmarkId 36 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 14360700.00 ns, 14.3607 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 14360700.00 ns, 14.3607 ms/op
+// GC:  0 0 0 1424 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 19300 has exited with code 0.
+
+Mean = 14.361 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 14.361 ms, Q1 = 14.361 ms, Median = 14.361 ms, Q3 = 14.361 ms, Max = 14.361 ms
+IQR = 0.000 ms, LowerFence = 14.361 ms, UpperFence = 14.361 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 5 (11.9%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Mediator_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 2576 3504 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Mediator_10Behaviors --job Dry --benchmarkId 37 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 17740800.00 ns, 17.7408 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 17740800.00 ns, 17.7408 ms/op
+// GC:  0 0 0 2064 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 49812 has exited with code 0.
+
+Mean = 17.741 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 17.741 ms, Q1 = 17.741 ms, Median = 17.741 ms, Q3 = 17.741 ms, Max = 17.741 ms
+IQR = 0.000 ms, LowerFence = 17.741 ms, UpperFence = 17.741 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 4 (9.5%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PipelineBehaviorBenchmarks.Send_Mediator_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3596 3212 --benchmarkName Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks.Send_Mediator_20Behaviors --job Dry --benchmarkId 38 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 25184500.00 ns, 25.1845 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 25184500.00 ns, 25.1845 ms/op
+// GC:  0 0 0 2624 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 71848 has exited with code 0.
+
+Mean = 25.184 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 25.184 ms, Q1 = 25.184 ms, Median = 25.184 ms, Q3 = 25.184 ms, Max = 25.184 ms
+IQR = 0.000 ms, LowerFence = 25.184 ms, UpperFence = 25.184 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 3 (7.1%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks-report.html
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks-report-full.json
+
+// * Detailed results *
+PipelineBehaviorBenchmarks.Send_MediatR_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 2.885 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 2.885 ms, Q1 = 2.885 ms, Median = 2.885 ms, Q3 = 2.885 ms, Max = 2.885 ms
+IQR = 0.000 ms, LowerFence = 2.885 ms, UpperFence = 2.885 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[2.885 ms ; 2.885 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Plaxion_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.966 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.966 ms, Q1 = 3.966 ms, Median = 3.966 ms, Q3 = 3.966 ms, Max = 3.966 ms
+IQR = 0.000 ms, LowerFence = 3.966 ms, UpperFence = 3.966 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.966 ms ; 3.966 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_MediatR_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.967 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 3.967 ms, Q1 = 3.967 ms, Median = 3.967 ms, Q3 = 3.967 ms, Max = 3.967 ms
+IQR = 0.000 ms, LowerFence = 3.967 ms, UpperFence = 3.967 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[3.967 ms ; 3.967 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_MediatR_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 5.842 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.842 ms, Q1 = 5.842 ms, Median = 5.842 ms, Q3 = 5.842 ms, Max = 5.842 ms
+IQR = 0.000 ms, LowerFence = 5.842 ms, UpperFence = 5.842 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[5.842 ms ; 5.842 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Plaxion_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 6.083 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 6.083 ms, Q1 = 6.083 ms, Median = 6.083 ms, Q3 = 6.083 ms, Max = 6.083 ms
+IQR = 0.000 ms, LowerFence = 6.083 ms, UpperFence = 6.083 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[6.083 ms ; 6.083 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_MediatR_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 7.851 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 7.851 ms, Q1 = 7.851 ms, Median = 7.851 ms, Q3 = 7.851 ms, Max = 7.851 ms
+IQR = 0.000 ms, LowerFence = 7.851 ms, UpperFence = 7.851 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[7.851 ms ; 7.852 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Plaxion_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 8.817 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 8.817 ms, Q1 = 8.817 ms, Median = 8.817 ms, Q3 = 8.817 ms, Max = 8.817 ms
+IQR = 0.000 ms, LowerFence = 8.817 ms, UpperFence = 8.817 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[8.817 ms ; 8.817 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Plaxion_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.208 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.208 ms, Q1 = 10.208 ms, Median = 10.208 ms, Q3 = 10.208 ms, Max = 10.208 ms
+IQR = 0.000 ms, LowerFence = 10.208 ms, UpperFence = 10.208 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.208 ms ; 10.208 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Mediator_0Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 10.538 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.538 ms, Q1 = 10.538 ms, Median = 10.538 ms, Q3 = 10.538 ms, Max = 10.538 ms
+IQR = 0.000 ms, LowerFence = 10.538 ms, UpperFence = 10.538 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.538 ms ; 10.538 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_MediatR_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 11.630 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.630 ms, Q1 = 11.630 ms, Median = 11.630 ms, Q3 = 11.630 ms, Max = 11.630 ms
+IQR = 0.000 ms, LowerFence = 11.630 ms, UpperFence = 11.630 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.630 ms ; 11.630 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Mediator_1Behavior: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 11.698 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.698 ms, Q1 = 11.698 ms, Median = 11.698 ms, Q3 = 11.698 ms, Max = 11.698 ms
+IQR = 0.000 ms, LowerFence = 11.698 ms, UpperFence = 11.698 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.698 ms ; 11.698 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Mediator_5Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 14.361 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 14.361 ms, Q1 = 14.361 ms, Median = 14.361 ms, Q3 = 14.361 ms, Max = 14.361 ms
+IQR = 0.000 ms, LowerFence = 14.361 ms, UpperFence = 14.361 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[14.361 ms ; 14.361 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Plaxion_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 14.525 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 14.525 ms, Q1 = 14.525 ms, Median = 14.525 ms, Q3 = 14.525 ms, Max = 14.525 ms
+IQR = 0.000 ms, LowerFence = 14.525 ms, UpperFence = 14.525 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[14.525 ms ; 14.526 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Mediator_10Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 17.741 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 17.741 ms, Q1 = 17.741 ms, Median = 17.741 ms, Q3 = 17.741 ms, Max = 17.741 ms
+IQR = 0.000 ms, LowerFence = 17.741 ms, UpperFence = 17.741 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[17.741 ms ; 17.741 ms) | @
+---------------------------------------------------
+
+PipelineBehaviorBenchmarks.Send_Mediator_20Behaviors: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 25.184 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 25.184 ms, Q1 = 25.184 ms, Median = 25.184 ms, Q3 = 25.184 ms, Max = 25.184 ms
+IQR = 0.000 ms, LowerFence = 25.184 ms, UpperFence = 25.184 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[25.184 ms ; 25.185 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host] : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Dry    : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                    | Mean      | Error | Allocated |
+|-------------------------- |----------:|------:|----------:|
+| Send_MediatR_0Behaviors   |  2.885 ms |    NA |    3560 B |
+| Send_Plaxion_0Behaviors   |  3.966 ms |    NA |    1928 B |
+| Send_MediatR_1Behavior    |  3.967 ms |    NA |    3656 B |
+| Send_MediatR_5Behaviors   |  5.842 ms |    NA |    5392 B |
+| Send_Plaxion_1Behavior    |  6.083 ms |    NA |    2816 B |
+| Send_MediatR_10Behaviors  |  7.851 ms |    NA |    7336 B |
+| Send_Plaxion_5Behaviors   |  8.817 ms |    NA |    3776 B |
+| Send_Plaxion_10Behaviors  | 10.208 ms |    NA |    4976 B |
+| Send_Mediator_0Behaviors  | 10.538 ms |    NA |     784 B |
+| Send_MediatR_20Behaviors  | 11.630 ms |    NA |    9584 B |
+| Send_Mediator_1Behavior   | 11.698 ms |    NA |     912 B |
+| Send_Mediator_5Behaviors  | 14.361 ms |    NA |    1424 B |
+| Send_Plaxion_20Behaviors  | 14.525 ms |    NA |    6504 B |
+| Send_Mediator_10Behaviors | 17.741 ms |    NA |    2064 B |
+| Send_Mediator_20Behaviors | 25.184 ms |    NA |    2624 B |
+
+// * Warnings *
+MinIterationTime
+  PipelineBehaviorBenchmarks.Send_MediatR_0Behaviors: Dry   -> The minimum observed iteration time is 2.885ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Plaxion_0Behaviors: Dry   -> The minimum observed iteration time is 3.966ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_MediatR_1Behavior: Dry    -> The minimum observed iteration time is 3.967ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_MediatR_5Behaviors: Dry   -> The minimum observed iteration time is 5.842ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Plaxion_1Behavior: Dry    -> The minimum observed iteration time is 6.083ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_MediatR_10Behaviors: Dry  -> The minimum observed iteration time is 7.852ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Plaxion_5Behaviors: Dry   -> The minimum observed iteration time is 8.817ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Plaxion_10Behaviors: Dry  -> The minimum observed iteration time is 10.208ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Mediator_0Behaviors: Dry  -> The minimum observed iteration time is 10.538ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_MediatR_20Behaviors: Dry  -> The minimum observed iteration time is 11.63ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Mediator_1Behavior: Dry   -> The minimum observed iteration time is 11.698ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Mediator_5Behaviors: Dry  -> The minimum observed iteration time is 14.361ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Plaxion_20Behaviors: Dry  -> The minimum observed iteration time is 14.526ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Mediator_10Behaviors: Dry -> The minimum observed iteration time is 17.741ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  PipelineBehaviorBenchmarks.Send_Mediator_20Behaviors: Dry -> The minimum observed iteration time is 25.185ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+  Summary -> The exporter MarkdownExporter-github is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:04 (4.34 sec), executed benchmarks: 15
+
+// Found 3 benchmarks:
+//   TypeVarietyBenchmarks.Dispatch_Plaxion_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   TypeVarietyBenchmarks.Dispatch_MediatR_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   TypeVarietyBenchmarks.Dispatch_Mediator_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: TypeVarietyBenchmarks.Dispatch_Plaxion_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3496 3512 --benchmarkName Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks.Dispatch_Plaxion_50Types --job Dry --benchmarkId 39 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11641000.00 ns, 11.6410 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11641000.00 ns, 11.6410 ms/op
+// GC:  0 0 0 8368 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 66804 has exited with code 0.
+
+Mean = 11.641 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.641 ms, Q1 = 11.641 ms, Median = 11.641 ms, Q3 = 11.641 ms, Max = 11.641 ms
+IQR = 0.000 ms, LowerFence = 11.641 ms, UpperFence = 11.641 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 2 (4.8%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: TypeVarietyBenchmarks.Dispatch_MediatR_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3176 3664 --benchmarkName Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks.Dispatch_MediatR_50Types --job Dry --benchmarkId 40 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 6689100.00 ns, 6.6891 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 6689100.00 ns, 6.6891 ms/op
+// GC:  0 0 0 99088 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 65548 has exited with code 0.
+
+Mean = 6.689 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 6.689 ms, Q1 = 6.689 ms, Median = 6.689 ms, Q3 = 6.689 ms, Max = 6.689 ms
+IQR = 0.000 ms, LowerFence = 6.689 ms, UpperFence = 6.689 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 1 (2.4%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: TypeVarietyBenchmarks.Dispatch_Mediator_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7d096af0-e6fd-4bde-b343-ccd04e432944.dll --anonymousPipes 3640 3548 --benchmarkName Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks.Dispatch_Mediator_50Types --job Dry --benchmarkId 41 in C:\Users\Angel\RiderProjects\PlaxionMediator\benchmarks-comparison\src\Plaxion.BenchMarks.Comparison\bin\Release\net9.0\7d096af0-e6fd-4bde-b343-ccd04e432944\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11983000.00 ns, 11.9830 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11983000.00 ns, 11.9830 ms/op
+// GC:  0 0 0 112 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 60280 has exited with code 0.
+
+Mean = 11.983 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.983 ms, Q1 = 11.983 ms, Median = 11.983 ms, Q3 = 11.983 ms, Max = 11.983 ms
+IQR = 0.000 ms, LowerFence = 11.983 ms, UpperFence = 11.983 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-08-03 11:32 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks-report.html
+  BenchmarkDotNet.Artifacts\results\Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks-report-full.json
+
+// * Detailed results *
+TypeVarietyBenchmarks.Dispatch_MediatR_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 6.689 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 6.689 ms, Q1 = 6.689 ms, Median = 6.689 ms, Q3 = 6.689 ms, Max = 6.689 ms
+IQR = 0.000 ms, LowerFence = 6.689 ms, UpperFence = 6.689 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[6.689 ms ; 6.689 ms) | @
+---------------------------------------------------
+
+TypeVarietyBenchmarks.Dispatch_Plaxion_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 11.641 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.641 ms, Q1 = 11.641 ms, Median = 11.641 ms, Q3 = 11.641 ms, Max = 11.641 ms
+IQR = 0.000 ms, LowerFence = 11.641 ms, UpperFence = 11.641 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.641 ms ; 11.641 ms) | @
+---------------------------------------------------
+
+TypeVarietyBenchmarks.Dispatch_Mediator_50Types: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 11.983 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.983 ms, Q1 = 11.983 ms, Median = 11.983 ms, Q3 = 11.983 ms, Max = 11.983 ms
+IQR = 0.000 ms, LowerFence = 11.983 ms, UpperFence = 11.983 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.983 ms ; 11.983 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host] : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Dry    : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                    | Mean      | Error | Allocated |
+|-------------------------- |----------:|------:|----------:|
+| Dispatch_MediatR_50Types  |  6.689 ms |    NA |   99088 B |
+| Dispatch_Plaxion_50Types  | 11.641 ms |    NA |    8368 B |
+| Dispatch_Mediator_50Types | 11.983 ms |    NA |     112 B |
+
+// * Warnings *
+MinIterationTime
+  TypeVarietyBenchmarks.Dispatch_MediatR_50Types: Dry  -> The minimum observed iteration time is 6.689ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  TypeVarietyBenchmarks.Dispatch_Plaxion_50Types: Dry  -> The minimum observed iteration time is 11.641ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  TypeVarietyBenchmarks.Dispatch_Mediator_50Types: Dry -> The minimum observed iteration time is 11.983ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+  Summary -> The exporter MarkdownExporter-github is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:01 (1.07 sec), executed benchmarks: 3
+
+Global total time: 00:00:31 (31.97 sec), executed benchmarks: 42
+// * Artifacts cleanup *
+Artifacts cleanup is finished
