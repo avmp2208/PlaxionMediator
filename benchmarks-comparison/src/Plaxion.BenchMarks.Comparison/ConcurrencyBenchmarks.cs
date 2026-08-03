@@ -57,7 +57,7 @@ public class ConcurrencyBenchmarks
         _mediatorProvider.Dispose();
     }
 
-    [Benchmark(Description = "Concurrent_Plaxion_1")]
+    [Benchmark(Description = "Concurrent_Plaxion_1", Baseline = true)]
     public Task Concurrent_Plaxion_1() => RunPlaxionConcurrent(1);
 
     [Benchmark(Description = "Concurrent_Plaxion_8")]

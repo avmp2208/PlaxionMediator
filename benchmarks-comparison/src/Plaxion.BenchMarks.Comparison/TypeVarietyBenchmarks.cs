@@ -55,7 +55,7 @@ public class TypeVarietyBenchmarks
         _mediatorProvider.Dispose();
     }
 
-    [Benchmark(Description = "Dispatch_Plaxion_50Types")]
+    [Benchmark(Description = "Dispatch_Plaxion_50Types", Baseline = true)]
     public async ValueTask Dispatch_Plaxion_50Types()
     {
         for (int i = 0; i < _plaxionRequests.Length; i++)

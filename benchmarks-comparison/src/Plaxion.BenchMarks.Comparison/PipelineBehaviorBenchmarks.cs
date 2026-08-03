@@ -124,7 +124,7 @@ public class PipelineBehaviorBenchmarks
         _mediator20Provider.Dispose();
     }
 
-    [Benchmark(Description = "Send_Plaxion_0Behaviors")]
+    [Benchmark(Description = "Send_Plaxion_0Behaviors", Baseline = true)]
     public ValueTask<string> Send_Plaxion_0Behaviors()
         => _plaxion0Sender.Send(_plaxionRequest);
 

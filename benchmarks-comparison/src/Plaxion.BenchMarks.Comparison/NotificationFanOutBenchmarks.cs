@@ -109,7 +109,7 @@ public class NotificationFanOutBenchmarks
         _mediator100Provider.Dispose();
     }
 
-    [Benchmark(Description = "Publish_Plaxion_1Handler")]
+    [Benchmark(Description = "Publish_Plaxion_1Handler", Baseline = true)]
     public ValueTask Publish_Plaxion_1Handler()
         => _plaxion1Publisher.Publish(_plaxionNotification);
 
