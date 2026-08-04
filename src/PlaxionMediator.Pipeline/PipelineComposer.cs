@@ -11,6 +11,7 @@ namespace PlaxionMediator.Pipeline;
 /// <summary>
 /// Builds the delegate chain of behaviors terminating in a handler invocation.
 /// Consumed by generated dispatch code and tests.
+/// EXPERIMENT H3: Field-staged executor with pre-bound RequestHandlerDelegate methods.
 /// </summary>
 public static class PipelineComposer
 {
@@ -29,13 +30,15 @@ public static class PipelineComposer
         ArgumentNullException.ThrowIfNull(behaviors);
         ArgumentNullException.ThrowIfNull(handler);
 
-        // Thin non-async closure: runner state is created on each invoke so the returned
+        // Thin non-async closure: executor state is created on each invoke so the returned
         // delegate remains safe to call more than once (matches prior Compose semantics).
         return () => ExecuteAsync(request, behaviors, handler, cancellationToken);
     }
 
     /// <summary>
     /// Executes the composed pipeline and returns the response.
+    /// H3 EXPERIMENT: Try field-staged executor for shallow depths (1-5 behaviors).
+    /// Fall back to index trampoline for deeper chains.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<TResponse> ExecuteAsync<TRequest, TResponse>(
@@ -54,8 +57,15 @@ public static class PipelineComposer
             return handler(request, cancellationToken);
         }
 
-        // Pooled trampoline: reuses the runner instance and its cached Next delegate across Sends.
-        // Incomplete async paths complete via IValueTaskSource on the runner (no extra async SM).
+        // H3: Use field-staged executor for common depths (1-5 behaviors)
+        // This eliminates index trampoline overhead for typical pipelines
+        if (behaviors.Count <= 5)
+        {
+            return PipelineExecutor<TRequest, TResponse>
+                .Execute(request, behaviors, handler, handlerInstance: null, cancellationToken);
+        }
+
+        // Fallback to index trampoline for deep chains (>5)
         return PipelineRunner<TRequest, TResponse>
             .Rent(request, behaviors, handler, handlerInstance: null, cancellationToken)
             .Run();
@@ -65,6 +75,7 @@ public static class PipelineComposer
     /// Executes the composed pipeline using a resolved <see cref="IRequestHandler{TRequest,TResponse}"/>
     /// as the terminal invoker (avoids allocating a method-group <see cref="Func{T,TResult}"/> per Send).
     /// Intended for generated dispatch code.
+    /// H3 EXPERIMENT: Use field-staged executor for shallow depths.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,10 +95,256 @@ public static class PipelineComposer
             return handler.Handle(request, cancellationToken);
         }
 
-        // Single entry (no ExecuteCore hop): rent pooled runner and run.
+        // H3: Use field-staged executor for common depths (1-5 behaviors)
+        if (behaviors.Count <= 5)
+        {
+            return PipelineExecutor<TRequest, TResponse>
+                .Execute(request, behaviors, handlerFunc: null, handler, cancellationToken);
+        }
+
+        // Fallback to index trampoline for deep chains (>5)
         return PipelineRunner<TRequest, TResponse>
             .Rent(request, behaviors, handlerFunc: null, handler, cancellationToken)
             .Run();
+    }
+
+    /// <summary>
+    /// H3 EXPERIMENT: Field-staged pipeline executor with pre-bound RequestHandlerDelegate methods.
+    /// Replaces index trampoline for depths 1-5. Each "Next" method is bound once in the ctor,
+    /// eliminating per-call index checks and list indexing overhead.
+    /// Pooled (TLS + ConcurrentBag) for zero steady-state allocation.
+    /// </summary>
+    private sealed class PipelineExecutor<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+    {
+        private const int MaxPoolSize = 64;
+        private static readonly ConcurrentBag<PipelineExecutor<TRequest, TResponse>> Pool = new();
+
+        [ThreadStatic]
+        private static PipelineExecutor<TRequest, TResponse>? t_tls;
+
+        // Mutable state set per Execute
+        private TRequest _request = default!;
+        private IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> _behaviors = null!;
+        private Func<TRequest, CancellationToken, ValueTask<TResponse>>? _handlerFunc;
+        private IRequestHandler<TRequest, TResponse>? _handlerInstance;
+        private CancellationToken _cancellationToken;
+
+        // Pre-bound delegates (immutable after ctor, reused across invocations)
+        private readonly RequestHandlerDelegate<TResponse> _n0, _n1, _n2, _n3, _n4, _n5;
+
+        private PipelineExecutor()
+        {
+            // Bind all next delegates once for the lifetime of this pooled instance
+            _n0 = Next0;
+            _n1 = Next1;
+            _n2 = Next2;
+            _n3 = Next3;
+            _n4 = Next4;
+            _n5 = Next5;
+        }
+
+        public static ValueTask<TResponse> Execute(
+            TRequest request,
+            IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> behaviors,
+            Func<TRequest, CancellationToken, ValueTask<TResponse>>? handlerFunc,
+            IRequestHandler<TRequest, TResponse>? handlerInstance,
+            CancellationToken cancellationToken)
+        {
+            PipelineExecutor<TRequest, TResponse>? executor = t_tls;
+            if (executor is not null)
+            {
+                t_tls = null;
+            }
+            else if (!Pool.TryTake(out executor))
+            {
+                executor = new PipelineExecutor<TRequest, TResponse>();
+            }
+
+            executor._request = request;
+            executor._behaviors = behaviors;
+            executor._handlerFunc = handlerFunc;
+            executor._handlerInstance = handlerInstance;
+            executor._cancellationToken = cancellationToken;
+
+            ValueTask<TResponse> result;
+            IPipelineBehavior<TRequest, TResponse> firstBehavior = behaviors[0];
+            try
+            {
+                // Start with behavior 0
+                result = firstBehavior.Handle(request, executor._n1, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                executor.Return();
+                return ThrowSyncException(ex, firstBehavior);
+            }
+
+            if (result.IsCompletedSuccessfully)
+            {
+                TResponse value = result.Result;
+                executor.Return();
+                return new ValueTask<TResponse>(value);
+            }
+
+            // Async path: must await and handle exceptions
+            return AwaitAndReturn(result, executor, firstBehavior);
+        }
+
+        private void Return()
+        {
+            _request = default!;
+            _behaviors = null!;
+            _handlerFunc = null;
+            _handlerInstance = null;
+            _cancellationToken = default;
+
+            if (t_tls is null)
+            {
+                t_tls = this;
+            }
+            else if (Pool.Count < MaxPoolSize)
+            {
+                Pool.Add(this);
+            }
+        }
+
+        // Pre-bound methods for each depth (Next0 is never called - starts with behavior[0])
+        private ValueTask<TResponse> Next0() => throw new InvalidOperationException("Next0 should never be called");
+
+        private ValueTask<TResponse> Next1()
+        {
+            if (_behaviors.Count <= 1)
+            {
+                return InvokeHandler();
+            }
+            try
+            {
+                return _behaviors[1].Handle(_request, _n2, _cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return ThrowSyncException(ex, _behaviors[1]);
+            }
+        }
+
+        private ValueTask<TResponse> Next2()
+        {
+            if (_behaviors.Count <= 2)
+            {
+                return InvokeHandler();
+            }
+            try
+            {
+                return _behaviors[2].Handle(_request, _n3, _cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return ThrowSyncException(ex, _behaviors[2]);
+            }
+        }
+
+        private ValueTask<TResponse> Next3()
+        {
+            if (_behaviors.Count <= 3)
+            {
+                return InvokeHandler();
+            }
+            try
+            {
+                return _behaviors[3].Handle(_request, _n4, _cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return ThrowSyncException(ex, _behaviors[3]);
+            }
+        }
+
+        private ValueTask<TResponse> Next4()
+        {
+            if (_behaviors.Count <= 4)
+            {
+                return InvokeHandler();
+            }
+            try
+            {
+                return _behaviors[4].Handle(_request, _n5, _cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return ThrowSyncException(ex, _behaviors[4]);
+            }
+        }
+
+        private ValueTask<TResponse> Next5()
+        {
+            // Max depth for field-staged executor is 5
+            return InvokeHandler();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ValueTask<TResponse> InvokeHandler()
+        {
+            return _handlerInstance is not null
+                ? _handlerInstance.Handle(_request, _cancellationToken)
+                : _handlerFunc!(_request, _cancellationToken);
+        }
+
+        private static async ValueTask<TResponse> AwaitAndReturn(
+            ValueTask<TResponse> valueTask,
+            PipelineExecutor<TRequest, TResponse> executor,
+            IPipelineBehavior<TRequest, TResponse> behavior)
+        {
+            try
+            {
+                TResponse result = await valueTask.ConfigureAwait(false);
+                executor.Return();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                executor.Return();
+                ThrowAsyncException(ex, behavior);
+                return default!; // unreachable
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static ValueTask<TResponse> ThrowSyncException(
+            Exception ex,
+            IPipelineBehavior<TRequest, TResponse> behavior)
+        {
+            if (ex is OperationCanceledException)
+            {
+                throw ex;
+            }
+
+            if (ex is PlaxionMediatorException)
+            {
+                throw ex;
+            }
+
+            throw new PipelineExecutionException(
+                $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
+                ex,
+                behavior.GetType().Name);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowAsyncException(
+            Exception ex,
+            IPipelineBehavior<TRequest, TResponse> behavior)
+        {
+            if (ex is OperationCanceledException || ex is PlaxionMediatorException)
+            {
+                throw ex;
+            }
+
+            throw new PipelineExecutionException(
+                $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
+                ex,
+                behavior.GetType().Name);
+        }
     }
 
     /// <summary>
@@ -96,6 +353,7 @@ public static class PipelineComposer
     /// Instances are pooled (TLS + ConcurrentBag) so the class + Next delegate are not per-call allocs.
     /// Implements <see cref="IValueTaskSource{TResult}"/> so the async completion path can return the
     /// instance to the pool from <see cref="GetResult"/> without an extra async state machine.
+    /// H3: This is now the FALLBACK for deep chains (>5 behaviors).
     /// </summary>
     private sealed class PipelineRunner<TRequest, TResponse> : IValueTaskSource<TResponse>
         where TRequest : IRequest<TResponse>
