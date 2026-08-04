@@ -95,6 +95,26 @@ internal static class SourceEmitter
         sb.AppendLine();
         sb.Append("namespace ").Append(model.RootNamespace).AppendLine(".Generated;");
         sb.AppendLine();
+
+        // EXPERIMENT H1 (wrapper dispatch): closed-generic wrapper contract used by the large-N Send path.
+        // A single Type -> wrapper lookup yields an object that already knows its concrete request type and
+        // its closed TResponse, so Send needs no integer id, no N-way jump table and no CastOrAdapt hop.
+        if (model.RequestHandlers.Length > TypeMapDispatchThreshold)
+        {
+            sb.AppendLine("/// <summary>Non-generic wrapper contract; used only for the covariant Send&lt;TResponse&gt; fallback.</summary>");
+            sb.AppendLine("internal interface IPlaxionSendWrapper");
+            sb.AppendLine("{");
+            sb.AppendLine("    ValueTask<TResponse> HandleAdapted<TResponse>(object request, PlaxionMediatorSender sender, CancellationToken cancellationToken);");
+            sb.AppendLine("}");
+            sb.AppendLine();
+            sb.AppendLine("/// <summary>Closed-response wrapper contract; the fast dispatch path.</summary>");
+            sb.AppendLine("internal interface IPlaxionSendWrapper<TResponse> : IPlaxionSendWrapper");
+            sb.AppendLine("{");
+            sb.AppendLine("    ValueTask<TResponse> Handle(IRequest<TResponse> request, PlaxionMediatorSender sender, CancellationToken cancellationToken);");
+            sb.AppendLine("}");
+            sb.AppendLine();
+        }
+
         sb.AppendLine("internal sealed class PlaxionMediatorSender : ISender, IPublisher");
         sb.AppendLine("{");
         sb.AppendLine("    private readonly IServiceProvider _services;");
@@ -120,11 +140,12 @@ internal static class SourceEmitter
         if (model.RequestHandlers.Length > TypeMapDispatchThreshold)
         {
             sb.AppendLine();
-            sb.AppendLine("    private static readonly Dictionary<Type, int> s_requestTypeMap = CreateRequestTypeMap();");
+            sb.AppendLine("    // EXPERIMENT H1: Type -> ready-to-invoke wrapper instance (stateless singletons, built once).");
+            sb.AppendLine("    private static readonly Dictionary<Type, object> s_wrapperMap = CreateWrapperMap();");
             sb.AppendLine();
-            sb.AppendLine("    private static Dictionary<Type, int> CreateRequestTypeMap()");
+            sb.AppendLine("    private static Dictionary<Type, object> CreateWrapperMap()");
             sb.AppendLine("    {");
-            sb.Append("        Dictionary<Type, int> map = new(")
+            sb.Append("        Dictionary<Type, object> map = new(")
                 .Append(model.RequestHandlers.Length)
                 .AppendLine(");");
             int mapIndex = 0;
@@ -132,9 +153,9 @@ internal static class SourceEmitter
             {
                 sb.Append("        map.Add(typeof(")
                     .Append(handlerModel.RequestFullyQualifiedName)
-                    .Append("), ")
+                    .Append("), SendWrapper_")
                     .Append(mapIndex)
-                    .AppendLine(");");
+                    .AppendLine(".Instance);");
                 mapIndex++;
             }
 
@@ -219,36 +240,23 @@ internal static class SourceEmitter
         }
         else
         {
-            // Large N: O(1) Type → dense index via static dictionary, then jump-table switch.
-            // Avoids the N-way type-pattern IsInst chain that dominated TypeVariety profiles.
+            // EXPERIMENT H1 (wrapper dispatch): one Type -> wrapper lookup, then a single interface call.
+            // The wrapper is closed over both the concrete request type and the concrete response type, so the
+            // integer jump table and the generic CastOrAdapt hop disappear from the hot path entirely.
             sb.AppendLine("        Type requestType = request.GetType();");
-            sb.AppendLine("        if (!s_requestTypeMap.TryGetValue(requestType, out int requestId))");
+            sb.AppendLine("        if (!s_wrapperMap.TryGetValue(requestType, out object? wrapper))");
             sb.AppendLine("        {");
             sb.AppendLine("            throw new HandlerNotFoundException(requestType);");
             sb.AppendLine("        }");
             sb.AppendLine();
-            sb.AppendLine("        switch (requestId)");
+            sb.AppendLine("        if (wrapper is IPlaxionSendWrapper<TResponse>)");
             sb.AppendLine("        {");
-            int index = 0;
-            foreach (RequestHandlerModel handler in model.RequestHandlers)
-            {
-                string methodName = "SendCore_" + index;
-                // CastOrAdapt elides the async adapter when TActual == TResponse (JIT folds the typeof check).
-                // Cast via object: IRequest<TResponse> has no compile-time conversion to the concrete request type.
-                sb.Append("            case ")
-                    .Append(index)
-                    .Append(": return CastOrAdapt<")
-                    .Append(handler.ResponseFullyQualifiedName)
-                    .Append(", TResponse>(")
-                    .Append(methodName)
-                    .Append("((")
-                    .Append(handler.RequestFullyQualifiedName)
-                    .AppendLine(")(object)request, cancellationToken));");
-                index++;
-            }
-
-            sb.AppendLine("            default: throw new HandlerNotFoundException(requestType);");
+            sb.AppendLine("            // Type-check already succeeded; skip the redundant castclass the pattern would emit.");
+            sb.AppendLine("            return Unsafe.As<IPlaxionSendWrapper<TResponse>>(wrapper).Handle(request, this, cancellationToken);");
             sb.AppendLine("        }");
+            sb.AppendLine();
+            sb.AppendLine("        // Cold path: IRequest<out TResponse> is covariant, so TResponse may be a supertype.");
+            sb.AppendLine("        return ((IPlaxionSendWrapper)wrapper).HandleAdapted<TResponse>(request, this, cancellationToken);");
         }
 
         sb.AppendLine("    }");
@@ -313,6 +321,62 @@ internal static class SourceEmitter
             sb.AppendLine("    }");
             sb.AppendLine();
             methodIndex++;
+        }
+
+        EmitSendWrappers(sb, model);
+    }
+
+    /// <summary>
+    /// EXPERIMENT H1: emits one stateless, sealed, non-generic wrapper per request type. Nested inside the
+    /// sender so it can call the private <c>SendCore_N</c> / <c>CastOrAdapt</c> members directly.
+    /// </summary>
+    private static void EmitSendWrappers(StringBuilder sb, GenerationModel model)
+    {
+        if (model.RequestHandlers.Length <= TypeMapDispatchThreshold)
+        {
+            return;
+        }
+
+        int wrapperIndex = 0;
+        foreach (RequestHandlerModel handler in model.RequestHandlers)
+        {
+            sb.Append("    private sealed class SendWrapper_")
+                .Append(wrapperIndex)
+                .Append(" : IPlaxionSendWrapper<")
+                .Append(handler.ResponseFullyQualifiedName)
+                .AppendLine(">");
+            sb.AppendLine("    {");
+            sb.Append("        internal static readonly SendWrapper_")
+                .Append(wrapperIndex)
+                .Append(" Instance = new SendWrapper_")
+                .Append(wrapperIndex)
+                .AppendLine("();");
+            sb.AppendLine();
+            sb.AppendLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
+            sb.Append("        public ValueTask<")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append("> Handle(IRequest<")
+                .Append(handler.ResponseFullyQualifiedName)
+                .AppendLine("> request, PlaxionMediatorSender sender, CancellationToken cancellationToken)");
+            // Plain cast (not Unsafe.As): request types may legally be value types.
+            sb.Append("            => sender.SendCore_")
+                .Append(wrapperIndex)
+                .Append("((")
+                .Append(handler.RequestFullyQualifiedName)
+                .AppendLine(")request, cancellationToken);");
+            sb.AppendLine();
+            sb.Append("        public ValueTask<TResponse> HandleAdapted<TResponse>(object request, PlaxionMediatorSender sender, CancellationToken cancellationToken)")
+                .AppendLine();
+            sb.Append("            => CastOrAdapt<")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append(", TResponse>(sender.SendCore_")
+                .Append(wrapperIndex)
+                .Append("((")
+                .Append(handler.RequestFullyQualifiedName)
+                .AppendLine(")request, cancellationToken));");
+            sb.AppendLine("    }");
+            sb.AppendLine();
+            wrapperIndex++;
         }
     }
 
