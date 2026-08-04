@@ -33,5 +33,3 @@ From `benchmarks-comparison/`:
 ```
 
 Results land under `profiling-results/<Framework>/<Scenario>/`.
-
-See `../PROFILING_REPORT.md` for the technical optimization write-up.
