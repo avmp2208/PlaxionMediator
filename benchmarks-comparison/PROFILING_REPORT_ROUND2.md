@@ -558,3 +558,57 @@ No KEPT Round 3 code path change. Profile still shows pooled `PipelineRunner.Nex
 1. **TypeVariety ~2.3× Mediator** (improved from ~3.8×) — still Dictionary + `SendCore_*` + `CastOrAdapt` vs Mediator wrapper table / monomorphized concrete `Send`.
 2. **Pipeline latency** vs Mediator unchanged in structure — `RequestHandlerDelegate` (`Func<ValueTask<T>>`) forces per-call runner state; Mediator’s `MessageHandlerDelegate` pre-composes once.
 3. **Allocations:** still Mediator-parity on pipeline depths 1/5/10/20 and TypeVariety 0 B.
+
+---
+
+## Round 4 investigation profiling note (2026-08-03)
+
+Full write-up: **`OPTIMIZATION_REPORT_ROUND4.md`**. Benchmark snapshot: **`RESULTS.md`** (Round 4 section).  
+This round is **investigation-first**: no KEPT production code changes.
+
+### Generated-code diff (Mediator vs Plaxion)
+
+| Concern | Mediator (generated) | Plaxion (generated, N>16) |
+|---------|----------------------|---------------------------|
+| Next delegate | `MessageHandlerDelegate<TMessage,TResponse>(msg, ct)` | `RequestHandlerDelegate<TResponse>()` — public, parameterless |
+| Pipeline build | Nested closures in wrapper `Init()` **once** | `PipelineComposer` + pooled `PipelineRunner.Next` **per Send** |
+| Generic Send | `FrozenDictionary<Type, wrapper>` → `IRequestHandlerBase<TResponse>.Handle` | `Dictionary<Type,int>` → `switch(id)` → `SendCore_*` → `CastOrAdapt` |
+| Concrete Send | Monomorphized `Send(TRequest)` overloads exist on concrete type | Only `ISender.Send<TResponse>(IRequest<TResponse>)` |
+| Comparison adapter N | Many wrappers in one metadata container | **51** handlers → always Dictionary path (pipeline + 50 variety) |
+
+### Profiler / harness (round4 artifacts under gitignored `profiling-results/`)
+
+| Scenario | Shape finding |
+|----------|----------------|
+| TypeVariety50 Plaxion | `Send` + `Dictionary.FindValue` + `SendCore_*`; IsInst storm still gone (R3 held). Lookup exclusive **small** vs total ~2× gap |
+| TypeVariety50 Mediator | FrozenDict + wrapper `Handle`; shorter frame chain to handler |
+| Send5/Send20 Plaxion | `PipelineRunner.Next` + behavior MoveNext; DI absent |
+| Send5/Send20 Mediator | Precomposed `_rootHandler` invoke chain; no runner trampoline |
+
+Relative harness throughput (CPU sampling, not BDN ns): TypeVariety Plaxion/Mediator ~0.45×; Send5 ~0.83×; Send20 ~0.84×.
+
+### JIT / inlining
+
+- Bloated `Send` bodies regress (R3 G1-B −75% TypeVariety) — size heuristics bind.
+- Mediator generic Send stays small (lookup + interface call).
+- Plaxion large-N jump table + 51 `SendCore_*` creates more code than wrapper table.
+- Durable full asm dumps not shipped; codegen + profiler + BDN are primary evidence.
+
+### Experiment
+
+| Change | Result |
+|--------|--------|
+| R4-A `FrozenDictionary` Type→id map | TypeVariety ~2674 ns vs R3 ~2614 ns — **REVERTED** |
+
+### Architectural residual (unchanged by Round 4 code)
+
+1. **Pipeline latency** with **alloc parity**: cannot pre-compose safely under parameterless `RequestHandlerDelegate` without public API evolution.
+2. **TypeVariety ~2.2×**: needs Mediator-like wrapper objects (codegen), not a faster int map alone.
+3. Notifications remain a Plaxion strength; concurrency alloc parity holds.
+
+### Constraint checks
+
+- Public API unchanged.
+- `dotnet test PlaxionMediator.sln -c Release` green after experiment and after revert.
+- Comparison adapters / benchmark sources not modified.
+- Final tree: no net `src/PlaxionMediator*` diff vs Round 3 KEPT state.

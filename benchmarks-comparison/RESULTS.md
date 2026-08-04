@@ -272,3 +272,93 @@ for large handler sets. Still **0 B**. Residual vs Mediator ~**2.3×** (was ~3.8
 - **Pipeline:** no KEPT structural change; **Mediator alloc parity** held; latency residual remains.
 - **Goal 2 attempts** (shallow runner, null-guard strip) **REVERTED** — see `OPTIMIZATION_REPORT_ROUND3.md`.
 - **Public API** unchanged; all main-repo tests green.
+
+---
+
+# Round 4 Investigation Results (2026-08-03)
+
+> Generated: 2026-08-03 (round-4 investigation), via real BenchmarkDotNet full suite  
+> (`WarmupCount=3`, `IterationCount=10`, `LaunchCount=1`) on Windows 11, 12th Gen Intel Core i7-12700K,  
+> .NET 9.0.7 / BenchmarkDotNet v0.14.0.  
+> **No KEPT code changes** vs Round 3. One experiment (`FrozenDictionary` type map) measured and **REVERTED**.  
+> Details: `OPTIMIZATION_REPORT_ROUND4.md`. Absolute ns vary by session; allocs stable.
+
+## Pipeline Behavior Chains (Round 4)
+
+| Method                    | Mean        | Ratio | Rank | Allocated |
+|---------------------------|------------:|------:|-----:|----------:|
+| Send_Mediator_0Behaviors  |    18.06 ns |  0.36 |    1 |         - |
+| Send_Plaxion_0Behaviors   |    50.76 ns |  1.00 |    2 |         - |
+| Send_Mediator_1Behavior   |    81.55 ns |  1.61 |    3 |     128 B |
+| Send_MediatR_0Behaviors   |   126.27 ns |  2.49 |    4 |     264 B |
+| Send_Plaxion_1Behavior    |   169.06 ns |  3.33 |    4 |     128 B |
+| Send_MediatR_1Behavior    |   206.62 ns |  4.07 |    4 |     648 B |
+| Send_Mediator_5Behaviors  |   350.49 ns |  6.91 |    5 |     640 B |
+| Send_Plaxion_5Behaviors   |   512.78 ns | 10.10 |    6 |     640 B |
+| Send_MediatR_5Behaviors   |   590.80 ns | 11.64 |    6 |    1896 B |
+| Send_Mediator_10Behaviors |   696.32 ns | 13.72 |    7 |    1280 B |
+| Send_Plaxion_10Behaviors  | 1,031.28 ns | 20.32 |    8 |    1280 B |
+| Send_MediatR_10Behaviors  | 1,051.36 ns | 20.71 |    8 |    3456 B |
+| Send_Mediator_20Behaviors | 1,501.06 ns | 29.58 |    9 |    2560 B |
+| Send_Plaxion_20Behaviors  | 2,103.46 ns | 41.44 |   10 |    2560 B |
+| Send_MediatR_20Behaviors  | 2,139.07 ns | 42.14 |   10 |    6576 B |
+
+**Takeaway:** **Mediator allocation parity retained** at every depth. No structural pipeline change this round.  
+Latency residual vs Mediator is architectural (compose-once message-carrying next delegates vs per-call `PipelineRunner` under parameterless `RequestHandlerDelegate`). Send20 showed elevated StdDev this session; structure unchanged from R3.
+
+## Type Variety (Round 4)
+
+| Method                    | Mean       | Ratio | Rank | Allocated |
+|---------------------------|-----------:|------:|-----:|----------:|
+| Dispatch_Mediator_50Types |   966.8 ns |  0.45 |    1 |         - |
+| Dispatch_Plaxion_50Types  | 2,141.6 ns |  1.00 |    2 |         - |
+| Dispatch_MediatR_50Types  | 5,739.5 ns |  2.68 |    3 |   13200 B |
+
+**Takeaway:** Still **0 B**. Session mean ~2142 ns (R3 snapshot was 2614 ns) with **no code change** — treat as run variance, not a Round 4 win. Residual vs Mediator remains **~2.2×**.  
+`FrozenDictionary` Type→id experiment did **not** beat R3 Dictionary baseline on TypeVariety and was **REVERTED**.
+
+## Concurrency (Round 4)
+
+| Method                  | Mean        | Ratio  | Rank | Allocated |
+|-------------------------|------------:|-------:|-----:|----------:|
+| Concurrent_Mediator_1   |    58.28 ns |   0.63 |    1 |     176 B |
+| Concurrent_Plaxion_1    |    92.08 ns |   1.00 |    2 |     176 B |
+| Concurrent_MediatR_1    |   123.72 ns |   1.34 |    3 |     368 B |
+| Concurrent_Mediator_8   |   323.85 ns |   3.52 |    4 |     736 B |
+| Concurrent_Plaxion_8    |   547.22 ns |   5.95 |    5 |     736 B |
+| Concurrent_MediatR_8    |   777.79 ns |   8.45 |    6 |    2272 B |
+| Concurrent_Mediator_32  | 1,231.30 ns |  13.38 |    7 |    2656 B |
+| Concurrent_Plaxion_32   | 2,080.27 ns |  22.60 |    8 |    2656 B |
+| Concurrent_MediatR_32   | 3,067.66 ns |  33.33 |    9 |    8800 B |
+| Concurrent_Mediator_128 | 4,804.40 ns |  52.20 |   10 |   10336 B |
+| Concurrent_Plaxion_128  | 8,278.78 ns |  89.95 |   11 |   10336 B |
+| Concurrent_MediatR_128  |12,586.24 ns | 136.75 |   12 |   34912 B |
+
+**Takeaway:** Alloc parity with Mediator under concurrency retained (176/736/2656/10336 B). No concurrency-specific code changes.
+
+## Notification Fan-Out (Round 4)
+
+| Method                       | Mean         | Ratio | Rank | Allocated |
+|-------------------------------|-------------:|------:|-----:|----------:|
+| Publish_Mediator_1Handler    |     79.98 ns |  0.65 |    1 |     120 B |
+| Publish_Plaxion_1Handler     |    122.45 ns |  1.00 |    2 |     152 B |
+| Publish_MediatR_1Handler     |    157.82 ns |  1.29 |    3 |     352 B |
+| Publish_Mediator_10Handlers  |    731.74 ns |  5.98 |    4 |    1200 B |
+| Publish_Plaxion_10Handlers   |    769.51 ns |  6.29 |    4 |    1304 B |
+| Publish_MediatR_10Handlers   |  1,085.03 ns |  8.86 |    5 |    2512 B |
+| Publish_Plaxion_50Handlers   |  3,736.29 ns | 30.52 |    6 |    6424 B |
+| Publish_Mediator_50Handlers  |  3,840.60 ns | 31.38 |    6 |    6000 B |
+| Publish_MediatR_50Handlers   |  5,067.27 ns | 41.40 |    7 |   12112 B |
+| Publish_Plaxion_100Handlers  |  7,288.16 ns | 59.54 |    8 |   12824 B |
+| Publish_Mediator_100Handlers |  7,580.47 ns | 61.93 |    8 |   12000 B |
+| Publish_MediatR_100Handlers  | 10,751.90 ns | 87.84 |    9 |   24112 B |
+
+**Takeaway:** Still a Plaxion strength area at higher fan-out (leads Mediator at 50/100 on this run).
+
+## Overall Summary (Round 4)
+
+- **Primary deliverable:** evidence-backed explanation of residual gaps (see `OPTIMIZATION_REPORT_ROUND4.md`).
+- **Pipeline latency:** Mediator faster because it pre-composes message-carrying next delegates once; Plaxion public parameterless `RequestHandlerDelegate` forces a per-call runner trampoline. Allocations already match.
+- **TypeVariety:** Mediator faster because generic Send dispatches to pre-built wrappers returning `ValueTask<TResponse>` directly; Plaxion pays map + `SendCore_*` + `CastOrAdapt`. Still 0 B; ~2.2× residual.
+- **Phase 2:** only `FrozenDictionary` map tried → **REVERTED** (no ≥2–3% TypeVariety gain).
+- **Public API** unchanged; all main-repo tests green; `src/PlaxionMediator*` matches Round 3 end state.
