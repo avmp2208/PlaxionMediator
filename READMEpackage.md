@@ -108,6 +108,12 @@ app.UsePlaxionMediatorExceptionHandling();
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
 | `PlaxionMediator.Retry` | `IRetryableRequest` and `RetryBehavior<,>` |
 
+## Benchmarks
+
+Benchmarked head-to-head against [Mediator](https://github.com/martinothamar/Mediator) (source-gen) and [MediatR](https://github.com/jbogard/MediatR) via BenchmarkDotNet. All three are solid, production-ready choices — PlaxionMediator matches Mediator's allocation profile exactly on pipeline behaviors and concurrency, is essentially on par with it on type-variety dispatch (~1.00 ratio, 0 B allocated), and edges ahead of both on notification fan-out at higher handler counts — while staying consistently ahead of MediatR on latency and allocations across every scenario.
+
+See the [full README on GitHub](https://github.com/avmp2208/PlaxionMediator#benchmarks) for the complete results tables.
+
 ## License
 
 MIT — see [LICENSE](https://github.com/avmp2208/PlaxionMediator/blob/master/LICENSE).

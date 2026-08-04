@@ -2,6 +2,17 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.4.1
+
+### Fixed
+- **Unmapped exception handling**: Resolved a regression where exceptions surfacing from a terminal handler were incorrectly wrapped into `PipelineExecutionException`. Introduced `HandlerFaultException` and updated `PipelineComposer` to correctly attribute and unwrap raw handler faults, ensuring transparency in error reporting (e.g., returning raw 500s instead of problem+json for unmapped errors).
+
+### Changed
+- **Major Performance Optimization**: Rewrote the core pipeline execution engine using a field-staged `PipelineExecutor` (for up to 4 behaviors) and a pooled `PipelineRunner` fallback. This new architecture utilizes hybrid dictionary + jump-table dispatch and aggressive pooling, allowing PlaxionMediator to match or exceed the performance and allocation profile of Mediator and MediatR across pipeline, concurrency, and type-variety scenarios.
+- **Documentation & Benchmarks Refresh**:
+  - Added a comprehensive `benchmarks-comparison/` suite with detailed `RESULTS.md`.
+  - Updated root `README.md` and `READMEpackage.md` with the latest competitive performance data.
+
 ## v0.4.0
 
 ### Added
