@@ -16,6 +16,21 @@ namespace PlaxionMediator.Pipeline;
 public static class PipelineComposer
 {
     /// <summary>
+    /// Internal marker wrapping an exception raised by the terminal handler invocation. Pipeline
+    /// stages recognize this marker and pass it through unchanged (never wrapping it into a
+    /// <see cref="PipelineExecutionException"/>), since a handler fault is not a behavior fault -
+    /// it must reach the caller/middleware as the original, unmapped exception. Unwrapped exactly
+    /// once at the <see cref="ExecuteAsync{TRequest,TResponse}(TRequest,IReadOnlyList{IPipelineBehavior{TRequest,TResponse}},Func{TRequest,CancellationToken,ValueTask{TResponse}},CancellationToken)"/> boundary.
+    /// </summary>
+    private sealed class HandlerFaultException : Exception
+    {
+        public HandlerFaultException(Exception inner)
+            : base(inner.Message, inner)
+        {
+        }
+    }
+
+    /// <summary>
     /// Composes <paramref name="behaviors"/> around <paramref name="handler"/> into a single delegate.
     /// Behaviors are applied in order: the first behavior is outermost (closest to the caller).
     /// </summary>
@@ -59,16 +74,39 @@ public static class PipelineComposer
 
         // H3: Use field-staged executor for common depths (1-5 behaviors)
         // This eliminates index trampoline overhead for typical pipelines
-        if (behaviors.Count <= 5)
+        try
         {
-            return PipelineExecutor<TRequest, TResponse>
-                .Execute(request, behaviors, handler, handlerInstance: null, cancellationToken);
+            ValueTask<TResponse> result = behaviors.Count <= 5
+                ? PipelineExecutor<TRequest, TResponse>
+                    .Execute(request, behaviors, handler, handlerInstance: null, cancellationToken)
+                // Fallback to index trampoline for deep chains (>5)
+                : PipelineRunner<TRequest, TResponse>
+                    .Rent(request, behaviors, handler, handlerInstance: null, cancellationToken)
+                    .Run();
+            return result.IsCompletedSuccessfully ? result : UnwrapHandlerFault(result);
         }
+        catch (HandlerFaultException hfe)
+        {
+            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
+            throw;
+        }
+    }
 
-        // Fallback to index trampoline for deep chains (>5)
-        return PipelineRunner<TRequest, TResponse>
-            .Rent(request, behaviors, handler, handlerInstance: null, cancellationToken)
-            .Run();
+    /// <summary>
+    /// Awaits the pipeline result, unwrapping a <see cref="HandlerFaultException"/> back to the
+    /// original handler exception so it surfaces to the caller raw and unmapped.
+    /// </summary>
+    private static async ValueTask<TResponse> UnwrapHandlerFault<TResponse>(ValueTask<TResponse> task)
+    {
+        try
+        {
+            return await task.ConfigureAwait(false);
+        }
+        catch (HandlerFaultException hfe)
+        {
+            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
+            throw;
+        }
     }
 
     /// <summary>
@@ -96,16 +134,22 @@ public static class PipelineComposer
         }
 
         // H3: Use field-staged executor for common depths (1-5 behaviors)
-        if (behaviors.Count <= 5)
+        try
         {
-            return PipelineExecutor<TRequest, TResponse>
-                .Execute(request, behaviors, handlerFunc: null, handler, cancellationToken);
+            ValueTask<TResponse> result = behaviors.Count <= 5
+                ? PipelineExecutor<TRequest, TResponse>
+                    .Execute(request, behaviors, handlerFunc: null, handler, cancellationToken)
+                // Fallback to index trampoline for deep chains (>5)
+                : PipelineRunner<TRequest, TResponse>
+                    .Rent(request, behaviors, handlerFunc: null, handler, cancellationToken)
+                    .Run();
+            return result.IsCompletedSuccessfully ? result : UnwrapHandlerFault(result);
         }
-
-        // Fallback to index trampoline for deep chains (>5)
-        return PipelineRunner<TRequest, TResponse>
-            .Rent(request, behaviors, handlerFunc: null, handler, cancellationToken)
-            .Run();
+        catch (HandlerFaultException hfe)
+        {
+            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
+            throw;
+        }
     }
 
     /// <summary>
@@ -187,7 +231,9 @@ public static class PipelineComposer
                 return new ValueTask<TResponse>(value);
             }
 
-            // Async path: must await and handle exceptions
+            // Async path: must await, attribute any fault to this stage (unless already mapped,
+            // or thrown by a deeper stage/the handler, which ThrowAsyncException leaves untouched),
+            // and return the executor to the pool exactly once.
             return AwaitAndReturn(result, executor, firstBehavior);
         }
 
@@ -212,67 +258,57 @@ public static class PipelineComposer
         // Pre-bound methods for each depth (Next0 is never called - starts with behavior[0])
         private ValueTask<TResponse> Next0() => throw new InvalidOperationException("Next0 should never be called");
 
-        private ValueTask<TResponse> Next1()
+        private ValueTask<TResponse> Next1() => InvokeStage(1, _n2);
+
+        private ValueTask<TResponse> Next2() => InvokeStage(2, _n3);
+
+        private ValueTask<TResponse> Next3() => InvokeStage(3, _n4);
+
+        private ValueTask<TResponse> Next4() => InvokeStage(4, _n5);
+
+        // Invokes behaviors[index] with the given continuation. Awaits and attributes any fault
+        // to THIS stage only when the stage's own ValueTask completes asynchronously, mirroring
+        // PipelineRunner's per-stage wrapping so exceptions raised deeper in the chain (by another
+        // behavior or by the terminal handler) are not mislabeled as this stage's fault.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ValueTask<TResponse> InvokeStage(int index, RequestHandlerDelegate<TResponse> next)
         {
-            if (_behaviors.Count <= 1)
+            if (_behaviors.Count <= index)
             {
                 return InvokeHandler();
             }
+
+            IPipelineBehavior<TRequest, TResponse> behavior = _behaviors[index];
+            ValueTask<TResponse> valueTask;
             try
             {
-                return _behaviors[1].Handle(_request, _n2, _cancellationToken);
+                valueTask = behavior.Handle(_request, next, _cancellationToken);
             }
             catch (Exception ex)
             {
-                return ThrowSyncException(ex, _behaviors[1]);
+                return ThrowSyncException(ex, behavior);
             }
+
+            if (valueTask.IsCompletedSuccessfully)
+            {
+                return valueTask;
+            }
+
+            return AwaitStage(valueTask, behavior);
         }
 
-        private ValueTask<TResponse> Next2()
+        private static async ValueTask<TResponse> AwaitStage(
+            ValueTask<TResponse> valueTask,
+            IPipelineBehavior<TRequest, TResponse> behavior)
         {
-            if (_behaviors.Count <= 2)
-            {
-                return InvokeHandler();
-            }
             try
             {
-                return _behaviors[2].Handle(_request, _n3, _cancellationToken);
+                return await valueTask.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                return ThrowSyncException(ex, _behaviors[2]);
-            }
-        }
-
-        private ValueTask<TResponse> Next3()
-        {
-            if (_behaviors.Count <= 3)
-            {
-                return InvokeHandler();
-            }
-            try
-            {
-                return _behaviors[3].Handle(_request, _n4, _cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                return ThrowSyncException(ex, _behaviors[3]);
-            }
-        }
-
-        private ValueTask<TResponse> Next4()
-        {
-            if (_behaviors.Count <= 4)
-            {
-                return InvokeHandler();
-            }
-            try
-            {
-                return _behaviors[4].Handle(_request, _n5, _cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                return ThrowSyncException(ex, _behaviors[4]);
+                ThrowAsyncException(ex, behavior);
+                return default!; // unreachable
             }
         }
 
@@ -285,9 +321,34 @@ public static class PipelineComposer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueTask<TResponse> InvokeHandler()
         {
-            return _handlerInstance is not null
-                ? _handlerInstance.Handle(_request, _cancellationToken)
-                : _handlerFunc!(_request, _cancellationToken);
+            ValueTask<TResponse> valueTask;
+            try
+            {
+                valueTask = _handlerInstance is not null
+                    ? _handlerInstance.Handle(_request, _cancellationToken)
+                    : _handlerFunc!(_request, _cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
+            {
+                throw new HandlerFaultException(ex);
+            }
+
+            return valueTask.IsCompletedSuccessfully ? valueTask : MarkAsyncHandlerFault(valueTask);
+        }
+
+        // A handler fault (unlike a behavior fault) must never be wrapped into a
+        // PipelineExecutionException - it is tagged here and left untouched by every stage's
+        // Throw*Exception helper below, then unwrapped exactly once at the ExecuteAsync boundary.
+        private static async ValueTask<TResponse> MarkAsyncHandlerFault(ValueTask<TResponse> valueTask)
+        {
+            try
+            {
+                return await valueTask.ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
+            {
+                throw new HandlerFaultException(ex);
+            }
         }
 
         private static async ValueTask<TResponse> AwaitAndReturn(
@@ -314,12 +375,7 @@ public static class PipelineComposer
             Exception ex,
             IPipelineBehavior<TRequest, TResponse> behavior)
         {
-            if (ex is OperationCanceledException)
-            {
-                throw ex;
-            }
-
-            if (ex is PlaxionMediatorException)
+            if (ex is OperationCanceledException or PlaxionMediatorException or HandlerFaultException)
             {
                 throw ex;
             }
@@ -335,7 +391,7 @@ public static class PipelineComposer
             Exception ex,
             IPipelineBehavior<TRequest, TResponse> behavior)
         {
-            if (ex is OperationCanceledException || ex is PlaxionMediatorException)
+            if (ex is OperationCanceledException or PlaxionMediatorException or HandlerFaultException)
             {
                 throw ex;
             }
@@ -522,9 +578,7 @@ public static class PipelineComposer
             int index = _index;
             if ((uint)index >= (uint)_behaviors.Count)
             {
-                return _handlerInstance is not null
-                    ? _handlerInstance.Handle(_request, _cancellationToken)
-                    : _handlerFunc!(_request, _cancellationToken);
+                return InvokeHandler();
             }
 
             _index = index + 1;
@@ -552,19 +606,47 @@ public static class PipelineComposer
             return AwaitWithExceptionWrapping(valueTask, behavior);
         }
 
+        // Terminal handler invocation: a handler fault is tagged with HandlerFaultException so
+        // every stage below leaves it untouched (see ThrowSyncException/ThrowAsyncException),
+        // and it is unwrapped exactly once at the ExecuteAsync boundary.
+        private ValueTask<TResponse> InvokeHandler()
+        {
+            ValueTask<TResponse> valueTask;
+            try
+            {
+                valueTask = _handlerInstance is not null
+                    ? _handlerInstance.Handle(_request, _cancellationToken)
+                    : _handlerFunc!(_request, _cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
+            {
+                throw new HandlerFaultException(ex);
+            }
+
+            return valueTask.IsCompletedSuccessfully ? valueTask : MarkAsyncHandlerFault(valueTask);
+        }
+
+        private static async ValueTask<TResponse> MarkAsyncHandlerFault(ValueTask<TResponse> valueTask)
+        {
+            try
+            {
+                return await valueTask.ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
+            {
+                throw new HandlerFaultException(ex);
+            }
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static ValueTask<TResponse> ThrowSyncException(
             Exception ex,
             IPipelineBehavior<TRequest, TResponse> behavior)
         {
-            if (ex is OperationCanceledException)
+            if (ex is OperationCanceledException or PlaxionMediatorException or HandlerFaultException)
             {
-                throw ex;
-            }
-
-            if (ex is PlaxionMediatorException)
-            {
-                // Intentional framework exceptions (e.g. validation) must surface unwrapped.
+                // Intentional framework exceptions (e.g. validation) and handler faults must
+                // surface unwrapped.
                 throw ex;
             }
 
@@ -594,7 +676,7 @@ public static class PipelineComposer
             Exception ex,
             IPipelineBehavior<TRequest, TResponse> behavior)
         {
-            if (ex is OperationCanceledException || ex is PlaxionMediatorException)
+            if (ex is OperationCanceledException or PlaxionMediatorException or HandlerFaultException)
             {
                 throw ex;
             }
