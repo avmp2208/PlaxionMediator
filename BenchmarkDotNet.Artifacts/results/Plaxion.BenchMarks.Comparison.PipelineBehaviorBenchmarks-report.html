@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Plaxion.BenchMarks.Comparison.PipelineBehaviorBenchmarks-20260803-113200</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host] : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Dry    : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method             </th><th>Mean</th><th>Error</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Send_MediatR_0Behaviors</td><td>2.885 ms</td><td>NA</td><td>3560 B</td>
+</tr><tr><td>Send_Plaxion_0Behaviors</td><td>3.966 ms</td><td>NA</td><td>1928 B</td>
+</tr><tr><td>Send_MediatR_1Behavior</td><td>3.967 ms</td><td>NA</td><td>3656 B</td>
+</tr><tr><td>Send_MediatR_5Behaviors</td><td>5.842 ms</td><td>NA</td><td>5392 B</td>
+</tr><tr><td>Send_Plaxion_1Behavior</td><td>6.083 ms</td><td>NA</td><td>2816 B</td>
+</tr><tr><td>Send_MediatR_10Behaviors</td><td>7.851 ms</td><td>NA</td><td>7336 B</td>
+</tr><tr><td>Send_Plaxion_5Behaviors</td><td>8.817 ms</td><td>NA</td><td>3776 B</td>
+</tr><tr><td>Send_Plaxion_10Behaviors</td><td>10.208 ms</td><td>NA</td><td>4976 B</td>
+</tr><tr><td>Send_Mediator_0Behaviors</td><td>10.538 ms</td><td>NA</td><td>784 B</td>
+</tr><tr><td>Send_MediatR_20Behaviors</td><td>11.630 ms</td><td>NA</td><td>9584 B</td>
+</tr><tr><td>Send_Mediator_1Behavior</td><td>11.698 ms</td><td>NA</td><td>912 B</td>
+</tr><tr><td>Send_Mediator_5Behaviors</td><td>14.361 ms</td><td>NA</td><td>1424 B</td>
+</tr><tr><td>Send_Plaxion_20Behaviors</td><td>14.525 ms</td><td>NA</td><td>6504 B</td>
+</tr><tr><td>Send_Mediator_10Behaviors</td><td>17.741 ms</td><td>NA</td><td>2064 B</td>
+</tr><tr><td>Send_Mediator_20Behaviors</td><td>25.184 ms</td><td>NA</td><td>2624 B</td>
+</tr></tbody></table>
+</body>
+</html>

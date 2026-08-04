@@ -6,6 +6,12 @@ namespace PlaxionMediator.SourceGenerators;
 
 internal static class SourceEmitter
 {
+    /// <summary>
+    /// Above this many request handlers, generic <c>Send</c> uses a static Type→id map + integer jump table
+    /// instead of an N-way type-pattern switch. Small N keeps type patterns (faster for the common 1-type case).
+    /// </summary>
+    private const int TypeMapDispatchThreshold = 16;
+
     public static string EmitRegistration(GenerationModel model)
     {
         StringBuilder sb = new();
@@ -92,16 +98,73 @@ internal static class SourceEmitter
         sb.AppendLine("internal sealed class PlaxionMediatorSender : ISender, IPublisher");
         sb.AppendLine("{");
         sb.AppendLine("    private readonly IServiceProvider _services;");
+        sb.AppendLine("    private readonly bool _cacheHandlersPerScope;");
+        sb.AppendLine("    // Scope-local cache of resolved behavior arrays (used only when no Transient behaviors are registered).");
+        sb.AppendLine("    private System.Collections.Generic.Dictionary<System.Type, object>? _behaviorScopeCache;");
+        // One nullable handler field per known request type (populated lazily when caching is enabled).
+        int handlerFieldIndex = 0;
+        foreach (RequestHandlerModel handlerModel in model.RequestHandlers)
+        {
+            sb.Append("    private IRequestHandler<")
+                .Append(handlerModel.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handlerModel.ResponseFullyQualifiedName)
+                .Append(">? _cachedHandler")
+                .Append(handlerFieldIndex)
+                .AppendLine(";");
+            handlerFieldIndex++;
+        }
+
+        // For large type sets, emit a static Type → dense index map (O(1) lookup + jump-table switch).
+        // Small sets keep the classic type-pattern switch (cheaper than Dictionary for N ≲ 16).
+        if (model.RequestHandlers.Length > TypeMapDispatchThreshold)
+        {
+            sb.AppendLine();
+            sb.AppendLine("    private static readonly Dictionary<Type, int> s_requestTypeMap = CreateRequestTypeMap();");
+            sb.AppendLine();
+            sb.AppendLine("    private static Dictionary<Type, int> CreateRequestTypeMap()");
+            sb.AppendLine("    {");
+            sb.Append("        Dictionary<Type, int> map = new(")
+                .Append(model.RequestHandlers.Length)
+                .AppendLine(");");
+            int mapIndex = 0;
+            foreach (RequestHandlerModel handlerModel in model.RequestHandlers)
+            {
+                sb.Append("        map.Add(typeof(")
+                    .Append(handlerModel.RequestFullyQualifiedName)
+                    .Append("), ")
+                    .Append(mapIndex)
+                    .AppendLine(");");
+                mapIndex++;
+            }
+
+            sb.AppendLine("        return map;");
+            sb.AppendLine("    }");
+        }
+
         sb.AppendLine();
         sb.AppendLine("    public PlaxionMediatorSender(IServiceProvider services)");
         sb.AppendLine("    {");
         sb.AppendLine("        _services = services ?? throw new ArgumentNullException(nameof(services));");
+        sb.AppendLine("        _cacheHandlersPerScope = RequestHandlerResolver.CanCacheHandlersPerScope();");
         sb.AppendLine("    }");
         sb.AppendLine();
         EmitSend(sb, model);
         EmitCreateStream(sb, model);
         EmitPublish(sb, model);
 
+        sb.AppendLine("    [MethodImpl(MethodImplOptions.AggressiveInlining)]");
+        sb.AppendLine("    private static ValueTask<TResponse> CastOrAdapt<TActual, TResponse>(ValueTask<TActual> source)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        // Fast path: identical closed response types — reinterpret ValueTask without async state machine.");
+        sb.AppendLine("        if (typeof(TActual) == typeof(TResponse))");
+        sb.AppendLine("        {");
+        sb.AppendLine("            return Unsafe.As<ValueTask<TActual>, ValueTask<TResponse>>(ref source);");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+        sb.AppendLine("        return Adapt<TActual, TResponse>(source);");
+        sb.AppendLine("    }");
+        sb.AppendLine();
         sb.AppendLine("    private static async ValueTask<TResponse> Adapt<TActual, TResponse>(ValueTask<TActual> source)");
         sb.AppendLine("    {");
         sb.AppendLine("        TActual result = await source.ConfigureAwait(false);");
@@ -132,25 +195,59 @@ internal static class SourceEmitter
         {
             sb.AppendLine("        throw new HandlerNotFoundException(request.GetType());");
         }
+        else if (model.RequestHandlers.Length <= TypeMapDispatchThreshold)
+        {
+            // Small N: type-pattern switch is cheaper than Dictionary.TryGetValue (common single-request apps).
+            sb.AppendLine("        switch (request)");
+            sb.AppendLine("        {");
+            int smallIndex = 0;
+            foreach (RequestHandlerModel handler in model.RequestHandlers)
+            {
+                string methodName = "SendCore_" + smallIndex;
+                sb.Append("            case ")
+                    .Append(handler.RequestFullyQualifiedName)
+                    .Append(" r: return CastOrAdapt<")
+                    .Append(handler.ResponseFullyQualifiedName)
+                    .Append(", TResponse>(")
+                    .Append(methodName)
+                    .AppendLine("(r, cancellationToken));");
+                smallIndex++;
+            }
+
+            sb.AppendLine("            default: throw new HandlerNotFoundException(request.GetType());");
+            sb.AppendLine("        }");
+        }
         else
         {
-            sb.AppendLine("        switch (request)");
+            // Large N: O(1) Type → dense index via static dictionary, then jump-table switch.
+            // Avoids the N-way type-pattern IsInst chain that dominated TypeVariety profiles.
+            sb.AppendLine("        Type requestType = request.GetType();");
+            sb.AppendLine("        if (!s_requestTypeMap.TryGetValue(requestType, out int requestId))");
+            sb.AppendLine("        {");
+            sb.AppendLine("            throw new HandlerNotFoundException(requestType);");
+            sb.AppendLine("        }");
+            sb.AppendLine();
+            sb.AppendLine("        switch (requestId)");
             sb.AppendLine("        {");
             int index = 0;
             foreach (RequestHandlerModel handler in model.RequestHandlers)
             {
                 string methodName = "SendCore_" + index;
+                // CastOrAdapt elides the async adapter when TActual == TResponse (JIT folds the typeof check).
+                // Cast via object: IRequest<TResponse> has no compile-time conversion to the concrete request type.
                 sb.Append("            case ")
-                    .Append(handler.RequestFullyQualifiedName)
-                    .Append(" r: return Adapt<")
+                    .Append(index)
+                    .Append(": return CastOrAdapt<")
                     .Append(handler.ResponseFullyQualifiedName)
                     .Append(", TResponse>(")
                     .Append(methodName)
-                    .AppendLine("(r, cancellationToken));");
+                    .Append("((")
+                    .Append(handler.RequestFullyQualifiedName)
+                    .AppendLine(")(object)request, cancellationToken));");
                 index++;
             }
 
-            sb.AppendLine("            default: throw new HandlerNotFoundException(request.GetType());");
+            sb.AppendLine("            default: throw new HandlerNotFoundException(requestType);");
             sb.AppendLine("        }");
         }
 
@@ -161,6 +258,8 @@ internal static class SourceEmitter
         foreach (RequestHandlerModel handler in model.RequestHandlers)
         {
             string methodName = "SendCore_" + methodIndex;
+            // AggressiveInlining helps the empty-pipeline TypeVariety path fold into Send's switch.
+            sb.AppendLine("    [MethodImpl(MethodImplOptions.AggressiveInlining)]");
             sb.Append("    private ValueTask<")
                 .Append(handler.ResponseFullyQualifiedName)
                 .Append("> ")
@@ -169,30 +268,48 @@ internal static class SourceEmitter
                 .Append(handler.RequestFullyQualifiedName)
                 .AppendLine(" request, CancellationToken cancellationToken)");
             sb.AppendLine("    {");
+            // Resolve handler with optional scope-local cache (safe for Scoped/Singleton registrations).
             sb.Append("        IRequestHandler<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .Append("> handler = _services.GetRequiredService<IRequestHandler<")
+                .Append(">? handler = _cachedHandler")
+                .Append(methodIndex)
+                .AppendLine(";");
+            sb.AppendLine("        if (handler is null)");
+            sb.AppendLine("        {");
+            sb.Append("            handler = _services.GetRequiredService<IRequestHandler<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
                 .AppendLine(">>();");
-            sb.Append("        IPipelineBehavior<")
-                .Append(handler.RequestFullyQualifiedName)
-                .Append(", ")
-                .Append(handler.ResponseFullyQualifiedName)
-                .Append(">[] behaviors = _services.GetServices<IPipelineBehavior<")
-                .Append(handler.RequestFullyQualifiedName)
-                .Append(", ")
-                .Append(handler.ResponseFullyQualifiedName)
-                .AppendLine(">>().ToArray();");
-            sb.AppendLine("        if (behaviors.Length == 0)");
+            sb.AppendLine("            if (_cacheHandlersPerScope)");
+            sb.AppendLine("            {");
+            sb.Append("                _cachedHandler").Append(methodIndex).AppendLine(" = handler;");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            // Global fast path: no pipeline behaviors registered anywhere → skip per-type lookup.
+            sb.AppendLine("        if (PipelineBehaviorResolver.HasNoPipelineBehaviors())");
             sb.AppendLine("        {");
             sb.AppendLine("            return handler.Handle(request, cancellationToken);");
             sb.AppendLine("        }");
             sb.AppendLine();
-            sb.AppendLine("        return PipelineComposer.ExecuteAsync(request, behaviors, handler.Handle, cancellationToken);");
+            sb.Append("        System.Collections.Generic.IReadOnlyList<IPipelineBehavior<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .Append(">> behaviors = PipelineBehaviorResolver.GetBehaviors<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .AppendLine(">(_services, ref _behaviorScopeCache);");
+            sb.AppendLine("        if (behaviors.Count == 0)");
+            sb.AppendLine("        {");
+            sb.AppendLine("            return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("        }");
+            sb.AppendLine();
+            // Pass the handler instance (not handler.Handle method-group) to avoid a per-call Func alloc.
+            sb.AppendLine("        return PipelineComposer.ExecuteAsync(request, behaviors, handler, cancellationToken);");
             sb.AppendLine("    }");
             sb.AppendLine();
             methodIndex++;

@@ -49,7 +49,9 @@ public sealed class PlaxionMediatorGeneratorTests
             .ToString();
 
         Assert.Contains("class PlaxionMediatorSender", sender);
+        // Small type sets keep type-pattern dispatch (Dictionary map only above threshold).
         Assert.Contains("case global::Demo.Ping", sender);
+        Assert.DoesNotContain("s_requestTypeMap", sender);
 
         // Generated code should compile with the original compilation (may have other unrelated warnings)
         ImmutableArray<Diagnostic> compileDiagnostics = compilation.GetDiagnostics();

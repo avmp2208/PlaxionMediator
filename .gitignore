@@ -103,3 +103,11 @@ node_modules/
 .junie/
 docs/architecture/
 ReleaseProcess/
+
+# Benchmarks comparison - build artifacts & raw profiler captures
+benchmarks-comparison/**/[Bb]in/
+benchmarks-comparison/**/[Oo]bj/
+benchmarks-comparison/**/BenchmarkDotNet.Artifacts/
+
+# Profiling comparison results - regenerated every run, files are large
+benchmarks-comparison/profiling-results/

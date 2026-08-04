@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.Core;
+using PlaxionMediator.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -30,6 +31,10 @@ public static class PlaxionMediatorServiceCollectionExtensions
         // Generated registration (handlers, sender, publisher) — no-op if generator did not run.
         PlaxionMediatorGeneratedRegistrationBridge.Invoke(services, options);
 
+        // Capture collection for lifetime-aware pipeline behavior / handler resolution cache policy.
+        PipelineBehaviorResolver.RegisterServiceCollection(services);
+        RequestHandlerResolver.RegisterServiceCollection(services);
+
         return services;
     }
 
@@ -47,6 +52,10 @@ public static class PlaxionMediatorServiceCollectionExtensions
         configure?.Invoke(options);
         services.TryAddSingleton(options);
         RegisterGlobalBehaviors(services, options);
+
+        PipelineBehaviorResolver.RegisterServiceCollection(services);
+        RequestHandlerResolver.RegisterServiceCollection(services);
+
         return services;
     }
 
