@@ -6,6 +6,12 @@ namespace PlaxionMediator.SourceGenerators;
 
 internal static class SourceEmitter
 {
+    /// <summary>
+    /// Above this many request handlers, generic <c>Send</c> uses a static Type→id map + integer jump table
+    /// instead of an N-way type-pattern switch. Small N keeps type patterns (faster for the common 1-type case).
+    /// </summary>
+    private const int TypeMapDispatchThreshold = 16;
+
     public static string EmitRegistration(GenerationModel model)
     {
         StringBuilder sb = new();
@@ -109,6 +115,33 @@ internal static class SourceEmitter
             handlerFieldIndex++;
         }
 
+        // For large type sets, emit a static Type → dense index map (O(1) lookup + jump-table switch).
+        // Small sets keep the classic type-pattern switch (cheaper than Dictionary for N ≲ 16).
+        if (model.RequestHandlers.Length > TypeMapDispatchThreshold)
+        {
+            sb.AppendLine();
+            sb.AppendLine("    private static readonly Dictionary<Type, int> s_requestTypeMap = CreateRequestTypeMap();");
+            sb.AppendLine();
+            sb.AppendLine("    private static Dictionary<Type, int> CreateRequestTypeMap()");
+            sb.AppendLine("    {");
+            sb.Append("        Dictionary<Type, int> map = new(")
+                .Append(model.RequestHandlers.Length)
+                .AppendLine(");");
+            int mapIndex = 0;
+            foreach (RequestHandlerModel handlerModel in model.RequestHandlers)
+            {
+                sb.Append("        map.Add(typeof(")
+                    .Append(handlerModel.RequestFullyQualifiedName)
+                    .Append("), ")
+                    .Append(mapIndex)
+                    .AppendLine(");");
+                mapIndex++;
+            }
+
+            sb.AppendLine("        return map;");
+            sb.AppendLine("    }");
+        }
+
         sb.AppendLine();
         sb.AppendLine("    public PlaxionMediatorSender(IServiceProvider services)");
         sb.AppendLine("    {");
@@ -162,15 +195,15 @@ internal static class SourceEmitter
         {
             sb.AppendLine("        throw new HandlerNotFoundException(request.GetType());");
         }
-        else
+        else if (model.RequestHandlers.Length <= TypeMapDispatchThreshold)
         {
+            // Small N: type-pattern switch is cheaper than Dictionary.TryGetValue (common single-request apps).
             sb.AppendLine("        switch (request)");
             sb.AppendLine("        {");
-            int index = 0;
+            int smallIndex = 0;
             foreach (RequestHandlerModel handler in model.RequestHandlers)
             {
-                string methodName = "SendCore_" + index;
-                // CastOrAdapt elides the async adapter when TActual == TResponse (JIT folds the typeof check).
+                string methodName = "SendCore_" + smallIndex;
                 sb.Append("            case ")
                     .Append(handler.RequestFullyQualifiedName)
                     .Append(" r: return CastOrAdapt<")
@@ -178,10 +211,43 @@ internal static class SourceEmitter
                     .Append(", TResponse>(")
                     .Append(methodName)
                     .AppendLine("(r, cancellationToken));");
-                index++;
+                smallIndex++;
             }
 
             sb.AppendLine("            default: throw new HandlerNotFoundException(request.GetType());");
+            sb.AppendLine("        }");
+        }
+        else
+        {
+            // Large N: O(1) Type → dense index via static dictionary, then jump-table switch.
+            // Avoids the N-way type-pattern IsInst chain that dominated TypeVariety profiles.
+            sb.AppendLine("        Type requestType = request.GetType();");
+            sb.AppendLine("        if (!s_requestTypeMap.TryGetValue(requestType, out int requestId))");
+            sb.AppendLine("        {");
+            sb.AppendLine("            throw new HandlerNotFoundException(requestType);");
+            sb.AppendLine("        }");
+            sb.AppendLine();
+            sb.AppendLine("        switch (requestId)");
+            sb.AppendLine("        {");
+            int index = 0;
+            foreach (RequestHandlerModel handler in model.RequestHandlers)
+            {
+                string methodName = "SendCore_" + index;
+                // CastOrAdapt elides the async adapter when TActual == TResponse (JIT folds the typeof check).
+                // Cast via object: IRequest<TResponse> has no compile-time conversion to the concrete request type.
+                sb.Append("            case ")
+                    .Append(index)
+                    .Append(": return CastOrAdapt<")
+                    .Append(handler.ResponseFullyQualifiedName)
+                    .Append(", TResponse>(")
+                    .Append(methodName)
+                    .Append("((")
+                    .Append(handler.RequestFullyQualifiedName)
+                    .AppendLine(")(object)request, cancellationToken));");
+                index++;
+            }
+
+            sb.AppendLine("            default: throw new HandlerNotFoundException(requestType);");
             sb.AppendLine("        }");
         }
 

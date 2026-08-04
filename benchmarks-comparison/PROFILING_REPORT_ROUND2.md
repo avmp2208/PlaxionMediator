@@ -520,3 +520,41 @@ Compare to round-2 analysis table (heavier profile + gcdump): Send5 1.42M, Send2
 - Public API unchanged.
 - Full `dotnet test PlaxionMediator.sln -c Release` passed after every KEPT step.
 - Comparison adapters / benchmark class sources not modified.
+
+---
+
+## Round 3 post-optimization profiling note (2026-08-03)
+
+Full strategy detail: **`OPTIMIZATION_REPORT_ROUND3.md`**. Benchmark snapshot: **`RESULTS.md`** (Round 3 section).
+
+### What changed in the hot path
+
+| Strategy | Verdict | Hot-path effect |
+|----------|---------|-----------------|
+| G1-A hybrid Type→id `Dictionary` + integer `switch` (N>16) | **KEPT** | Large-N `Send` no longer N-way type-pattern; map + jump table into `SendCore_*` |
+| G1-B hoist empty-pipeline inline in `Send` | **REVERTED** | Would bloat `Send`; TypeVariety ~+75% |
+| G2-A shallow 1–2 behavior runner | **REVERTED** | No reliable ≥2–3% BDN win |
+| G2-B strip null guards on generated `ExecuteAsync` | **REVERTED** | No measurable win |
+
+### TypeVariety50 — `dotnet-trace report topN` (Plaxion, 5s, real capture)
+
+Post-G1-A exclusive top managed frames (idle/wait frames dominate absolute %; relative managed shape matters):
+
+| Frame | Notes |
+|-------|--------|
+| `Dictionary.FindValue` / `Int32].FindValue` | **New** — Type→id lookup (was absent in R2) |
+| `CastHelpers.IsInstanceOfClass` | **Removed from top-20 exclusive** (was ~11–13% managed exclusive in R2 TypeVariety) |
+| `PlaxionMediatorSender.Send` | Still present; body is map + jump table for N=50 |
+| `PlaxionMediatorSender.SendCore_*` | Still present (handler resolve + empty-pipeline fast path) |
+
+Harness throughput (5s, Plaxion TypeVariety50, no gcdump): ~360k ops/s this capture (R2 post ~244k under similar config — directional only).
+
+### Pipeline Send5
+
+No KEPT Round 3 code path change. Profile still shows pooled `PipelineRunner.Next` + behavior `MoveNext` frames (Round 2 shape). Goal 2 specialization was measured and reverted.
+
+### Residual after Round 3
+
+1. **TypeVariety ~2.3× Mediator** (improved from ~3.8×) — still Dictionary + `SendCore_*` + `CastOrAdapt` vs Mediator wrapper table / monomorphized concrete `Send`.
+2. **Pipeline latency** vs Mediator unchanged in structure — `RequestHandlerDelegate` (`Func<ValueTask<T>>`) forces per-call runner state; Mediator’s `MessageHandlerDelegate` pre-composes once.
+3. **Allocations:** still Mediator-parity on pipeline depths 1/5/10/20 and TypeVariety 0 B.

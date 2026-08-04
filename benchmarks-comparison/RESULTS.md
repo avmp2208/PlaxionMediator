@@ -184,3 +184,91 @@ while remaining **0 B**. Still ~3.8× Mediator (down from ~4.6×); remaining gap
 - **TypeVariety:** ~17% faster than round 1; residual ~3.8× vs Mediator is codegen-shape, not allocs.
 - **Notifications:** still Plaxion’s strongest category vs both peers.
 - See `OPTIMIZATION_REPORT_ROUND2.md` for per-optimization keep/revert detail and profiling evidence.
+
+---
+
+# Round 3 Post-Optimization Results (2026-08-03)
+
+> Generated: 2026-08-03 (round-3), via real BenchmarkDotNet runs (`WarmupCount=3`, `IterationCount=10`, `LaunchCount=1`) on  
+> Windows 11, 12th Gen Intel Core i7-12700K, .NET 9.0.7 / BenchmarkDotNet v0.14.0.  
+> KEPT change: hybrid Type→id map + jump-table `Send` for assemblies with **>16** request handlers (`SourceEmitter`).  
+> Details: `OPTIMIZATION_REPORT_ROUND3.md`. Absolute ns vary by session load; allocs are stable across runs.
+
+## Pipeline Behavior Chains (Round 3)
+
+| Method                    | Mean        | Ratio | Rank | Allocated |
+|---------------------------|------------:|------:|-----:|----------:|
+| Send_Mediator_0Behaviors  |    19.77 ns |  0.38 |    1 |         - |
+| Send_Plaxion_0Behaviors   |    52.84 ns |  1.01 |    2 |         - |
+| Send_MediatR_0Behaviors   |    76.25 ns |  1.45 |    3 |     264 B |
+| Send_Mediator_1Behavior   |   103.62 ns |  1.97 |    4 |     128 B |
+| Send_Plaxion_1Behavior    |   149.68 ns |  2.85 |    5 |     128 B |
+| Send_MediatR_1Behavior    |   219.56 ns |  4.18 |    6 |     648 B |
+| Send_Mediator_5Behaviors  |   462.03 ns |  8.80 |    7 |     640 B |
+| Send_Plaxion_5Behaviors   |   536.98 ns | 10.23 |    7 |     640 B |
+| Send_MediatR_5Behaviors   |   696.30 ns | 13.26 |    8 |    1896 B |
+| Send_Mediator_10Behaviors |   952.44 ns | 18.14 |    9 |    1280 B |
+| Send_Plaxion_10Behaviors  |   968.66 ns | 18.45 |    9 |    1280 B |
+| Send_MediatR_10Behaviors  | 1,424.84 ns | 27.14 |   10 |    3456 B |
+| Send_Mediator_20Behaviors | 2,029.22 ns | 38.65 |   11 |    2560 B |
+| Send_Plaxion_20Behaviors  | 2,094.38 ns | 39.89 |   11 |    2560 B |
+| Send_MediatR_20Behaviors  | 2,920.35 ns | 55.62 |   12 |    6576 B |
+
+**Takeaway:** Round 3 did not keep pipeline structural changes. **Mediator alloc parity retained** at every depth.  
+Latency remains between Mediator and MediatR; Send1/Send10 can sit close to Mediator on quieter runs.
+
+## Type Variety (Round 3)
+
+| Method                    | Mean       | Ratio | Rank | Allocated |
+|---------------------------|-----------:|------:|-----:|----------:|
+| Dispatch_Mediator_50Types | 1,144 ns   |  0.44 |    1 |         - |
+| Dispatch_Plaxion_50Types  | 2,614 ns   |  1.00 |    2 |         - |
+| Dispatch_MediatR_50Types  | 7,534 ns   |  2.88 |    3 |   13200 B |
+
+**Takeaway:** Primary Round 3 win — Plaxion TypeVariety **3410 → 2614 ns (−23% vs Round 2)** via Type→id map + jump table  
+for large handler sets. Still **0 B**. Residual vs Mediator ~**2.3×** (was ~3.8×).
+
+## Concurrency (Round 3)
+
+| Method                  | Mean        | Ratio  | Rank | Allocated |
+|-------------------------|------------:|-------:|-----:|----------:|
+| Concurrent_Mediator_1   |    49.76 ns |   0.40 |    1 |     176 B |
+| Concurrent_MediatR_1    |    99.47 ns |   0.80 |    2 |     368 B |
+| Concurrent_Plaxion_1    |   125.10 ns |   1.00 |    3 |     176 B |
+| Concurrent_Mediator_8   |   276.79 ns |   2.21 |    4 |     736 B |
+| Concurrent_MediatR_8    |   691.03 ns |   5.53 |    5 |    2272 B |
+| Concurrent_Plaxion_8    |   763.41 ns |   6.11 |    5 |     736 B |
+| Concurrent_Mediator_32  | 1,055.70 ns |   8.44 |    6 |    2656 B |
+| Concurrent_MediatR_32   | 2,724.47 ns |  21.79 |    7 |    8800 B |
+| Concurrent_Plaxion_32   | 2,985.51 ns |  23.88 |    7 |    2656 B |
+| Concurrent_Mediator_128 | 4,325.08 ns |  34.59 |    8 |   10336 B |
+| Concurrent_Plaxion_128  | 9,536.41 ns |  76.27 |    9 |   10336 B |
+| Concurrent_MediatR_128  |10,519.97 ns |  84.13 |    9 |   34912 B |
+
+**Takeaway:** Alloc parity with Mediator retained. Absolute latency noisier under load this session; structure unchanged from R2.
+
+## Notification Fan-Out (Round 3)
+
+| Method                       | Mean        | Ratio | Rank | Allocated |
+|-------------------------------|------------:|------:|-----:|----------:|
+| Publish_Mediator_1Handler    |    72.62 ns |  0.61 |    1 |     120 B |
+| Publish_Plaxion_1Handler     |   118.54 ns |  1.00 |    2 |     152 B |
+| Publish_MediatR_1Handler     |   165.09 ns |  1.39 |    3 |     352 B |
+| Publish_Mediator_10Handlers  |   693.28 ns |  5.85 |    4 |    1200 B |
+| Publish_Plaxion_10Handlers   |   785.28 ns |  6.63 |    4 |    1304 B |
+| Publish_MediatR_10Handlers   | 1,015.08 ns |  8.57 |    5 |    2512 B |
+| Publish_Plaxion_50Handlers   | 3,667.57 ns | 30.95 |    6 |    6424 B |
+| Publish_Mediator_50Handlers  | 3,937.06 ns | 33.23 |    6 |    6000 B |
+| Publish_MediatR_50Handlers   | 4,769.01 ns | 40.25 |    7 |   12112 B |
+| Publish_Plaxion_100Handlers  | 7,482.39 ns | 63.15 |    8 |   12824 B |
+| Publish_MediatR_100Handlers  |10,298.68 ns | 86.92 |    9 |   24112 B |
+| Publish_Mediator_100Handlers |11,601.57 ns | 97.92 |    9 |   12000 B |
+
+**Takeaway:** Still a Plaxion strength area at higher fan-out (beats or ties Mediator at 50/100 on this run).
+
+## Overall Summary (Round 3)
+
+- **TypeVariety:** **−23%** vs Round 2 (3410 → 2614 ns); gap vs Mediator **~3.8× → ~2.3×**; still 0 B.
+- **Pipeline:** no KEPT structural change; **Mediator alloc parity** held; latency residual remains.
+- **Goal 2 attempts** (shallow runner, null-guard strip) **REVERTED** — see `OPTIMIZATION_REPORT_ROUND3.md`.
+- **Public API** unchanged; all main-repo tests green.
