@@ -1,5 +1,7 @@
 # Benchmarks
 
+> 🚀 **Full Head-to-Head Comparisons:** For the latest performance comparisons against Mediator and MediatR, including narrative reports and architecture summaries, please visit the [Performance Benchmark Report](https://github.com/avmp2208/documentation/blob/main/architecture/BENCHMARK_REPORT.md).
+
 ## Benchmark Summary
 
 These benchmarks measure the performance characteristics of **PlaxionMediator** (dispatch, notifications, streaming, and pipeline overhead). All results are generated using [BenchmarkDotNet](https://benchmarkdotnet.org/) to ensure accuracy and reproducibility. This page will be updated with every framework release to track performance evolution over time.
