@@ -124,4 +124,119 @@ public sealed class ServiceCollectionExtensionsTests
         public ValueTask DelayAsync(TimeSpan delay, CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
     }
+
+    [Fact]
+    public void AddPlaxionMediatorCircuitBreaker_Throws_On_Null_Services()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            ServiceCollectionExtensions.AddPlaxionMediatorCircuitBreaker(null!));
+    }
+
+    [Fact]
+    public void AddPlaxionMediatorCircuitBreaker_Registers_Defaults()
+    {
+        ServiceCollection services = new();
+        services.AddPlaxionMediatorCircuitBreaker();
+
+        using ServiceProvider sp = services.BuildServiceProvider();
+        using IServiceScope scope = sp.CreateScope();
+
+        PlaxionMediatorCircuitBreakerOptions options =
+            scope.ServiceProvider.GetRequiredService<PlaxionMediatorCircuitBreakerOptions>();
+        Assert.Equal("plaxionmediator-circuitbreaker-default", options.PipelineName);
+        Assert.Equal(0.5, options.FailureRatio);
+        Assert.Equal(10, options.MinimumThroughput);
+
+        Assert.IsType<DefaultCircuitBreakerPolicyProvider<Ping>>(
+            scope.ServiceProvider.GetRequiredService<ICircuitBreakerPolicyProvider<Ping>>());
+
+        IPipelineBehavior<Ping, string>[] behaviors = scope.ServiceProvider
+            .GetServices<IPipelineBehavior<Ping, string>>()
+            .ToArray();
+
+        Assert.Single(behaviors);
+        Assert.IsType<CircuitBreakerBehavior<Ping, string>>(behaviors[0]);
+    }
+
+    [Fact]
+    public void AddPlaxionMediatorCircuitBreaker_Applies_Custom_Options()
+    {
+        ServiceCollection services = new();
+        services.AddPlaxionMediatorCircuitBreaker(o =>
+        {
+            o.PipelineName = "custom-pipeline";
+            o.FailureRatio = 0.75;
+            o.MinimumThroughput = 4;
+            o.BreakDuration = TimeSpan.FromSeconds(1);
+        });
+
+        using ServiceProvider sp = services.BuildServiceProvider();
+        PlaxionMediatorCircuitBreakerOptions options = sp.GetRequiredService<PlaxionMediatorCircuitBreakerOptions>();
+
+        Assert.Equal("custom-pipeline", options.PipelineName);
+        Assert.Equal(0.75, options.FailureRatio);
+        Assert.Equal(4, options.MinimumThroughput);
+        Assert.Equal(TimeSpan.FromSeconds(1), options.BreakDuration);
+    }
+
+    [Fact]
+    public void AddPlaxionMediatorCircuitBreaker_Is_Idempotent()
+    {
+        ServiceCollection services = new();
+        services.AddPlaxionMediatorCircuitBreaker(o => o.FailureRatio = 0.1);
+        services.AddPlaxionMediatorCircuitBreaker(o => o.FailureRatio = 0.9);
+
+        using ServiceProvider sp = services.BuildServiceProvider();
+
+        Assert.Equal(0.1, sp.GetRequiredService<PlaxionMediatorCircuitBreakerOptions>().FailureRatio);
+        Assert.Single(sp.GetServices<ICircuitBreakerPolicyProvider<Ping>>());
+        Assert.Single(sp.GetServices<IPipelineBehavior<Ping, string>>());
+    }
+
+    [Fact]
+    public void UsePlaxionMediatorCircuitBreakerBehavior_Adds_Behavior_To_Options()
+    {
+        PlaxionMediatorOptions options = new();
+        options.UsePlaxionMediatorCircuitBreakerBehavior();
+
+        Assert.Contains(typeof(CircuitBreakerBehavior<,>), options.GlobalBehaviors);
+        Assert.Single(options.GlobalBehaviors);
+    }
+
+    [Fact]
+    public void UsePlaxionMediatorCircuitBreakerBehavior_Is_Idempotent()
+    {
+        PlaxionMediatorOptions options = new();
+        options.UsePlaxionMediatorCircuitBreakerBehavior();
+        options.UsePlaxionMediatorCircuitBreakerBehavior();
+
+        Assert.Single(options.GlobalBehaviors);
+    }
+
+    [Fact]
+    public void CircuitBreaker_And_Retry_Coexist_As_Independent_Behaviors()
+    {
+        PlaxionMediatorOptions mediatorOptions = new();
+        mediatorOptions.UsePlaxionMediatorCircuitBreakerBehavior();
+        mediatorOptions.UsePlaxionMediatorRetryBehavior();
+
+        Assert.Equal(
+            new[] { typeof(CircuitBreakerBehavior<,>), typeof(RetryBehavior<,>) },
+            mediatorOptions.GlobalBehaviors);
+
+        ServiceCollection services = new();
+        services.AddPlaxionMediatorCircuitBreaker();
+        services.AddPlaxionMediatorRetry();
+
+        using ServiceProvider sp = services.BuildServiceProvider();
+        using IServiceScope scope = sp.CreateScope();
+
+        IPipelineBehavior<Ping, string>[] behaviors = scope.ServiceProvider
+            .GetServices<IPipelineBehavior<Ping, string>>()
+            .ToArray();
+
+        Assert.Equal(2, behaviors.Length);
+        Assert.Contains(behaviors, b => b is CircuitBreakerBehavior<Ping, string>);
+        Assert.Contains(behaviors, b => b is RetryBehavior<Ping, string>);
+    }
 }

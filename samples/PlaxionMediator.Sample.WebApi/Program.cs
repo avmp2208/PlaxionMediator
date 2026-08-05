@@ -14,12 +14,15 @@ using PlaxionMediator.Validation.FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 
 // Global behavior order (outermost → innermost → handler):
-// Validation → Caching → Retry → Handler
-// Validation fails fast; caching short-circuits before retry/handler on hit; retry wraps the handler only.
+// Validation → Caching → CircuitBreaker → Retry → Handler
+// Validation fails fast; caching short-circuits before circuit breaker/retry/handler on hit;
+// circuit breaker is registered outside retry so an open circuit fails fast before any retry
+// attempts are made; retry wraps the handler only.
 builder.Services.AddPlaxionMediator(o =>
 {
     o.UsePlaxionMediatorValidationBehavior();
     o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
@@ -36,9 +39,18 @@ builder.Services.AddPlaxionMediatorRetry(o =>
     // Looser coupling: Retry does not reference Validation; sample wires the exception type explicitly.
     o.NonRetryableExceptionTypes.Add(typeof(PlaxionMediatorValidationException));
 });
+builder.Services.AddPlaxionMediatorCircuitBreaker(o =>
+{
+    // Keep sample/integration tests fast and deterministic; production apps typically use larger windows.
+    o.FailureRatio = 0.5;
+    o.MinimumThroughput = 2;
+    o.SamplingDuration = TimeSpan.FromSeconds(10);
+    o.BreakDuration = TimeSpan.FromMilliseconds(500);
+});
 builder.Services.AddSingleton<ItemStore>();
 builder.Services.AddSingleton<GetItemInvocationCounter>();
 builder.Services.AddSingleton<TransientFailureSimulator>();
+builder.Services.AddSingleton<FlakyDownstreamSimulator>();
 
 var app = builder.Build();
 
@@ -86,6 +98,12 @@ app.MapPlaxionMediatorPost<UnstableOperationRequest, UnstableOperationResponse>(
     .WithName("UnstableOperation")
     .Produces<UnstableOperationResponse>(StatusCodes.Status200OK);
 
+// Demo: circuit-breaker-guarded request. Registered outside retry, so once the breaker opens,
+// calls fail fast with BrokenCircuitException before any retry attempt or the handler runs.
+app.MapPlaxionMediatorPost<FlakyDownstreamRequest, FlakyDownstreamResponse>("/demo/circuit-breaker")
+    .WithName("FlakyDownstream")
+    .Produces<FlakyDownstreamResponse>(StatusCodes.Status200OK);
+
 // Diagnostics: how many times GetItemHandler ran (proves cache hits skip the handler).
 app.MapGet("/demo/cache/get-item-invocations", (GetItemInvocationCounter counter) =>
     Results.Ok(new InvocationCountDto(counter.Count)));
@@ -99,6 +117,16 @@ app.MapPost("/demo/unstable/configure", (ConfigureUnstableDto body, TransientFai
 
 app.MapGet("/demo/unstable/status", (TransientFailureSimulator simulator) =>
     Results.Ok(new UnstableConfigDto(simulator.FailuresBeforeSuccess, simulator.Attempts)));
+
+// Diagnostics: configure/reset the circuit breaker demo simulator used by /demo/circuit-breaker.
+app.MapPost("/demo/circuit-breaker/configure", (ConfigureFlakyDownstreamDto body, FlakyDownstreamSimulator simulator) =>
+{
+    simulator.Configure(body.AlwaysFail);
+    return Results.Ok(new FlakyDownstreamStatusDto(simulator.AlwaysFail, simulator.Attempts));
+});
+
+app.MapGet("/demo/circuit-breaker/status", (FlakyDownstreamSimulator simulator) =>
+    Results.Ok(new FlakyDownstreamStatusDto(simulator.AlwaysFail, simulator.Attempts)));
 
 // Forces HandlerNotFoundException so integration tests can assert problem+json mapping.
 // Thrown directly: introducing an IRequest without a handler would fail the build (PlaxionMediator001).
@@ -159,6 +187,12 @@ public sealed record UnstableConfigDto(int FailuresBeforeSuccess, int Attempts);
 
 public sealed record UnstableOperationResponse(string Payload, int Attempts);
 
+public sealed record ConfigureFlakyDownstreamDto(bool AlwaysFail);
+
+public sealed record FlakyDownstreamStatusDto(bool AlwaysFail, int Attempts);
+
+public sealed record FlakyDownstreamResponse(string Payload, int Attempts);
+
 // --- Store & demo services ---
 
 /// <summary>
@@ -201,6 +235,35 @@ public sealed class TransientFailureSimulator
         if (attempt <= remainingBudget)
         {
             throw new InvalidOperationException($"Simulated transient failure (attempt {attempt}/{remainingBudget}).");
+        }
+    }
+}
+
+/// <summary>
+/// Simulates a persistently failing downstream dependency for the circuit breaker demo:
+/// fails every call while <see cref="AlwaysFail"/> is <see langword="true"/>, otherwise succeeds.
+/// </summary>
+public sealed class FlakyDownstreamSimulator
+{
+    private int _alwaysFail = 1;
+    private int _attempts;
+
+    public bool AlwaysFail => Volatile.Read(ref _alwaysFail) != 0;
+
+    public int Attempts => Volatile.Read(ref _attempts);
+
+    public void Configure(bool alwaysFail)
+    {
+        Interlocked.Exchange(ref _alwaysFail, alwaysFail ? 1 : 0);
+        Interlocked.Exchange(ref _attempts, 0);
+    }
+
+    public void ThrowIfShouldFail()
+    {
+        Interlocked.Increment(ref _attempts);
+        if (AlwaysFail)
+        {
+            throw new InvalidOperationException("Simulated persistent downstream failure.");
         }
     }
 }
@@ -438,6 +501,25 @@ public sealed class UnstableOperationHandler : IRequestHandler<UnstableOperation
     {
         _simulator.ThrowIfShouldFail();
         return ValueTask.FromResult(new UnstableOperationResponse(request.Payload, _simulator.Attempts));
+    }
+}
+
+// --- Circuit breaker demo ---
+
+public sealed record FlakyDownstreamRequest(string Payload) : IRequest<FlakyDownstreamResponse>, ICircuitBreakerRequest;
+
+public sealed class FlakyDownstreamHandler : IRequestHandler<FlakyDownstreamRequest, FlakyDownstreamResponse>
+{
+    private readonly FlakyDownstreamSimulator _simulator;
+
+    public FlakyDownstreamHandler(FlakyDownstreamSimulator simulator) => _simulator = simulator;
+
+    public ValueTask<FlakyDownstreamResponse> Handle(
+        FlakyDownstreamRequest request,
+        CancellationToken cancellationToken)
+    {
+        _simulator.ThrowIfShouldFail();
+        return ValueTask.FromResult(new FlakyDownstreamResponse(request.Payload, _simulator.Attempts));
     }
 }
 
