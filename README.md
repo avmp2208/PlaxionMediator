@@ -126,9 +126,9 @@ app.MapPlaxionMediatorPost<CreateItemRequest, ItemDto>("/items");
 app.Run();
 ```
 
-### Caching & Retry (v0.4.0+)
+### Resilience & Caching (v0.4.0+)
 
-Optimize performance with `CachingBehavior<,>` and resilience with `RetryBehavior<,>`.
+Optimize performance with `CachingBehavior<,>` and resilience with `RetryBehavior<,>` and `CircuitBreakerBehavior<,>`.
 
 ```csharp
 using PlaxionMediator.Caching;
@@ -136,9 +136,10 @@ using PlaxionMediator.Retry;
 
 builder.Services.AddPlaxionMediator(o =>
 {
-    // Recommended order: Validation → Caching → Retry → Handler
+    // Recommended order: Validation → Caching → CircuitBreaker → Retry → Handler
     o.UsePlaxionMediatorValidationBehavior();
     o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
 });
 
@@ -147,6 +148,11 @@ builder.Services.AddPlaxionMediatorRetry(o =>
 {
     o.MaxRetryAttempts = 3;
     o.BackoffStrategy = RetryBackoffStrategy.Exponential;
+});
+builder.Services.AddPlaxionMediatorCircuitBreaker(o =>
+{
+    o.FailureRatio = 0.5;
+    o.MinimumThroughput = 10;
 });
 ```
 
@@ -166,6 +172,12 @@ public sealed record UnstableRequest(string Data) : IRequest<string>, IRetryable
 {
     public int? MaxRetryAttempts => 5; // Per-request override
 }
+```
+
+Define a circuit-breaker protected request (v0.4.2+):
+
+```csharp
+public sealed record FlakyRequest(string Data) : IRequest<string>, ICircuitBreakerRequest;
 ```
 
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
@@ -194,7 +206,7 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 | `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
-| `PlaxionMediator.Retry` | `IRetryableRequest` and `RetryBehavior<,>` |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
 
 > `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation`/`PlaxionMediator.Caching`/`PlaxionMediator.Retry` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 

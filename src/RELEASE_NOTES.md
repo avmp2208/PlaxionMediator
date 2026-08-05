@@ -2,6 +2,29 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.4.2
+
+### Added
+- **Circuit Breaker support in `PlaxionMediator.Retry`**: Introduced a brand-new, independent circuit breaker capability to the `PlaxionMediator.Retry` package. This allows requests to fail fast when a downstream dependency is persistently failing, preventing resource exhaustion and "retry storms".
+- **Polly Integration (Resilience Pipelines)**: The circuit breaker implementation adapts `Microsoft.Extensions.Resilience` (Polly), following the `ADR-0006` mandate to leverage industry-standard resilience libraries. It uses `CircuitBreakerStrategyOptions` for state management (Closed, Open, Half-Open).
+- **Opt-in Marker Interface**: Requests can opt into circuit breaker protection by implementing the new `ICircuitBreakerRequest` interface.
+- **New DI Extension Methods**:
+  - `AddPlaxionMediatorCircuitBreaker(options => ...)`: Configures the global circuit breaker policy (Failure Ratio, Minimum Throughput, Sampling Duration, Break Duration).
+  - `UsePlaxionMediatorCircuitBreakerBehavior()`: Registers the `CircuitBreakerBehavior` in the global mediator pipeline.
+- **Flexible Policy Resolution**: Added `ICircuitBreakerPolicyProvider<TRequest>` and `DefaultCircuitBreakerPolicyProvider<TRequest>`, allowing for per-request custom circuit breaker pipelines if needed.
+- **Sample WebApi enhancements**:
+  - Added `FlakyDownstreamRequest` and corresponding handler to simulate persistent failures.
+  - Added `/demo/circuit-breaker/configure` and `/demo/circuit-breaker/status` endpoints for real-time observation of the breaker's state.
+  - Updated global behavior ordering to register Circuit Breaker outside of Retry (`Validation → Caching → CircuitBreaker → Retry → Handler`), ensuring an open circuit fails fast before any retry attempts are made.
+- **Expanded Test Suite**:
+  - 41 new unit tests in `PlaxionMediator.Retry.Tests` covering opt-in gating, fail-fast logic, recovery, and DI registration.
+  - New integration tests in `PlaxionMediator.Sample.WebApi.Tests` verifying the end-to-end circuit breaker lifecycle against the real ASP.NET Core host.
+- **Updated Postman Collection**: Added "Trip Circuit Breaker", "Circuit Breaker Fails Fast", and "Circuit Breaker Recovers" requests to `PlaxionMediator.Sample.WebApi.postman_collection.json`.
+
+### Changed
+- **`PlaxionMediator.Retry` dependencies**: Added a dependency on `Microsoft.Extensions.Resilience` to support the new circuit breaker features.
+- **Non-breaking addition**: The existing `AddPlaxionMediatorRetry`, `RetryBehavior`, and `IRetryableRequest` remain completely untouched, ensuring full backward compatibility for current retry users while providing the new circuit breaker capability as a side-by-side enhancement.
+
 ## v0.4.1
 
 ### Fixed
