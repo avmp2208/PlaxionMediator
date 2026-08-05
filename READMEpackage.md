@@ -77,14 +77,16 @@ builder.Services.AddPlaxionMediator(o =>
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 
-// Caching & Retry (v0.4.0+)
+// Resilience & Caching (v0.4.0+)
 builder.Services.AddPlaxionMediator(o =>
 {
     o.UsePlaxionMediatorCachingBehavior();
+    o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
 });
 builder.Services.AddPlaxionMediatorCaching();
 builder.Services.AddPlaxionMediatorRetry();
+builder.Services.AddPlaxionMediatorCircuitBreaker();
 
 // ... failures return 400 ProblemDetails automatically
 app.UsePlaxionMediatorExceptionHandling();
@@ -106,7 +108,7 @@ app.UsePlaxionMediatorExceptionHandling();
 | `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
-| `PlaxionMediator.Retry` | `IRetryableRequest` and `RetryBehavior<,>` |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
 
 ## Benchmarks
 

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "3c1d9b0a-6e2f-4b1a-9a3e-plaxion-webapi-01",
     "name": "PlaxionMediator.Sample.WebApi",
-    "description": "CRUD sample built with PlaxionMediator.AspNetCore + PlaxionMediator.MinimalApis (Phase B/D). Exercises MapPlaxionMediatorPost/Get/Put/Patch/Delete, ProblemDetails exception-handling middleware, global ValidationBehavior, CachingBehavior, and RetryBehavior (Phase D complete).\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.WebApi`\n\nDefault URL: http://localhost:5000",
+    "description": "CRUD sample built with PlaxionMediator.AspNetCore + PlaxionMediator.MinimalApis (Phase B/D). Exercises MapPlaxionMediatorPost/Get/Put/Patch/Delete, ProblemDetails exception-handling middleware, global ValidationBehavior, CachingBehavior, RetryBehavior, and CircuitBreakerBehavior (v0.4.x). CircuitBreaker is a new, independent addition to PlaxionMediator.Retry: it is registered outside RetryBehavior so an open circuit fails fast before any retry attempts are made, and does not modify existing retry behavior.\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.WebApi`\n\nDefault URL: http://localhost:5000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -326,32 +326,6 @@
       }
     },
     {
-      "name": "Delete Item",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
-              "const body = pm.response.json();",
-              "pm.test('Deleted flag is true', () => pm.expect(body.deleted).to.eql(true));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/items/{{itemId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["items", "{{itemId}}"]
-        },
-        "description": "Maps to MapPlaxionMediatorDelete<DeleteItemRequest, DeleteItemResponse>. {id} is bound from the route."
-      }
-    },
-    {
       "name": "Get Item By Id (From Cache)",
       "event": [
         {
@@ -414,6 +388,32 @@
           ]
         },
         "description": "Exposes how many times the underlying GetItemHandler actually ran."
+      }
+    },
+    {
+      "name": "Delete Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Deleted flag is true', () => pm.expect(body.deleted).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Maps to MapPlaxionMediatorDelete<DeleteItemRequest, DeleteItemResponse>. {id} is bound from the route."
       }
     },
     {
@@ -530,6 +530,239 @@
           ]
         },
         "description": "Returns the current state of the transient failure simulator."
+      }
+    },
+    {
+      "name": "Configure Circuit Breaker Demo (Always Fail)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('AlwaysFail is true', () => pm.expect(body.alwaysFail).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"alwaysFail\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker/configure",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker",
+            "configure"
+          ]
+        },
+        "description": "Configures the FlakyDownstreamSimulator to fail every call, used to trip the circuit breaker below."
+      }
+    },
+    {
+      "name": "Trip Circuit Breaker (Repeated Failures)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500 (simulated downstream failure)', () => pm.response.to.have.status(500));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": \"trip-it\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker"
+          ]
+        },
+        "description": "Run this request at least twice (sample's MinimumThroughput=2) with AlwaysFail=true to exceed the failure ratio and open the circuit. Each call still reaches the handler while the circuit is closed."
+      }
+    },
+    {
+      "name": "Circuit Breaker Fails Fast (Open)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500 (BrokenCircuitException, fails fast)', () => pm.response.to.have.status(500));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": \"should-fail-fast\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker"
+          ]
+        },
+        "description": "Call this after 'Trip Circuit Breaker' has opened the circuit. The call fails fast with a BrokenCircuitException before RetryBehavior or the handler run at all - check 'Get Circuit Breaker Status' attempts do not increase."
+      }
+    },
+    {
+      "name": "Get Circuit Breaker Status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response has attempts', () => pm.expect(body).to.have.property('attempts'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker",
+            "status"
+          ]
+        },
+        "description": "Returns the current state of the flaky downstream simulator; use to confirm attempts stop increasing while the circuit is open."
+      }
+    },
+    {
+      "name": "Configure Circuit Breaker Demo (Recover)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('AlwaysFail is false', () => pm.expect(body.alwaysFail).to.eql(false));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"alwaysFail\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker/configure",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker",
+            "configure"
+          ]
+        },
+        "description": "Run this after waiting past the sample's BreakDuration (500ms) so the next call is a half-open probe."
+      }
+    },
+    {
+      "name": "Circuit Breaker Recovers (Half-Open Probe Succeeds)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response has payload and attempts', () => {",
+              "    pm.expect(body).to.have.property('payload', 'recovered');",
+              "    pm.expect(body).to.have.property('attempts');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": \"recovered\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/circuit-breaker",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "demo",
+            "circuit-breaker"
+          ]
+        },
+        "description": "Wait past the BreakDuration (500ms) after the circuit opened, then run this after 'Configure Circuit Breaker Demo (Recover)': the half-open probe succeeds and the circuit closes again."
       }
     },
     {

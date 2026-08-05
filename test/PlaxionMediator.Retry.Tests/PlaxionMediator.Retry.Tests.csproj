@@ -10,6 +10,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Resilience" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />

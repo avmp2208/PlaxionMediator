@@ -434,6 +434,65 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
         Assert.Equal(3, statusBody.Attempts);
     }
 
+    [Fact]
+    public async Task CircuitBreaker_Opens_After_Persistent_Failures_Then_Recovers_After_BreakDuration()
+    {
+        HttpClient client = _factory.CreateClient();
+
+        HttpResponseMessage configure = await client.PostAsJsonAsync(
+            "/demo/circuit-breaker/configure",
+            new { AlwaysFail = true });
+        configure.EnsureSuccessStatusCode();
+
+        // Sample is configured with MinimumThroughput = 2: two failing calls are enough to open the circuit
+        // (registered outside RetryBehavior, so the handler runs exactly once per call here).
+        for (int i = 0; i < 2; i++)
+        {
+            HttpResponseMessage failing = await client.PostAsJsonAsync(
+                "/demo/circuit-breaker",
+                new { Payload = "trip-it" });
+            Assert.Equal(HttpStatusCode.InternalServerError, failing.StatusCode);
+        }
+
+        FlakyDownstreamStatusDto? statusBeforeOpen = await GetCircuitBreakerStatusAsync(client);
+        int attemptsBeforeOpen = statusBeforeOpen.Attempts;
+
+        // Circuit should now be open: fail fast without reaching the handler (attempts must not increase).
+        HttpResponseMessage openResponse = await client.PostAsJsonAsync(
+            "/demo/circuit-breaker",
+            new { Payload = "should-fail-fast" });
+        Assert.Equal(HttpStatusCode.InternalServerError, openResponse.StatusCode);
+
+        FlakyDownstreamStatusDto? statusWhileOpen = await GetCircuitBreakerStatusAsync(client);
+        Assert.Equal(attemptsBeforeOpen, statusWhileOpen.Attempts);
+
+        // Wait past the configured BreakDuration (500ms) so the circuit transitions to half-open.
+        await Task.Delay(TimeSpan.FromMilliseconds(700));
+
+        HttpResponseMessage reconfigure = await client.PostAsJsonAsync(
+            "/demo/circuit-breaker/configure",
+            new { AlwaysFail = false });
+        reconfigure.EnsureSuccessStatusCode();
+
+        // Half-open probe succeeds, closing the circuit again.
+        HttpResponseMessage recovered = await client.PostAsJsonAsync(
+            "/demo/circuit-breaker",
+            new { Payload = "recovered" });
+        Assert.Equal(HttpStatusCode.OK, recovered.StatusCode);
+        FlakyDownstreamResponse? recoveredBody = await recovered.Content.ReadFromJsonAsync<FlakyDownstreamResponse>();
+        Assert.NotNull(recoveredBody);
+        Assert.Equal("recovered", recoveredBody.Payload);
+    }
+
+    private static async Task<FlakyDownstreamStatusDto> GetCircuitBreakerStatusAsync(HttpClient client)
+    {
+        HttpResponseMessage status = await client.GetAsync("/demo/circuit-breaker/status");
+        status.EnsureSuccessStatusCode();
+        FlakyDownstreamStatusDto? statusBody = await status.Content.ReadFromJsonAsync<FlakyDownstreamStatusDto>();
+        Assert.NotNull(statusBody);
+        return statusBody;
+    }
+
     private static async Task<ItemDto> CreateItemAsync(HttpClient client, string name)
     {
         HttpResponseMessage createResponse = await client.PostAsJsonAsync("/items", new { Name = name });
@@ -448,4 +507,6 @@ public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Progr
     private sealed record InvocationCountDto(int Count);
     private sealed record UnstableOperationResponse(string Payload, int Attempts);
     private sealed record UnstableConfigDto(int FailuresBeforeSuccess, int Attempts);
+    private sealed record FlakyDownstreamResponse(string Payload, int Attempts);
+    private sealed record FlakyDownstreamStatusDto(bool AlwaysFail, int Attempts);
 }
