@@ -101,8 +101,6 @@ node_modules/
 
 # PlaxionMediator specific
 .junie/
-docs/architecture/
-ReleaseProcess/
 
 # Benchmarks comparison - build artifacts & raw profiler captures
 benchmarks-comparison/**/[Bb]in/
