@@ -26,8 +26,8 @@ dotnet test PlaxionMediator.sln
 | `src/` | Product libraries (Abstractions, Core, Pipeline, DI, Generators, Analyzers, Testing) |
 | `test/` | Unit tests mirrored 1:1 with `src/` |
 | `samples/` | Runnable sample apps |
-| `docs/architecture/` | Full long-term design documentation |
-| `ReleaseProcess/` | MVP and release process docs |
+| [Architecture Docs](https://github.com/avmp2208/documentation/tree/main/architecture) | Full long-term design documentation |
+| [Release Process](https://github.com/avmp2208/documentation/tree/main/ReleasesProcess) | MVP and release process docs |
 
 ## Coding standards
 

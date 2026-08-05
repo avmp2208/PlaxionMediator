@@ -1,6 +1,6 @@
 # Roadmap
 
-Full detail lives in [`ReleaseProcess/01-mvp-development-phases.md`](https://github.com/avmp2208/PlaxionMediator/blob/master/ReleaseProcess/01-mvp-development-phases.md) and [`ReleaseProcess/03-full-development-phases-oss.md`](https://github.com/avmp2208/PlaxionMediator/blob/master/ReleaseProcess/03-full-development-phases-oss.md).
+Full detail lives in [`ReleasesProcess/01-mvp-development-phases.md`](https://github.com/avmp2208/documentation/blob/main/ReleasesProcess/01-mvp-development-phases.md) and [`ReleasesProcess/03-full-development-phases-oss.md`](https://github.com/avmp2208/documentation/blob/main/ReleasesProcess/03-full-development-phases-oss.md).
 
 | Phase | Version | Deliverable | Status |
 |---|---|---|---|
