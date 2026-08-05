@@ -9,8 +9,8 @@
 > human-readable snapshot of those results for quick reference; regenerate it whenever the suite
 > is re-run so the numbers here stay in sync with the artifacts on disk.
 >
-> See the root-level `BENCHMARK_REPORT.md` for a narrative summary and
-> `ARCHITECTURE_SUMMARY.md` for the design decisions behind these numbers.
+> See the root-level [`BENCHMARK_REPORT.md`](https://github.com/avmp2208/documentation/blob/main/architecture/BENCHMARK_REPORT.md) for a narrative summary and
+> [`ARCHITECTURE_SUMMARY.md`](https://github.com/avmp2208/documentation/blob/main/architecture/ARCHITECTURE_SUMMARY.md) for the design decisions behind these numbers.
 
 ## Pipeline Behavior Chains
 

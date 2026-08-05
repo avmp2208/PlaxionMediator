@@ -295,7 +295,7 @@ handlers, and is consistently faster than MediatR across every fan-out tier.
   choices; these numbers simply document where PlaxionMediator stands today so the comparison is
   transparent and reproducible.
 
-See [`benchmarks-comparison/RESULTS.md`](benchmarks-comparison/RESULTS.md) for the always-current snapshot, [`BENCHMARK_REPORT.md`](BENCHMARK_REPORT.md) for the narrative report, and [`ARCHITECTURE_SUMMARY.md`](ARCHITECTURE_SUMMARY.md) for the design decisions behind these numbers.
+See [`benchmarks-comparison/RESULTS.md`](benchmarks-comparison/RESULTS.md) for the always-current snapshot, [`BENCHMARK_REPORT.md`](https://github.com/avmp2208/documentation/blob/main/architecture/BENCHMARK_REPORT.md) for the narrative report, and [`ARCHITECTURE_SUMMARY.md`](https://github.com/avmp2208/documentation/blob/main/architecture/ARCHITECTURE_SUMMARY.md) for the design decisions behind these numbers.
 
 ## License
 
