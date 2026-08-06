@@ -69,6 +69,15 @@ public sealed class IncorrectLifetimeAnalyzer : DiagnosticAnalyzer
                             continue;
                         }
 
+                        // Only flag dependencies that are actually retained as instance state (captured).
+                        // A constructor parameter that is merely used inside the constructor body (or not
+                        // used at all) does not create a long-lived reference and cannot leak a
+                        // shorter-lived dependency into a Singleton's lifetime.
+                        if (!IsParameterCaptured(end.Compilation, type, ctor, parameter))
+                        {
+                            continue;
+                        }
+
                         Location location = type.Locations.FirstOrDefault() ?? Location.None;
                         end.ReportDiagnostic(Diagnostic.Create(
                             DiagnosticDescriptors.IncorrectLifetime,
@@ -81,6 +90,95 @@ public sealed class IncorrectLifetimeAnalyzer : DiagnosticAnalyzer
             });
         });
     }
+
+    /// <summary>
+    /// Determines whether a constructor parameter is actually retained as instance state
+    /// (assigned to a field/property for a regular constructor, or referenced elsewhere in the
+    /// type for a primary constructor). Handles partial classes by inspecting every declared
+    /// part of the type, and primary constructors by treating any reference outside the
+    /// parameter list as a capture, since the compiler only synthesizes a backing field for
+    /// primary constructor parameters that are actually used outside the constructor.
+    /// </summary>
+    private static bool IsParameterCaptured(Compilation compilation, INamedTypeSymbol type, IMethodSymbol ctor, IParameterSymbol parameter)
+    {
+        foreach (SyntaxReference syntaxRef in ctor.DeclaringSyntaxReferences)
+        {
+            if (syntaxRef.GetSyntax() is ConstructorDeclarationSyntax ctorDecl)
+            {
+#pragma warning disable RS1030 // No cached SemanticModel is available for arbitrary declaring syntax trees at compilation-end time.
+                SemanticModel model = compilation.GetSemanticModel(ctorDecl.SyntaxTree);
+#pragma warning restore RS1030
+                SyntaxNode? body = (SyntaxNode?)ctorDecl.Body ?? ctorDecl.ExpressionBody?.Expression;
+                if (body is null)
+                {
+                    continue;
+                }
+
+                foreach (AssignmentExpressionSyntax assignment in body.DescendantNodesAndSelf().OfType<AssignmentExpressionSyntax>())
+                {
+                    if (assignment.Right is not IdentifierNameSyntax rightId
+                        || rightId.Identifier.Text != parameter.Name)
+                    {
+                        continue;
+                    }
+
+                    ISymbol? rightSymbol = model.GetSymbolInfo(rightId).Symbol;
+                    if (!SymbolEqualityComparer.Default.Equals(rightSymbol, parameter))
+                    {
+                        continue;
+                    }
+
+                    ISymbol? leftSymbol = model.GetSymbolInfo(assignment.Left).Symbol;
+                    if (leftSymbol is IFieldSymbol or IPropertySymbol)
+                    {
+                        return true;
+                    }
+                }
+
+                continue;
+            }
+
+            // Primary constructor: the syntax reference points at the type declaration itself.
+            // Search every partial declaration part for a reference to the parameter outside its
+            // own parameter list — such a reference forces the compiler to synthesize a
+            // capturing field.
+            if (syntaxRef.GetSyntax() is TypeDeclarationSyntax)
+            {
+                foreach (SyntaxReference typeRef in type.DeclaringSyntaxReferences)
+                {
+                    if (typeRef.GetSyntax() is not TypeDeclarationSyntax typeDecl)
+                    {
+                        continue;
+                    }
+
+#pragma warning disable RS1030 // No cached SemanticModel is available for arbitrary declaring syntax trees at compilation-end time.
+                    SemanticModel model = compilation.GetSemanticModel(typeDecl.SyntaxTree);
+#pragma warning restore RS1030
+                    foreach (IdentifierNameSyntax idName in typeDecl.DescendantNodes().OfType<IdentifierNameSyntax>())
+                    {
+                        if (idName.Identifier.Text != parameter.Name)
+                        {
+                            continue;
+                        }
+
+                        if (typeDecl.ParameterList is { } parameterList && parameterList.Span.Contains(idName.Span))
+                        {
+                            continue;
+                        }
+
+                        ISymbol? symbol = model.GetSymbolInfo(idName).Symbol;
+                        if (SymbolEqualityComparer.Default.Equals(symbol, parameter))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private static void AnalyzeRegistration(
         SyntaxNodeAnalysisContext context,

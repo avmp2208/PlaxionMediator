@@ -51,7 +51,13 @@ public sealed class MissingCancellationTokenPropagationAnalyzer : DiagnosticAnal
         }
 
         IMethodSymbol method = invocation.TargetMethod;
-        IMethodSymbol? containing = GetContainingMethod(context.Operation);
+        INamedTypeSymbol? ctType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+        if (ctType is null)
+        {
+            return;
+        }
+
+        (IMethodSymbol? containing, IParameterSymbol? ambientToken) = ResolveHandleContext(context.Operation, ctType);
         if (containing is null || !AnalyzerHelpers.IsHandleMethod(containing))
         {
             return;
@@ -63,14 +69,6 @@ public sealed class MissingCancellationTokenPropagationAnalyzer : DiagnosticAnal
             return;
         }
 
-        INamedTypeSymbol? ctType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-        if (ctType is null)
-        {
-            return;
-        }
-
-        IParameterSymbol? ambientToken = containing.Parameters
-            .FirstOrDefault(p => SymbolEqualityComparer.Default.Equals(p.Type, ctType));
         if (ambientToken is null)
         {
             return;
@@ -159,19 +157,48 @@ public sealed class MissingCancellationTokenPropagationAnalyzer : DiagnosticAnal
                && left.SpecialType == right.SpecialType;
     }
 
-    private static IMethodSymbol? GetContainingMethod(IOperation operation)
+    /// <summary>
+    /// Walks up from the awaited call site through any local functions/lambdas to find the
+    /// nearest ordinary (non-nested) containing method — typically the Handle method — while
+    /// tracking which CancellationToken parameter is actually reachable as the "ambient" token
+    /// at the call site. A local function/lambda's own CancellationToken parameter takes
+    /// precedence over an outer one. Once a *static* local function/lambda boundary is crossed
+    /// without its own token, no further outer token is considered ambient, since static nested
+    /// functions cannot capture outer locals/parameters at all.
+    /// </summary>
+    private static (IMethodSymbol? Containing, IParameterSymbol? AmbientToken) ResolveHandleContext(
+        IOperation operation,
+        INamedTypeSymbol ctType)
     {
         ISymbol? symbol = operation.SemanticModel?.GetEnclosingSymbol(operation.Syntax.SpanStart);
+        IParameterSymbol? ambientToken = null;
+        bool blockedByStaticBoundary = false;
+
         while (symbol is not null)
         {
             if (symbol is IMethodSymbol method)
             {
-                return method;
+                if (ambientToken is null && !blockedByStaticBoundary)
+                {
+                    ambientToken = method.Parameters
+                        .FirstOrDefault(p => SymbolEqualityComparer.Default.Equals(p.Type, ctType));
+                }
+
+                bool isNested = method.MethodKind is MethodKind.LocalFunction or MethodKind.LambdaMethod or MethodKind.AnonymousFunction;
+                if (!isNested)
+                {
+                    return (method, ambientToken);
+                }
+
+                if (method.IsStatic)
+                {
+                    blockedByStaticBoundary = true;
+                }
             }
 
             symbol = symbol.ContainingSymbol;
         }
 
-        return null;
+        return (null, ambientToken);
     }
 }

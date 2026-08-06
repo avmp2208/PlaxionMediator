@@ -2,6 +2,18 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.4.3
+
+### Changed
+- **Stabilization & tech-debt pass**: follow-up perf/allocation tuning of the `v0.4.1` core pipeline execution engine (field-staged `PipelineExecutor` for ≤4 behaviors, pooled `PipelineRunner` fallback beyond that), re-validating the "match or exceed Mediator/MediatR" performance claims now that the `v0.4.2` Circuit Breaker adds a fifth commonly-enabled behavior to real-world pipelines.
+- **New benchmark coverage**: `src/PlaxionMediator.Benchmarks` extended with behavior-chain scenarios that include the `v0.4.2` Circuit Breaker (e.g. `Validation + Caching + CircuitBreaker + Retry`), closing the benchmark coverage gap called out in the `v0.4.2` plan.
+- **Analyzer false-positive hardening**: audited and hardened `PlaxionMediator022` (Incorrect Lifetime) and `PlaxionMediator031`/`032` (`CancellationToken` propagation), the highest-impact/noisiest diagnostics per the `v0.4.3` plan's risk assessment. `PlaxionMediator022` no longer flags constructor parameters that are never actually captured as instance state (including unused primary-constructor parameters across partial classes). `PlaxionMediator031`/`032` now correctly resolve the ambient `CancellationToken` through local functions/lambdas instead of only recognizing the immediately-enclosing `Handle` method, fixing both false negatives (violations inside local functions/lambdas going undetected) and avoiding false positives across `static` local function/lambda boundaries that cannot capture the ambient token at all. New regression tests confirm both fixed false-positive/false-negative patterns and continued true-positive detection. `PlaxionMediator011`, `021`, `080`–`083`, `090` were reviewed but no high-confidence false-positive bugs were found within this release's scope; hardening for those IDs is deferred to `v0.5.0`.
+- **Pipeline regression tests**: added regression tests covering 0–6-behavior chains, confirming correct fallback from the field-staged `PipelineExecutor` to the pooled `PipelineRunner` at >4 behaviors, correct behavior-chain ordering (`Validation → Caching → CircuitBreaker → Retry → Handler`), and continued correct `HandlerFaultException` unwrapping introduced in `v0.4.1`.
+- **Benchmark-backed verification**: the full `benchmarks-comparison/` suite (Pipeline Behavior Chains, Type Variety, Concurrency, Notification Fan-Out) was re-run against Mediator/MediatR and its `RESULTS.md` refreshed; every scenario is within normal run-to-run noise of the `v0.4.2` baseline with byte-identical allocations, confirming **no performance/allocation regression** from this release's changes.
+
+### Fixed
+- Documentation refresh across `docs/wiki/Design-Overview.md`, `docs/wiki/Packages-Overview.md`, `docs/wiki/Analyzers-Reference.md`, and `docs/wiki/Roadmap.md` to accurately reflect the shipped `v0.4.0`–`v0.4.2` feature set (Validation, Caching, Retry, Circuit Breaker) and the analyzer catalog's current false-positive-hardened state.
+
 ## v0.4.2
 
 ### Added
