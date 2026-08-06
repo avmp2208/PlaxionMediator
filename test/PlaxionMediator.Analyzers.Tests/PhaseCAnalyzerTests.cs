@@ -1,3 +1,4 @@
+using System.Linq;
 using PlaxionMediator.Analyzers;
 
 namespace PlaxionMediator.Analyzers.Tests;
@@ -168,7 +169,8 @@ public sealed class IncorrectLifetimeAnalyzerTests
             public sealed record Q(string X) : IRequest<string>;
             public sealed class QHandler : IRequestHandler<Q, string>
             {
-                public QHandler(ScopedDep dep) { }
+                private readonly ScopedDep _dep;
+                public QHandler(ScopedDep dep) => _dep = dep;
                 public ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
                     => ValueTask.FromResult(request.X);
             }
@@ -211,6 +213,102 @@ public sealed class IncorrectLifetimeAnalyzerTests
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
         Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator022");
+    }
+
+    [Fact]
+    public async Task No_Diagnostic_When_Ctor_Parameter_Is_Not_Captured()
+    {
+        // False positive: the constructor accepts a Scoped dependency but never stores it
+        // anywhere (e.g. only reads a value out of it during construction). No field/property
+        // retains a reference, so the Singleton cannot actually leak the shorter-lived dependency.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using Microsoft.Extensions.DependencyInjection;
+            using PlaxionMediator.Abstractions;
+
+            public sealed class ScopedDep { public void Touch() { } }
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public QHandler(ScopedDep dep)
+                {
+                    dep.Touch();
+                }
+                public ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                    => ValueTask.FromResult(request.X);
+            }
+            public static class Reg {
+                public static void M(IServiceCollection services) {
+                    services.AddScoped<ScopedDep>();
+                    services.AddSingleton<QHandler>();
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
+        Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator022");
+    }
+
+    [Fact]
+    public async Task No_Diagnostic_When_Primary_Constructor_Parameter_Is_Unused()
+    {
+        // False positive: primary constructor declares a Scoped dependency parameter that is
+        // never referenced anywhere in the type, so the compiler does not synthesize a capturing
+        // field for it (CS9113 unused parameter) — there is no actual lifetime leak.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using Microsoft.Extensions.DependencyInjection;
+            using PlaxionMediator.Abstractions;
+
+            public sealed class ScopedDep { }
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler(ScopedDep dep) : IRequestHandler<Q, string>
+            {
+                public ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                    => ValueTask.FromResult(request.X);
+            }
+            public static class Reg {
+                public static void M(IServiceCollection services) {
+                    services.AddScoped<ScopedDep>();
+                    services.AddSingleton<QHandler>();
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
+        Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator022");
+    }
+
+    [Fact]
+    public async Task Reports_When_Primary_Constructor_Parameter_Is_Captured()
+    {
+        // True positive must still fire: primary constructor parameter is referenced in the
+        // Handle method body, so the compiler synthesizes a capturing backing field.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using Microsoft.Extensions.DependencyInjection;
+            using PlaxionMediator.Abstractions;
+
+            public sealed class ScopedDep { public string Value => "v"; }
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler(ScopedDep dep) : IRequestHandler<Q, string>
+            {
+                public ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                    => ValueTask.FromResult(dep.Value);
+            }
+            public static class Reg {
+                public static void M(IServiceCollection services) {
+                    services.AddScoped<ScopedDep>();
+                    services.AddSingleton<QHandler>();
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator022");
     }
 }
 
@@ -259,6 +357,91 @@ public sealed class MissingCancellationTokenPropagationAnalyzerTests
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
         Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator031");
     }
+
+    [Fact]
+    public async Task No_Diagnostic_When_Local_Function_Correctly_Forwards_Captured_Ambient_Token()
+    {
+        // False positive guard: the local function closes over the ambient token and forwards it
+        // correctly; neither the call to the local function nor the call inside it should be flagged.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using PlaxionMediator.Abstractions;
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public async ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                {
+                    async Task<string> Inner()
+                    {
+                        await Task.Delay(1, cancellationToken);
+                        return request.X;
+                    }
+                    return await Inner();
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
+        Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator031");
+    }
+
+    [Fact]
+    public async Task Reports_When_Local_Function_Receives_Token_But_Fails_To_Forward_It()
+    {
+        // True positive: the ambient token is passed into the local function, but the local
+        // function itself drops it on the awaited call — this genuine violation must still fire.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using PlaxionMediator.Abstractions;
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public async ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                {
+                    async Task<string> Inner(CancellationToken ct)
+                    {
+                        await Task.Delay(1);
+                        return request.X;
+                    }
+                    return await Inner(cancellationToken);
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator031");
+    }
+
+    [Fact]
+    public async Task No_Diagnostic_When_Static_Local_Function_Cannot_Access_Ambient_Token()
+    {
+        // False positive guard: a static local function cannot capture the ambient token at all,
+        // so it must not be flagged for "failing" to forward a token it has no access to.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using PlaxionMediator.Abstractions;
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public async ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                {
+                    return await Inner(request.X);
+
+                    static async Task<string> Inner(string x)
+                    {
+                        await Task.Delay(1);
+                        return x;
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
+        Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator031");
+    }
 }
 
 public sealed class CancellationTokenNoneAnalyzerTests
@@ -299,6 +482,63 @@ public sealed class CancellationTokenNoneAnalyzerTests
                 {
                     await Task.Delay(1, cancellationToken);
                     return request.X;
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new CancellationTokenNoneAnalyzer(), source);
+        Assert.DoesNotContain(diagnostics, d => d.Id == "PlaxionMediator032");
+    }
+
+    [Fact]
+    public async Task Reports_When_Local_Function_Uses_None_Despite_Captured_Ambient_Token()
+    {
+        // True positive across a local function: the ambient token is reachable via closure, so
+        // using CancellationToken.None inside the local function is still a genuine violation.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using PlaxionMediator.Abstractions;
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public async ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                {
+                    async Task<string> Inner()
+                    {
+                        await Task.Delay(1, CancellationToken.None);
+                        return request.X;
+                    }
+                    return await Inner();
+                }
+            }
+            """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new CancellationTokenNoneAnalyzer(), source);
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator032");
+    }
+
+    [Fact]
+    public async Task No_Diagnostic_When_Static_Local_Function_Uses_None_With_No_Ambient_Access()
+    {
+        // False positive guard: a static local function cannot capture the ambient token at all,
+        // so using CancellationToken.None there is the only option and must not be flagged.
+        const string source = """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using PlaxionMediator.Abstractions;
+            public sealed record Q(string X) : IRequest<string>;
+            public sealed class QHandler : IRequestHandler<Q, string>
+            {
+                public async ValueTask<string> Handle(Q request, CancellationToken cancellationToken)
+                {
+                    return await Inner(request.X);
+
+                    static async Task<string> Inner(string x)
+                    {
+                        await Task.Delay(1, CancellationToken.None);
+                        return x;
+                    }
                 }
             }
             """;

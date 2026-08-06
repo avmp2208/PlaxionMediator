@@ -49,7 +49,13 @@ public sealed class CancellationTokenNoneAnalyzer : DiagnosticAnalyzer
 
     private static void ReportIfApplicable(OperationAnalysisContext context, Location location)
     {
-        IMethodSymbol? method = GetContainingMethod(context.Operation);
+        INamedTypeSymbol? ctType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+        if (ctType is null)
+        {
+            return;
+        }
+
+        (IMethodSymbol? method, IParameterSymbol? ambientToken) = ResolveHandleContext(context.Operation, ctType);
         if (method is null || !AnalyzerHelpers.IsHandleMethod(method))
         {
             return;
@@ -61,8 +67,10 @@ public sealed class CancellationTokenNoneAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        INamedTypeSymbol? ctType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-        if (ctType is null || !AnalyzerHelpers.MethodHasCancellationToken(method, ctType))
+        // No CancellationToken is actually reachable at this call site (e.g. a static local
+        // function/lambda that cannot capture the ambient token), so CancellationToken.None is
+        // the only option here — not a violation.
+        if (ambientToken is null)
         {
             return;
         }
@@ -73,19 +81,47 @@ public sealed class CancellationTokenNoneAnalyzer : DiagnosticAnalyzer
             method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
     }
 
-    private static IMethodSymbol? GetContainingMethod(IOperation operation)
+    /// <summary>
+    /// Walks up from the call site through any local functions/lambdas to find the nearest
+    /// ordinary (non-nested) containing method — typically the Handle method — while tracking
+    /// which CancellationToken parameter is actually reachable as the "ambient" token at the call
+    /// site. Once a *static* local function/lambda boundary is crossed without its own token, no
+    /// further outer token is considered ambient, since static nested functions cannot capture
+    /// outer locals/parameters at all.
+    /// </summary>
+    private static (IMethodSymbol? Containing, IParameterSymbol? AmbientToken) ResolveHandleContext(
+        IOperation operation,
+        INamedTypeSymbol ctType)
     {
         ISymbol? symbol = operation.SemanticModel?.GetEnclosingSymbol(operation.Syntax.SpanStart);
+        IParameterSymbol? ambientToken = null;
+        bool blockedByStaticBoundary = false;
+
         while (symbol is not null)
         {
             if (symbol is IMethodSymbol method)
             {
-                return method;
+                if (ambientToken is null && !blockedByStaticBoundary)
+                {
+                    ambientToken = method.Parameters
+                        .FirstOrDefault(p => SymbolEqualityComparer.Default.Equals(p.Type, ctType));
+                }
+
+                bool isNested = method.MethodKind is MethodKind.LocalFunction or MethodKind.LambdaMethod or MethodKind.AnonymousFunction;
+                if (!isNested)
+                {
+                    return (method, ambientToken);
+                }
+
+                if (method.IsStatic)
+                {
+                    blockedByStaticBoundary = true;
+                }
             }
 
             symbol = symbol.ContainingSymbol;
         }
 
-        return null;
+        return (null, ambientToken);
     }
 }

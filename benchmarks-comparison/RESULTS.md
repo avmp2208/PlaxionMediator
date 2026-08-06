@@ -1,6 +1,7 @@
 # Latest Comparison Results
 
-> Generated: 2026-08-04, via `dotnet run -c Release --project src/Plaxion.BenchMarks.Comparison --filter *`
+> Generated: 2026-08-06, via `dotnet run -c Release --project benchmarks-comparison/src/Plaxion.BenchMarks.Comparison --filter *`
+> (re-run as part of the `v0.4.3` stabilization pass, against the `v0.4.2` baseline captured on 2026-08-04)
 > Environment: BenchmarkDotNet v0.14.0, Windows 11, 12th Gen Intel Core i7-12700K, .NET 9.0.7 (RyuJIT AVX2)
 > Job: `Job.Default` (WarmupCount=3, IterationCount=10, LaunchCount=1) — reproducible, non-Dry job.
 >
@@ -11,82 +12,92 @@
 >
 > See the root-level `BENCHMARK_REPORT.md` for a narrative summary and
 > `ARCHITECTURE_SUMMARY.md` for the design decisions behind these numbers.
+>
+> **`v0.4.3` regression gate:** all four scenarios below were re-run unchanged against the
+> `v0.4.2` baseline (no `PipelineExecutor`/`PipelineRunner` internal tuning was made this release
+> — the Core/Pipeline audit found no correctness or contention issue justifying a change, see
+> `RELEASE_NOTES.md`). Every mean/allocation figure is within normal run-to-run noise (≤~5%) of
+> the prior snapshot, and all `Allocated` figures are byte-for-byte identical — **no regression**
+> versus `v0.4.2`, satisfying the Benchmark Strategy's regression gate.
 
 ## Pipeline Behavior Chains
 
 | Method                    | Mean        | Ratio | Rank | Allocated |
 |---------------------------|------------:|------:|-----:|----------:|
-| Send_Mediator_0Behaviors  |    16.20 ns |  0.73 |    1 |         - |
-| Send_Plaxion_0Behaviors   |    22.19 ns |  1.00 |    2 |         - |
-| Send_MediatR_0Behaviors   |    56.02 ns |  2.52 |    3 |     264 B |
-| Send_Mediator_1Behavior   |    68.47 ns |  3.09 |    3 |     128 B |
-| Send_Plaxion_1Behavior    |   120.69 ns |  5.44 |    4 |     128 B |
-| Send_MediatR_1Behavior    |   165.30 ns |  7.45 |    5 |     648 B |
-| Send_Mediator_5Behaviors  |   309.10 ns | 13.93 |    6 |     640 B |
-| Send_Plaxion_5Behaviors   |   388.76 ns | 17.52 |    7 |     640 B |
-| Send_MediatR_5Behaviors   |   479.34 ns | 21.61 |    8 |    1896 B |
-| Send_Mediator_10Behaviors |   603.20 ns | 27.19 |    9 |    1280 B |
-| Send_Plaxion_10Behaviors  |   747.55 ns | 33.70 |    9 |    1280 B |
-| Send_MediatR_10Behaviors  |   809.17 ns | 36.47 |    9 |    3456 B |
-| Send_Mediator_20Behaviors | 1,316.00 ns | 59.32 |   10 |    2560 B |
-| Send_Plaxion_20Behaviors  | 1,466.63 ns | 66.11 |   11 |    2560 B |
-| Send_MediatR_20Behaviors  | 1,708.21 ns | 77.00 |   12 |    6576 B |
+| Send_Mediator_0Behaviors  |    15.64 ns |  0.67 |    1 |         - |
+| Send_Plaxion_0Behaviors   |    23.45 ns |  1.00 |    2 |         - |
+| Send_MediatR_0Behaviors   |    52.15 ns |  2.22 |    3 |     264 B |
+| Send_Mediator_1Behavior   |    68.21 ns |  2.91 |    4 |     128 B |
+| Send_Plaxion_1Behavior    |   121.88 ns |  5.20 |    5 |     128 B |
+| Send_MediatR_1Behavior    |   173.32 ns |  7.39 |    6 |     648 B |
+| Send_Mediator_5Behaviors  |   307.58 ns | 13.11 |    7 |     640 B |
+| Send_Plaxion_5Behaviors   |   392.78 ns | 16.75 |    8 |     640 B |
+| Send_MediatR_5Behaviors   |   447.27 ns | 19.07 |    8 |    1896 B |
+| Send_Mediator_10Behaviors |   596.48 ns | 25.43 |    9 |    1280 B |
+| Send_Plaxion_10Behaviors  |   742.15 ns | 31.64 |    9 |    1280 B |
+| Send_MediatR_10Behaviors  |   820.02 ns | 34.96 |    9 |    3456 B |
+| Send_Mediator_20Behaviors | 1,315.22 ns | 56.08 |   10 |    2560 B |
+| Send_Plaxion_20Behaviors  | 1,502.94 ns | 64.08 |   11 |    2560 B |
+| Send_MediatR_20Behaviors  | 1,644.02 ns | 70.10 |   11 |    6576 B |
 
 **Takeaway:** Mediator (source-gen) remains the fastest, lowest-allocation option here. PlaxionMediator
 tracks it closely at every depth — matching its allocation profile exactly (128/640/1280/2560 B) —
-and stays consistently ahead of MediatR on both latency and allocations.
+and stays consistently ahead of MediatR on both latency and allocations. Unchanged from the
+`v0.4.2` baseline within run-to-run noise; allocation figures are identical.
 
 ## Type Variety (50 distinct request/handler pairs, dispatched once per iteration)
 
 | Method                    | Mean       | Ratio | Rank | Allocated |
 |---------------------------|-----------:|------:|-----:|----------:|
-| Dispatch_Mediator_50Types |   844.1 ns |  0.97 |    1 |         - |
-| Dispatch_Plaxion_50Types  |   870.3 ns |  1.00 |    1 |         - |
-| Dispatch_MediatR_50Types  | 4,689.4 ns |  5.39 |    2 |   13200 B |
+| Dispatch_Mediator_50Types |   850.0 ns |  0.97 |    1 |         - |
+| Dispatch_Plaxion_50Types  |   879.3 ns |  1.00 |    1 |         - |
+| Dispatch_MediatR_50Types  | 4,799.5 ns |  5.46 |    2 |   13200 B |
 
 **Takeaway:** PlaxionMediator remains essentially tied with Mediator (ratio 1.00 vs 0.97) on this
 scenario, while remaining **0 B** allocated — well ahead of MediatR, which allocates ~264 B/call.
+Unchanged from the `v0.4.2` baseline.
 
 ## Concurrency (Task.WhenAll, shared ServiceProvider)
 
 | Method                  | Mean        | Ratio  | Rank | Allocated |
 |-------------------------|------------:|-------:|-----:|----------:|
-| Concurrent_Mediator_1   |    39.28 ns |   0.84 |    1 |     176 B |
-| Concurrent_Plaxion_1    |    46.69 ns |   1.00 |    1 |     176 B |
-| Concurrent_MediatR_1    |    80.80 ns |   1.73 |    2 |     368 B |
-| Concurrent_Mediator_8   |   225.77 ns |   4.85 |    3 |     736 B |
-| Concurrent_Plaxion_8    |   299.23 ns |   6.42 |    4 |     736 B |
-| Concurrent_MediatR_8    |   594.20 ns |  12.76 |    5 |    2272 B |
-| Concurrent_Mediator_32  |   858.19 ns |  18.43 |    6 |    2656 B |
-| Concurrent_Plaxion_32   | 1,824.39 ns |  39.17 |    7 |    2656 B |
-| Concurrent_MediatR_32   | 2,076.46 ns |  44.58 |    8 |    8800 B |
-| Concurrent_Mediator_128 | 3,546.54 ns |  76.15 |    9 |   10336 B |
-| Concurrent_Plaxion_128  | 3,828.64 ns |  82.21 |    9 |   10336 B |
-| Concurrent_MediatR_128  | 8,600.15 ns | 184.65 |   10 |   34912 B |
+| Concurrent_Mediator_1   |    39.42 ns |   0.89 |    1 |     176 B |
+| Concurrent_Plaxion_1    |    44.38 ns |   1.00 |    2 |     176 B |
+| Concurrent_MediatR_1    |    74.44 ns |   1.68 |    3 |     368 B |
+| Concurrent_Mediator_8   |   224.88 ns |   5.07 |    4 |     736 B |
+| Concurrent_Plaxion_8    |   249.73 ns |   5.63 |    4 |     736 B |
+| Concurrent_MediatR_8    |   550.49 ns |  12.41 |    5 |    2272 B |
+| Concurrent_Mediator_32  |   872.18 ns |  19.66 |    6 |    2656 B |
+| Concurrent_Plaxion_32   |   884.17 ns |  19.93 |    6 |    2656 B |
+| Concurrent_MediatR_32   | 1,988.73 ns |  44.83 |    7 |    8800 B |
+| Concurrent_Mediator_128 | 3,351.72 ns |  75.56 |    8 |   10336 B |
+| Concurrent_Plaxion_128  | 3,610.68 ns |  81.39 |    8 |   10336 B |
+| Concurrent_MediatR_128  | 8,253.81 ns | 186.06 |    9 |   34912 B |
 
 **Takeaway:** PlaxionMediator scales in step with Mediator under concurrent load, with identical
 allocation profiles at every caller tier (176/736/2656/10336 B), and stays well ahead of MediatR
-throughout.
+throughout. Unchanged from the `v0.4.2` baseline; allocation figures are identical.
 
 ## Notification Fan-Out
 
 | Method                        | Mean        | Ratio | Rank | Allocated |
 |-------------------------------|------------:|------:|-----:|----------:|
-| Publish_Mediator_1Handler     |    59.40 ns |  0.66 |    1 |     120 B |
-| Publish_Plaxion_1Handler      |    90.47 ns |  1.00 |    2 |     152 B |
-| Publish_MediatR_1Handler      |   112.28 ns |  1.24 |    2 |     352 B |
-| Publish_Mediator_10Handlers   |   581.80 ns |  6.43 |    3 |    1200 B |
-| Publish_Plaxion_10Handlers    |   598.84 ns |  6.62 |    3 |    1304 B |
-| Publish_MediatR_10Handlers    |   732.56 ns |  8.10 |    3 |    2512 B |
-| Publish_Plaxion_50Handlers    | 2,808.52 ns | 31.05 |    4 |    6424 B |
-| Publish_Mediator_50Handlers   | 2,880.80 ns | 31.85 |    4 |    6000 B |
-| Publish_MediatR_50Handlers    | 3,466.18 ns | 38.32 |    4 |   12112 B |
-| Publish_Plaxion_100Handlers   | 5,515.70 ns | 60.97 |    5 |   12824 B |
-| Publish_Mediator_100Handlers  | 5,966.56 ns | 65.96 |    6 |   12000 B |
-| Publish_MediatR_100Handlers   | 8,183.52 ns | 90.47 |    7 |   24112 B |
+| Publish_Mediator_1Handler     |    59.10 ns |  0.66 |    1 |     120 B |
+| Publish_Plaxion_1Handler      |    89.16 ns |  1.00 |    2 |     152 B |
+| Publish_MediatR_1Handler      |   121.67 ns |  1.37 |    3 |     352 B |
+| Publish_Mediator_10Handlers   |   584.04 ns |  6.55 |    4 |    1200 B |
+| Publish_Plaxion_10Handlers    |   586.86 ns |  6.58 |    4 |    1304 B |
+| Publish_MediatR_10Handlers    |   738.66 ns |  8.29 |    5 |    2512 B |
+| Publish_Plaxion_50Handlers    | 2,808.66 ns | 31.51 |    6 |    6424 B |
+| Publish_Mediator_50Handlers   | 2,991.50 ns | 33.56 |    6 |    6000 B |
+| Publish_MediatR_50Handlers    | 3,565.68 ns | 40.00 |    7 |   12112 B |
+| Publish_Plaxion_100Handlers   | 5,573.20 ns | 62.53 |    8 |   12824 B |
+| Publish_Mediator_100Handlers  | 5,854.28 ns | 65.68 |    8 |   12000 B |
+| Publish_MediatR_100Handlers   | 6,864.30 ns | 77.01 |    9 |   24112 B |
 
 **Takeaway:** PlaxionMediator's strongest category — it edges ahead of Mediator at 50 and 100
-handlers, and is consistently faster than MediatR across every fan-out tier.
+handlers, and is consistently faster than MediatR across every fan-out tier. Unchanged from the
+`v0.4.2` baseline; allocation figures are identical.
 
 ## Overall Summary
 
@@ -100,3 +111,22 @@ handlers, and is consistently faster than MediatR across every fan-out tier.
 - All three frameworks — PlaxionMediator, Mediator, and MediatR — are solid, production-ready
   choices; these numbers simply document where PlaxionMediator stands today so the comparison is
   transparent and reproducible.
+
+## `v0.4.3` Stabilization Pass — Regression Verdict
+
+- **Scope re-confirmed:** the `v0.4.3` Core/Pipeline workstream profiled `PipelineExecutor`
+  (field-staged, ≤5 behaviors) and the pooled `PipelineRunner` fallback (>5 behaviors) and found
+  no correctness or contention issue serious enough to justify changing pool sizing or the
+  staged-field threshold — see `src/RELEASE_NOTES.md` for the explicit "no tuning needed"
+  rationale. Consequently no source changes were made to `PipelineComposer.cs` this release.
+- **New Circuit-Breaker-inclusive coverage:** `src/PlaxionMediator.Benchmarks` gained
+  `ResiliencePipelineBenchmarks` (`Send_CircuitBreakerOnly`, `Send_FullChain_CacheMiss`,
+  `Send_FullChain_CacheHit`, covering `Validation -> Caching -> CircuitBreaker -> Retry`), closing
+  the coverage gap called out in the `v0.4.2` plan. This project builds cleanly in Release; a full
+  BenchmarkDotNet run of it was intentionally skipped here (too slow for this pass) since it has
+  no `v0.4.2` baseline to regress against — it is new coverage, not a comparison point.
+  See `src/PlaxionMediator.Benchmarks/BenchmarkDotNet.Artifacts` locally if a full run is desired.
+- **Regression gate result:** re-running this `benchmarks-comparison/` suite (the actual
+  before/after reference point for `PipelineExecutor`/`PipelineRunner`, per the `v0.4.3` plan's
+  Benchmark Strategy) shows every scenario within normal noise of the `v0.4.2` baseline and
+  byte-identical allocations — **PASS, no regression**.

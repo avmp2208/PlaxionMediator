@@ -14,7 +14,7 @@
 | `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<TRequest>`, `ValidationBehavior<TRequest,TResponse>` pipeline behavior | Implementing request validation (opt-in) |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidationAdapter<TRequest>` and DI extensions for wiring FluentValidation | Using FluentValidation for requests (opt-in, depends on `PlaxionMediator.Validation`) |
 | `PlaxionMediator.Caching` | `ICacheableRequest<TResponse>`, `CachingBehavior<TRequest,TResponse>` pipeline behavior, and `IPlaxionMediatorCacheInvalidator` | Implementing request caching (opt-in, depends on `Microsoft.Extensions.Caching.Memory`) |
-| `PlaxionMediator.Retry` | `IRetryableRequest`, `RetryBehavior<TRequest,TResponse>` pipeline behavior with backoff strategies | Implementing request retries (opt-in) |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `RetryBehavior<TRequest,TResponse>` pipeline behavior with backoff strategies; also hosts the opt-in `ICircuitBreakerRequest`, `CircuitBreakerBehavior<TRequest,TResponse>` (adapting `Microsoft.Extensions.Resilience`/Polly), and `ICircuitBreakerPolicyProvider<TRequest>` circuit breaker support added in `v0.4.2` | Implementing request retries and/or circuit breaking (opt-in, depends on `Microsoft.Extensions.Resilience` for the circuit breaker feature) |
 
 ## Why are `AspNetCore`/`MinimalApis` not bundled?
 
