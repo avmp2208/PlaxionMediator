@@ -95,6 +95,46 @@ public static class PipelineBehaviorResolver
         return ResolveSlow<TRequest, TResponse>(services, ref scopeCache, key);
     }
 
+    /// <summary>
+    /// Returns the behaviors for <typeparamref name="TRequest"/>/<typeparamref name="TResponse"/>, along
+    /// with whether the result is safe for the caller to cache directly in a plain instance field for the
+    /// lifetime of the current scope (i.e. no Transient behavior registrations exist for this pipeline).
+    /// Avoids the <c>Modes</c>/scope-cache dictionary lookups that <see cref="GetBehaviors{TRequest,TResponse}"/>
+    /// incurs on every call by letting generated dispatch code cache the result in a per-request-type field,
+    /// mirroring how resolved handlers are already cached (<c>_cachedHandlerN</c>).
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> GetBehaviorsForFieldCache<TRequest, TResponse>(
+        IServiceProvider services,
+        out bool cacheable)
+        where TRequest : IRequest<TResponse>
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        Type key = typeof(IPipelineBehavior<TRequest, TResponse>);
+
+        if (Modes.TryGetValue(key, out Mode knownMode) && knownMode == Mode.Empty)
+        {
+            cacheable = true;
+            return Array.Empty<IPipelineBehavior<TRequest, TResponse>>();
+        }
+
+        IPipelineBehavior<TRequest, TResponse>[] behaviors = Materialize(
+            services.GetServices<IPipelineBehavior<TRequest, TResponse>>());
+
+        if (behaviors.Length == 0)
+        {
+            Modes[key] = Mode.Empty;
+            cacheable = true;
+            return Array.Empty<IPipelineBehavior<TRequest, TResponse>>();
+        }
+
+        Mode resolvedMode = Modes.GetOrAdd(key, static _ => DetermineMode());
+        cacheable = resolvedMode == Mode.CachePerScope;
+        return behaviors;
+    }
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> ResolveSlow<TRequest, TResponse>(
         IServiceProvider services,

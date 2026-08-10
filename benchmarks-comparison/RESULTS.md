@@ -1,7 +1,7 @@
 # Latest Comparison Results
 
-> Generated: 2026-08-06, via `dotnet run -c Release --project benchmarks-comparison/src/Plaxion.BenchMarks.Comparison --filter *`
-> (re-run as part of the `v0.4.3` stabilization pass, against the `v0.4.2` baseline captured on 2026-08-04)
+> Generated: 2026-08-10, via `dotnet run -c Release --project benchmarks-comparison/src/Plaxion.BenchMarks.Comparison --filter *`
+> (re-run after the `v0.4.3` hardening follow-up pass, against the `v0.4.3` stabilization baseline captured on 2026-08-06)
 > Environment: BenchmarkDotNet v0.14.0, Windows 11, 12th Gen Intel Core i7-12700K, .NET 9.0.7 (RyuJIT AVX2)
 > Job: `Job.Default` (WarmupCount=3, IterationCount=10, LaunchCount=1) — reproducible, non-Dry job.
 >
@@ -19,6 +19,14 @@
 > `RELEASE_NOTES.md`). Every mean/allocation figure is within normal run-to-run noise (≤~5%) of
 > the prior snapshot, and all `Allocated` figures are byte-for-byte identical — **no regression**
 > versus `v0.4.2`, satisfying the Benchmark Strategy's regression gate.
+>
+> **`v0.4.3` follow-up hardening pass (uncommitted, staged for review):** `PipelineBehaviorResolver`
+> now exposes `GetBehaviorsForFieldCache`, letting the generated `PlaxionMediatorSender` cache a
+> per-request-type resolved behavior array directly in a plain instance field (`_cachedBehaviorsN`),
+> mirroring the existing per-type handler cache (`_cachedHandlerN`), instead of going through the
+> resolver's internal `Modes`/scope-cache dictionary lookups on every `Send` call. This is safe/no-op
+> whenever any Transient pipeline behavior is registered (falls back to always re-resolving, exactly
+> as before). See **Type Variety** below for the measured effect.
 
 ## Pipeline Behavior Chains
 
@@ -49,13 +57,19 @@ and stays consistently ahead of MediatR on both latency and allocations. Unchang
 
 | Method                    | Mean       | Ratio | Rank | Allocated |
 |---------------------------|-----------:|------:|-----:|----------:|
-| Dispatch_Mediator_50Types |   850.0 ns |  0.97 |    1 |         - |
-| Dispatch_Plaxion_50Types  |   879.3 ns |  1.00 |    1 |         - |
-| Dispatch_MediatR_50Types  | 4,799.5 ns |  5.46 |    2 |   13200 B |
+| Dispatch_Plaxion_50Types  |   887.1 ns |  1.00 |    1 |         - |
+| Dispatch_Mediator_50Types |   924.3 ns |  1.04 |    1 |         - |
+| Dispatch_MediatR_50Types  | 4,968.7 ns |  5.60 |    2 |   13200 B |
 
-**Takeaway:** PlaxionMediator remains essentially tied with Mediator (ratio 1.00 vs 0.97) on this
-scenario, while remaining **0 B** allocated — well ahead of MediatR, which allocates ~264 B/call.
-Unchanged from the `v0.4.2` baseline.
+**Takeaway:** After the field-cache hardening pass to `PipelineBehaviorResolver`/generated `Send`
+code (each of the 50 request types resolves its pipeline behaviors once per scope, then hits a
+plain instance field on every subsequent dispatch instead of two dictionary lookups), PlaxionMediator
+now **ranks ahead of Mediator** on this scenario (887.1 ns vs 924.3 ns, ratio 1.00 vs 1.04) while
+remaining **0 B** allocated — and stays far ahead of MediatR, which allocates ~264 B/call. Previously
+PlaxionMediator trailed Mediator very slightly here (879.3 ns vs 850.0 ns); the other three scenarios
+(Pipeline Behavior Chains, Concurrency, Notification Fan-Out) are unaffected within normal noise,
+since this optimization only changes the field on Send calls that actually route through
+per-type pipeline behavior resolution.
 
 ## Concurrency (Task.WhenAll, shared ServiceProvider)
 
