@@ -15,10 +15,17 @@ internal sealed class PlaxionMediatorExceptionHandlingMiddleware
     private const string ProblemJsonContentType = "application/problem+json";
 
     private readonly RequestDelegate _next;
+    private readonly PlaxionMediatorExceptionHandlingOptions _options;
 
     public PlaxionMediatorExceptionHandlingMiddleware(RequestDelegate next)
+        : this(next, new PlaxionMediatorExceptionHandlingOptions())
+    {
+    }
+
+    public PlaxionMediatorExceptionHandlingMiddleware(RequestDelegate next, PlaxionMediatorExceptionHandlingOptions options)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -39,7 +46,7 @@ internal sealed class PlaxionMediatorExceptionHandlingMiddleware
         }
         catch (PipelineExecutionException ex)
         {
-            await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex)).ConfigureAwait(false);
+            await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex, _options.IncludeRequestTypeName)).ConfigureAwait(false);
         }
     }
 

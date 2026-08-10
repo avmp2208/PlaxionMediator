@@ -11,13 +11,18 @@ All PlaxionMediator analyzers ship in `PlaxionMediator.Analyzers` (transitively 
 | `PlaxionMediator005` | Missing Request Binding Attribute | `MapPlaxionMediatorGet`/`MapPlaxionMediatorDelete<TRequest,TResponse>` called with a `TRequest` that has no bindable route/query members | Warning |
 | `PlaxionMediator006` | Handler Blocking Call | `.Result`/`.Wait()`/`.GetAwaiter().GetResult()` used inside an `IRequestHandler<,>`/`INotificationHandler<>` `Handle` implementation | Warning |
 | `PlaxionMediator011` | Non-Sealed Handler | A handler class is not sealed, allowing accidental subclassing that bypasses DI-registered behavior | Warning |
+| `PlaxionMediator012` | Multiple Public Constructors | A handler class declares more than one public constructor | Warning |
 | `PlaxionMediator020` | Invalid Behavior Registration | `PipelineBuilder.Use<T>()` called with a type that does not implement `IPipelineBehavior<,>` | Error |
 | `PlaxionMediator021` | Duplicate Registration | The same behavior type is registered more than once for the same pipeline | Warning |
 | `PlaxionMediator022` | Incorrect Lifetime | A Singleton handler/behavior captures a Scoped or Transient dependency | Warning |
+| `PlaxionMediator023` | Mutable State in Behavior | A pipeline behavior maintains mutable instance state (field/property writes) in its Handle method | Warning |
 | `PlaxionMediator031` | Missing CancellationToken Propagation | A handler/behavior receives a `CancellationToken` but doesn't pass it to an awaited async call | Warning |
 | `PlaxionMediator032` | CancellationToken.None Usage | `CancellationToken.None` used inside a handler where an ambient token is available | Info |
 | `PlaxionMediator040` | Async Void Handler | A handler or behavior method is declared `async void`, preventing proper exception observation | Error |
 | `PlaxionMediator041` | Handler Self-Send | A handler sends a request of its own type, risking infinite recursion | Warning |
+| `PlaxionMediator050` | LINQ in High-Frequency Handler | A `[HighFrequency]` request handler uses LINQ extension methods | Info |
+| `PlaxionMediator051` | Closure Capture in Hot Path | A lambda or local function inside a handler/behavior Handle method captures local state | Info |
+| `PlaxionMediator070` | Fire-and-Forget Task.Run | `Task.Run(...)` invoked inside a Handle method without being awaited or returned | Warning |
 | `PlaxionMediator080` | Unnecessary Behavior on Hot Path | A `[HighFrequency]` request has more than N behaviors (default: 3) in its chain | Info |
 | `PlaxionMediator081` | Synchronous-Only Handler | A handler has no `await`; suggests using `ValueTask.FromResult` for optimized completion | Info |
 | `PlaxionMediator082` | Behavior Allocates in Hot Path | A behavior allocates a new closure/collection per call | Info |

@@ -2,6 +2,27 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.5.0
+
+### Added
+- **`FakeSender` assertion helpers** in `PlaxionMediator.Testing`: `GetSent<TRequest>()` (returns captured requests of a given type, in call order), `GetCallCount<TRequest>()`, `AssertCallCount<TRequest>(expectedCount)`, and `AssertSentInOrder(params Type[] expectedTypes)` for ordering assertions across multiple `Send` calls. All additions are backward compatible with existing `FakeSender` consumers; failures throw the new `FakeSenderAssertionException`.
+- **`FakeSender` streaming stub overloads**: `WhenStream<TRequest, TResponse>(Func<TRequest, IEnumerable<TResponse>>)` and `WhenStream<TRequest, TResponse>(Func<TRequest, IAsyncEnumerable<TResponse>>)`, mirroring the non-streaming `When<TRequest, TResponse>` stubbing ergonomics for `IStreamRequest<TResponse>` consumers. Call-count/ordering assertions work across mixed `Send`/`CreateStream` calls.
+- **Five new `PlaxionMediator.Analyzers` diagnostics**, continuing the existing `PlaxionMediator001`–`090` ID bands (see `docs/wiki/Analyzers-Reference.md` for full details):
+  - `PlaxionMediator012` — a handler declares more than one public constructor (ambiguous for DI resolution).
+  - `PlaxionMediator023` — a pipeline behavior mutates non-readonly instance state inside `Handle` (unsafe under the typical Singleton behavior lifetime).
+  - `PlaxionMediator050` — LINQ usage inside a handler's hot-path `Handle` method (allocation-causing iterator/delegate overhead).
+  - `PlaxionMediator051` — a lambda/local function inside a `Handle` method captures an outer local/parameter (closure allocation).
+  - `PlaxionMediator070` — a discarded, fire-and-forget `Task.Run(...)` call inside a `Handle` method (unobserved exceptions, unsafe for scoped services).
+- **ASP.NET Core `problem+json` diagnostic surfacing**: `UsePlaxionMediatorExceptionHandling(configure)` overload and new `PlaxionMediatorExceptionHandlingOptions.IncludeRequestTypeName` flag (default `false`) let consumers opt into exposing `PipelineExecutionException.RequestTypeName` as a `requestTypeName` extension on the `problem+json` response, without leaking it by default.
+
+### Changed
+- **Diagnostic context on `PipelineExecutionException`**: added an additive `RequestTypeName` property (populated via a new, backward-compatible constructor overload) so consumers get the failing request's type name alongside the existing `StageName`, without changing existing constructors' binary compatibility or the exception hierarchy. `PipelineComposer`'s behavior-fault wrapping (both the field-staged `PipelineExecutor` and the pooled `PipelineRunner` fallback) now populates this field at every wrap site.
+- **Diagnostic context on `HandlerFaultException`**: promoted from a `PipelineComposer`-private nested type to a public, sealed `PlaxionMediator.Core` exception type (still deriving from the `PlaxionMediatorException` hierarchy), gaining an additive `RequestTypeName` property via a new backward-compatible constructor overload, populated at every handler-fault wrap site in `PipelineComposer`. Existing catch sites for the abstract `PlaxionMediatorException` base type are unaffected.
+
+### Verified
+- Full solution build: 0 warnings, 0 errors. Full test suite (all projects, unit + integration): 271 tests passing.
+- `benchmarks-comparison/` suite re-run against the `v0.4.3` baseline; see `benchmarks-comparison/RESULTS.md` for the refreshed numbers — no measurable regression, confirming the new diagnostic context stays exception-path-only and adds no hot-path allocation.
+
 ## v0.4.3
 
 ### Changed

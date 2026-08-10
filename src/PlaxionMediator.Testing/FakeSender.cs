@@ -57,6 +57,35 @@ public sealed class FakeSender : ISender
     /// <summary>
     /// Registers a streaming response factory for <typeparamref name="TRequest"/>.
     /// </summary>
+    public void WhenStream<TRequest, TResponse>(Func<TRequest, IEnumerable<TResponse>> respond)
+        where TRequest : IStreamRequest<TResponse>
+    {
+        ArgumentNullException.ThrowIfNull(respond);
+        WhenStream<TRequest, TResponse>((request, _) => ToAsyncEnumerable(respond(request)));
+
+        static async IAsyncEnumerable<TResponse> ToAsyncEnumerable(IEnumerable<TResponse> source)
+        {
+            foreach (TResponse item in source)
+            {
+                yield return item;
+            }
+            await Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// Registers a streaming response factory for <typeparamref name="TRequest"/>.
+    /// </summary>
+    public void WhenStream<TRequest, TResponse>(Func<TRequest, IAsyncEnumerable<TResponse>> respond)
+        where TRequest : IStreamRequest<TResponse>
+    {
+        ArgumentNullException.ThrowIfNull(respond);
+        WhenStream<TRequest, TResponse>((request, _) => respond(request));
+    }
+
+    /// <summary>
+    /// Registers a streaming response factory for <typeparamref name="TRequest"/>.
+    /// </summary>
     public void WhenStream<TRequest, TResponse>(Func<TRequest, CancellationToken, IAsyncEnumerable<TResponse>> respond)
         where TRequest : IStreamRequest<TResponse>
     {
@@ -125,6 +154,69 @@ public sealed class FakeSender : ISender
         await foreach (object? item in handler(request, cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             yield return (TResponse)item!;
+        }
+    }
+
+    /// <summary>
+    /// Returns the requests of type <typeparamref name="TRequest"/> observed so far, in call order.
+    /// </summary>
+    public IReadOnlyList<TRequest> GetSent<TRequest>()
+    {
+        lock (_gate)
+        {
+            return _sentRequests.OfType<TRequest>().ToArray();
+        }
+    }
+
+    /// <summary>
+    /// Returns the number of requests of type <typeparamref name="TRequest"/> observed so far.
+    /// </summary>
+    public int GetCallCount<TRequest>()
+    {
+        lock (_gate)
+        {
+            return _sentRequests.Count(static r => r is TRequest);
+        }
+    }
+
+    /// <summary>
+    /// Asserts that exactly <paramref name="expectedCount"/> requests of type <typeparamref name="TRequest"/>
+    /// were observed. Throws <see cref="FakeSenderAssertionException"/> on mismatch.
+    /// </summary>
+    public void AssertCallCount<TRequest>(int expectedCount)
+    {
+        int actual = GetCallCount<TRequest>();
+        if (actual != expectedCount)
+        {
+            throw new FakeSenderAssertionException(
+                $"Expected {expectedCount} call(s) to request type '{typeof(TRequest).Name}', but observed {actual}.");
+        }
+    }
+
+    /// <summary>
+    /// Asserts that the requests captured in <see cref="SentRequests"/> occurred in exactly the given
+    /// type order (by request type, not by exact instance). Throws <see cref="FakeSenderAssertionException"/>
+    /// on mismatch, including count mismatches.
+    /// </summary>
+    public void AssertSentInOrder(params Type[] expectedTypes)
+    {
+        ArgumentNullException.ThrowIfNull(expectedTypes);
+
+        IReadOnlyList<object> sent = SentRequests;
+        if (sent.Count != expectedTypes.Length)
+        {
+            throw new FakeSenderAssertionException(
+                $"Expected {expectedTypes.Length} request(s) in order, but observed {sent.Count}.");
+        }
+
+        for (int i = 0; i < expectedTypes.Length; i++)
+        {
+            Type actualType = sent[i].GetType();
+            if (actualType != expectedTypes[i])
+            {
+                throw new FakeSenderAssertionException(
+                    $"Expected request at position {i} to be of type '{expectedTypes[i].Name}', but observed '{actualType.Name}'.");
+            }
         }
     }
 

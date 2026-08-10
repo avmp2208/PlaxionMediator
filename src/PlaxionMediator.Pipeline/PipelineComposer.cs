@@ -22,13 +22,6 @@ public static class PipelineComposer
     /// it must reach the caller/middleware as the original, unmapped exception. Unwrapped exactly
     /// once at the <see cref="ExecuteAsync{TRequest,TResponse}(TRequest,IReadOnlyList{IPipelineBehavior{TRequest,TResponse}},Func{TRequest,CancellationToken,ValueTask{TResponse}},CancellationToken)"/> boundary.
     /// </summary>
-    private sealed class HandlerFaultException : Exception
-    {
-        public HandlerFaultException(Exception inner)
-            : base(inner.Message, inner)
-        {
-        }
-    }
 
     /// <summary>
     /// Composes <paramref name="behaviors"/> around <paramref name="handler"/> into a single delegate.
@@ -330,7 +323,7 @@ public static class PipelineComposer
             }
             catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
             {
-                throw new HandlerFaultException(ex);
+                throw new HandlerFaultException(ex, typeof(TRequest).Name);
             }
 
             return valueTask.IsCompletedSuccessfully ? valueTask : MarkAsyncHandlerFault(valueTask);
@@ -347,7 +340,7 @@ public static class PipelineComposer
             }
             catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
             {
-                throw new HandlerFaultException(ex);
+                throw new HandlerFaultException(ex, typeof(TRequest).Name);
             }
         }
 
@@ -383,7 +376,8 @@ public static class PipelineComposer
             throw new PipelineExecutionException(
                 $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
                 ex,
-                behavior.GetType().Name);
+                behavior.GetType().Name,
+                typeof(TRequest).Name);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -399,7 +393,8 @@ public static class PipelineComposer
             throw new PipelineExecutionException(
                 $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
                 ex,
-                behavior.GetType().Name);
+                behavior.GetType().Name,
+                typeof(TRequest).Name);
         }
     }
 
@@ -620,7 +615,7 @@ public static class PipelineComposer
             }
             catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
             {
-                throw new HandlerFaultException(ex);
+                throw new HandlerFaultException(ex, typeof(TRequest).Name);
             }
 
             return valueTask.IsCompletedSuccessfully ? valueTask : MarkAsyncHandlerFault(valueTask);
@@ -634,7 +629,7 @@ public static class PipelineComposer
             }
             catch (Exception ex) when (ex is not OperationCanceledException and not PlaxionMediatorException)
             {
-                throw new HandlerFaultException(ex);
+                throw new HandlerFaultException(ex, typeof(TRequest).Name);
             }
         }
 
@@ -653,7 +648,8 @@ public static class PipelineComposer
             throw new PipelineExecutionException(
                 $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
                 ex,
-                behavior.GetType().Name);
+                behavior.GetType().Name,
+                typeof(TRequest).Name);
         }
 
         private static async ValueTask<TResponse> AwaitWithExceptionWrapping(
@@ -684,7 +680,8 @@ public static class PipelineComposer
             throw new PipelineExecutionException(
                 $"Error executing behavior '{behavior.GetType().Name}' for request '{typeof(TRequest).Name}'.",
                 ex,
-                behavior.GetType().Name);
+                behavior.GetType().Name,
+                typeof(TRequest).Name);
         }
     }
 }
