@@ -119,9 +119,10 @@ internal static class SourceEmitter
         sb.AppendLine("{");
         sb.AppendLine("    private readonly IServiceProvider _services;");
         sb.AppendLine("    private readonly bool _cacheHandlersPerScope;");
-        sb.AppendLine("    // Scope-local cache of resolved behavior arrays (used only when no Transient behaviors are registered).");
-        sb.AppendLine("    private System.Collections.Generic.Dictionary<System.Type, object>? _behaviorScopeCache;");
-        // One nullable handler field per known request type (populated lazily when caching is enabled).
+        // One nullable handler field, and one nullable resolved-behaviors field, per known request type
+        // (populated lazily; behaviors field is only ever set when no Transient behaviors are registered
+        // for that pipeline, mirroring the handler cache and avoiding PipelineBehaviorResolver's internal
+        // dictionary lookups on every call once warm).
         int handlerFieldIndex = 0;
         foreach (RequestHandlerModel handlerModel in model.RequestHandlers)
         {
@@ -130,6 +131,13 @@ internal static class SourceEmitter
                 .Append(", ")
                 .Append(handlerModel.ResponseFullyQualifiedName)
                 .Append(">? _cachedHandler")
+                .Append(handlerFieldIndex)
+                .AppendLine(";");
+            sb.Append("    private System.Collections.Generic.IReadOnlyList<IPipelineBehavior<")
+                .Append(handlerModel.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handlerModel.ResponseFullyQualifiedName)
+                .Append(">>? _cachedBehaviors")
                 .Append(handlerFieldIndex)
                 .AppendLine(";");
             handlerFieldIndex++;
@@ -306,11 +314,23 @@ internal static class SourceEmitter
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .Append(">> behaviors = PipelineBehaviorResolver.GetBehaviors<")
+                .Append(">>? behaviors = _cachedBehaviors")
+                .Append(methodIndex)
+                .AppendLine(";");
+            sb.AppendLine("        if (behaviors is null)");
+            sb.AppendLine("        {");
+            sb.Append("            behaviors = PipelineBehaviorResolver.GetBehaviorsForFieldCache<")
                 .Append(handler.RequestFullyQualifiedName)
                 .Append(", ")
                 .Append(handler.ResponseFullyQualifiedName)
-                .AppendLine(">(_services, ref _behaviorScopeCache);");
+                .AppendLine(">(_services, out bool behaviorsCacheable);");
+            sb.Append("            if (behaviorsCacheable)");
+            sb.AppendLine();
+            sb.AppendLine("            {");
+            sb.Append("                _cachedBehaviors").Append(methodIndex).AppendLine(" = behaviors;");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            sb.AppendLine();
             sb.AppendLine("        if (behaviors.Count == 0)");
             sb.AppendLine("        {");
             sb.AppendLine("            return handler.Handle(request, cancellationToken);");
