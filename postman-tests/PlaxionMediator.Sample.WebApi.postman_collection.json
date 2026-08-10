@@ -726,6 +726,21 @@
       "name": "Circuit Breaker Recovers (Half-Open Probe Succeeds)",
       "event": [
         {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// The sample's BreakDuration is 500ms. When running the whole collection via the Collection",
+              "// Runner (or 'Run all tests'), the preceding requests execute back-to-back with no real delay,",
+              "// so the circuit can still be Open by the time this request fires - causing a flaky/failing",
+              "// first run that only passes on 'Run Again' once enough wall-clock time has incidentally",
+              "// passed. Block synchronously for longer than BreakDuration so the probe is always half-open.",
+              "const start = Date.now();",
+              "while (Date.now() - start < 750) { /* busy-wait */ }"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
           "listen": "test",
           "script": {
             "exec": [
@@ -762,7 +777,7 @@
             "circuit-breaker"
           ]
         },
-        "description": "Wait past the BreakDuration (500ms) after the circuit opened, then run this after 'Configure Circuit Breaker Demo (Recover)': the half-open probe succeeds and the circuit closes again."
+        "description": "Run this after 'Configure Circuit Breaker Demo (Recover)': a pre-request script blocks for 750ms (past the sample's 500ms BreakDuration) so the half-open probe reliably succeeds and the circuit closes again, even when running the whole collection back-to-back via the Collection Runner."
       }
     },
     {

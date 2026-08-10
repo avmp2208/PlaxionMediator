@@ -6,11 +6,67 @@
 
 ```csharp
 var fakeSender = new FakeSender();
-fakeSender.Setup<Ping, string>(request => $"Pong: {request.Message}");
+fakeSender.When<Ping, string>(request => $"Pong: {request.Message}");
 
 var result = await fakeSender.Send(new Ping("hi"));
 Assert.Equal("Pong: hi", result);
 ```
+
+### Stubbing streaming requests
+
+`FakeSender` also supports streaming requests (via `CreateStream`) with `WhenStream` overloads (added in `v0.5.0`):
+
+```csharp
+var fakeSender = new FakeSender();
+
+// Stub with IEnumerable
+fakeSender.WhenStream<StreamPing, int>(request => Enumerable.Range(0, request.Count));
+
+// Stub with IAsyncEnumerable
+fakeSender.WhenStream<StreamPing, int>(async request => 
+{
+    for (int i = 0; i < request.Count; i++)
+    {
+        yield return i;
+        await Task.Yield();
+    }
+});
+
+// Using the stream
+await foreach (int item in fakeSender.CreateStream(new StreamPing(3)))
+{
+    // observed: 0, 1, 2
+}
+
+// All assertion helpers work for streaming requests too
+fakeSender.AssertCallCount<StreamPing>(1);
+```
+
+### Asserting call count, captured arguments, and ordering
+
+`FakeSender` also tracks every request it observes (`SentRequests`), and exposes assertion helpers (added in `v0.5.0`) so you don't need hand-rolled bookkeeping to verify `ISender`-dependent code:
+
+```csharp
+var fakeSender = new FakeSender();
+fakeSender.When<Ping, string>(request => $"Pong: {request.Message}");
+fakeSender.When<CountRequest, int>(_ => 1);
+
+await fakeSender.Send(new Ping("a"));
+await fakeSender.Send(new Ping("b"));
+await fakeSender.Send(new CountRequest());
+
+// Call-count assertion
+fakeSender.AssertCallCount<Ping>(2);
+
+// Argument capture — inspect every request of a given type, in call order
+IReadOnlyList<Ping> pings = fakeSender.GetSent<Ping>();
+Assert.Equal(new[] { "a", "b" }, pings.Select(p => p.Message));
+
+// Ordering assertion across multiple Send calls (by request type)
+fakeSender.AssertSentInOrder(typeof(Ping), typeof(Ping), typeof(CountRequest));
+```
+
+All assertion helpers throw `FakeSenderAssertionException` (a plain `Exception`, not a `PlaxionMediatorException`) on mismatch, with a message describing the expected vs. actual state.
 
 ## Unit testing handlers directly
 

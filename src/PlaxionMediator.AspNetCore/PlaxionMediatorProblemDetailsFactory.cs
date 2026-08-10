@@ -49,7 +49,7 @@ internal static class PlaxionMediatorProblemDetailsFactory
     /// <summary>
     /// Creates problem details for a pipeline execution failure, exposing a safe inner-exception summary.
     /// </summary>
-    public static ProblemDetails Create(PipelineExecutionException exception)
+    public static ProblemDetails Create(PipelineExecutionException exception, bool includeRequestTypeName = false)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
@@ -64,6 +64,11 @@ internal static class PlaxionMediatorProblemDetailsFactory
         if (exception.StageName is not null)
         {
             problemDetails.Extensions["stageName"] = exception.StageName;
+        }
+
+        if (includeRequestTypeName && exception.RequestTypeName is not null)
+        {
+            problemDetails.Extensions["requestTypeName"] = exception.RequestTypeName;
         }
 
         if (exception.InnerException is not null)

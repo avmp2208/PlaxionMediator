@@ -105,7 +105,46 @@ public sealed class PipelineComposerTests
                 CancellationToken.None));
 
         Assert.Equal(nameof(ThrowingBehavior), ex.StageName);
+        Assert.Equal(nameof(Ping), ex.RequestTypeName);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
+    }
+
+    [Fact]
+    public async Task Handler_Fault_Preserves_RequestTypeName_Before_Unwrapping()
+    {
+        // We can't easily catch HandlerFaultException because it's unwrapped in ExecuteAsync.
+        // But we can verify it doesn't break the unwrapping logic and we can test it 
+        // if we use a behavior that catches and inspects it.
+        
+        var behavior = new ExceptionInspectingBehavior();
+        var request = new Ping("x");
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await PipelineComposer.ExecuteAsync(
+                request,
+                [behavior],
+                (req, ct) => throw new InvalidOperationException("handler boom"),
+                CancellationToken.None));
+
+        Assert.Equal(nameof(Ping), behavior.CaughtRequestTypeName);
+    }
+
+    private sealed class ExceptionInspectingBehavior : IPipelineBehavior<Ping, string>
+    {
+        public string? CaughtRequestTypeName { get; private set; }
+
+        public async ValueTask<string> Handle(Ping request, RequestHandlerDelegate<string> next, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await next();
+            }
+            catch (HandlerFaultException ex)
+            {
+                CaughtRequestTypeName = ex.RequestTypeName;
+                throw; // Re-throw so PipelineComposer can unwrap it
+            }
+        }
     }
 
     private sealed class ThrowingBehavior : IPipelineBehavior<Ping, string>

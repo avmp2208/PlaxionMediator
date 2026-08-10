@@ -29,7 +29,37 @@ public sealed class ExceptionTests
         PipelineExecutionException ex = new("failed", inner, "ValidationBehavior");
         Assert.Same(inner, ex.InnerException);
         Assert.Equal("ValidationBehavior", ex.StageName);
+        Assert.Null(ex.RequestTypeName);
         Assert.IsAssignableFrom<PlaxionMediatorException>(ex);
+    }
+
+    [Fact]
+    public void PipelineExecutionException_Preserves_RequestTypeName()
+    {
+        InvalidOperationException inner = new("boom");
+        PipelineExecutionException ex = new("failed", inner, "ValidationBehavior", "Ping");
+        Assert.Equal("ValidationBehavior", ex.StageName);
+        Assert.Equal("Ping", ex.RequestTypeName);
+    }
+
+    [Fact]
+    public void HandlerFaultException_Preserves_Inner_And_RequestTypeName()
+    {
+        InvalidOperationException inner = new("boom");
+        HandlerFaultException ex = new(inner, "Ping");
+        Assert.Same(inner, ex.InnerException);
+        Assert.Equal("Ping", ex.RequestTypeName);
+        Assert.Equal(inner.Message, ex.Message);
+        Assert.IsAssignableFrom<PlaxionMediatorException>(ex);
+    }
+
+    [Fact]
+    public void HandlerFaultException_BackwardCompatibility()
+    {
+        InvalidOperationException inner = new("boom");
+        HandlerFaultException ex = new(inner);
+        Assert.Same(inner, ex.InnerException);
+        Assert.Null(ex.RequestTypeName);
     }
 }
 

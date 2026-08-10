@@ -46,6 +46,45 @@ public sealed class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_PipelineExecution_With_IncludeRequestTypeName_Writes_RequestTypeName()
+    {
+        var exception = new PipelineExecutionException(
+            "pipeline failed",
+            new InvalidOperationException("inner-message"),
+            "StageA",
+            "Ping");
+
+        var middleware = new PlaxionMediatorExceptionHandlingMiddleware(
+            _ => throw exception,
+            new PlaxionMediatorExceptionHandlingOptions { IncludeRequestTypeName = true });
+
+        DefaultHttpContext context = CreateContext();
+        await middleware.InvokeAsync(context);
+
+        context.Response.Body.Position = 0;
+        using var reader = new StreamReader(context.Response.Body);
+        string body = await reader.ReadToEndAsync();
+
+        using JsonDocument doc = JsonDocument.Parse(body);
+        Assert.Equal("Ping", doc.RootElement.GetProperty("requestTypeName").GetString());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_PipelineExecution_Without_Options_Omits_RequestTypeName()
+    {
+        var exception = new PipelineExecutionException(
+            "pipeline failed",
+            new InvalidOperationException("inner-message"),
+            "StageA",
+            "Ping");
+
+        (int _, string? _, string body) = await InvokeAndReadAsync(_ => throw exception);
+
+        using JsonDocument doc = JsonDocument.Parse(body);
+        Assert.False(doc.RootElement.TryGetProperty("requestTypeName", out _));
+    }
+
+    [Fact]
     public async Task InvokeAsync_Validation_Writes_ProblemJson_With_Errors()
     {
         var exception = new PlaxionMediatorValidationException(

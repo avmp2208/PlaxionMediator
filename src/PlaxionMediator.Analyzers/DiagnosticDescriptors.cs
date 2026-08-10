@@ -14,19 +14,24 @@ public static class DiagnosticDescriptors
     public const string MissingCancellationTokenId = "PlaxionMediator004";
     public const string MissingRequestBindingAttributeId = "PlaxionMediator005";
     public const string HandlerBlockingCallId = "PlaxionMediator006";
+    public const string MultiplePublicConstructorsInHandlerId = "PlaxionMediator012";
 
     public const string NonSealedHandlerId = "PlaxionMediator011";
     public const string InvalidBehaviorRegistrationId = "PlaxionMediator020";
     public const string DuplicateRegistrationId = "PlaxionMediator021";
     public const string IncorrectLifetimeId = "PlaxionMediator022";
+    public const string PipelineBehaviorCapturesMutableStateId = "PlaxionMediator023";
     public const string MissingCancellationTokenPropagationId = "PlaxionMediator031";
     public const string CancellationTokenNoneUsageId = "PlaxionMediator032";
     public const string AsyncVoidHandlerId = "PlaxionMediator040";
     public const string HandlerDependsOnISenderSelfTypeId = "PlaxionMediator041";
+    public const string LinqUsageInHighFrequencyHandlerId = "PlaxionMediator050";
+    public const string ClosureCaptureInHandlerId = "PlaxionMediator051";
     public const string UnnecessaryBehaviorOnHotPathId = "PlaxionMediator080";
     public const string SynchronousOnlyHandlerId = "PlaxionMediator081";
     public const string BehaviorAllocatesInHotPathId = "PlaxionMediator082";
     public const string StreamHandlerBuffersSequenceId = "PlaxionMediator083";
+    public const string FireAndForgetTaskRunId = "PlaxionMediator070";
     public const string NotificationHandlerThrowsWithoutAwaitingOthersId = "PlaxionMediator090";
 
     public static readonly DiagnosticDescriptor MissingHandler = new(
@@ -93,6 +98,15 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "A handler class is not sealed, allowing accidental subclassing that bypasses DI-registered behavior.");
+    
+    public static readonly DiagnosticDescriptor MultiplePublicConstructorsInHandler = new(
+        id: MultiplePublicConstructorsInHandlerId,
+        title: "Multiple public constructors in handler",
+        messageFormat: "Handler type '{0}' has {1} public constructors; it should have exactly one to avoid DI ambiguity",
+        category: "PlaxionMediator.Registration",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A mediator handler should have exactly one public constructor for reliable dependency injection.");
 
     public static readonly DiagnosticDescriptor InvalidBehaviorRegistration = new(
         id: InvalidBehaviorRegistrationId,
@@ -121,6 +135,15 @@ public static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "A Singleton-lifetime behavior/handler captures a Scoped or Transient dependency via constructor injection.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor PipelineBehaviorCapturesMutableState = new(
+        id: PipelineBehaviorCapturesMutableStateId,
+        title: "Pipeline behavior captures request-specific mutable state",
+        messageFormat: "Behavior type '{0}' has mutable state '{1}' which is written to in Handle; behaviors are typically singletons and should be stateless",
+        category: "PlaxionMediator.Pipeline",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Pipeline behaviors are often registered as singletons. Storing request-specific state in instance fields or properties can lead to race conditions and memory leaks.");
 
     public static readonly DiagnosticDescriptor MissingCancellationTokenPropagation = new(
         id: MissingCancellationTokenPropagationId,
@@ -158,6 +181,24 @@ public static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "A handler injects ISender and sends a request of its own type (risk of infinite recursion).");
 
+    public static readonly DiagnosticDescriptor LinqUsageInHighFrequencyHandler = new(
+        id: LinqUsageInHighFrequencyHandlerId,
+        title: "LINQ usage in high-frequency-marked handler",
+        messageFormat: "Handler '{0}' for high-frequency request '{1}' uses LINQ; consider using loops to avoid allocations",
+        category: "PlaxionMediator.Performance",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "LINQ methods can cause significant allocations in hot paths. For high-frequency handlers, prefer manual loops.");
+
+    public static readonly DiagnosticDescriptor ClosureCaptureInHandler = new(
+        id: ClosureCaptureInHandlerId,
+        title: "Closure/Lambda capturing local variable in handler",
+        messageFormat: "Lambda/local function inside '{0}' captures '{1}'; consider passing state explicitly to avoid closure allocation",
+        category: "PlaxionMediator.Performance",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        description: "Capturing local variables in closures causes heap allocations. In performance-sensitive handlers or behaviors, prefer passing state explicitly.");
+
     public static readonly DiagnosticDescriptor UnnecessaryBehaviorOnHotPath = new(
         id: UnnecessaryBehaviorOnHotPathId,
         title: "Unnecessary behavior on hot-path request",
@@ -194,6 +235,15 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "A stream handler that buffers the entire sequence (List/array/ToList/ToArray) before yielding defeats the point of IAsyncEnumerable streaming.");
+
+    public static readonly DiagnosticDescriptor FireAndForgetTaskRun = new(
+        id: FireAndForgetTaskRunId,
+        title: "Fire-and-forget Task.Run in handler",
+        messageFormat: "Task.Run call inside '{0}' is not awaited or stored; this fire-and-forget pattern may lead to unobserved exceptions",
+        category: "PlaxionMediator.Concurrency",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Task.Run calls that are not awaited, returned, or assigned can result in unobserved exceptions and unpredictable behavior in the mediator pipeline.");
 
     public static readonly DiagnosticDescriptor NotificationHandlerThrowsWithoutAwaitingOthers = new(
         id: NotificationHandlerThrowsWithoutAwaitingOthersId,

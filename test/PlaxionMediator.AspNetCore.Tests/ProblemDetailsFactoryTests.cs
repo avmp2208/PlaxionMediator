@@ -61,6 +61,36 @@ public sealed class ProblemDetailsFactoryTests
     }
 
     [Fact]
+    public void Create_PipelineExecution_IncludeRequestTypeName_False_By_Default_Omits_Extension()
+    {
+        var exception = new PipelineExecutionException("pipeline failed", new InvalidOperationException("x"), "StageA", "Ping");
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception);
+
+        Assert.False(problem.Extensions.ContainsKey("requestTypeName"));
+    }
+
+    [Fact]
+    public void Create_PipelineExecution_IncludeRequestTypeName_True_Adds_Extension()
+    {
+        var exception = new PipelineExecutionException("pipeline failed", new InvalidOperationException("x"), "StageA", "Ping");
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception, includeRequestTypeName: true);
+
+        Assert.Equal("Ping", problem.Extensions["requestTypeName"]);
+    }
+
+    [Fact]
+    public void Create_PipelineExecution_IncludeRequestTypeName_True_Without_RequestTypeName_Omits_Extension()
+    {
+        var exception = new PipelineExecutionException("pipeline failed", new InvalidOperationException("x"), "StageA");
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception, includeRequestTypeName: true);
+
+        Assert.False(problem.Extensions.ContainsKey("requestTypeName"));
+    }
+
+    [Fact]
     public void Create_PipelineExecution_Without_Inner_Omits_InnerException_Extension()
     {
         // PipelineExecutionException always requires inner in public ctors; simulate null-safe path via message-only shape is N/A.

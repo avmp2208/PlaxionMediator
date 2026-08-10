@@ -4,22 +4,22 @@ BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
 12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
 .NET SDK 9.0.202
   [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
-  Job-ZPGVYI : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  Job-GDXDUG : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
 
 IterationCount=10  LaunchCount=1  WarmupCount=3  
 
 ```
 | Method                       | Mean        | Error      | StdDev     | Ratio | RatioSD | Rank | Gen0   | Allocated | Alloc Ratio |
 |----------------------------- |------------:|-----------:|-----------:|------:|--------:|-----:|-------:|----------:|------------:|
-| Publish_Mediator_1Handler    |    61.65 ns |   1.335 ns |   0.883 ns |  0.67 |    0.02 |    1 | 0.0092 |     120 B |        0.79 |
-| Publish_Plaxion_1Handler     |    92.67 ns |   3.765 ns |   2.490 ns |  1.00 |    0.04 |    2 | 0.0116 |     152 B |        1.00 |
-| Publish_MediatR_1Handler     |   120.51 ns |   9.949 ns |   6.581 ns |  1.30 |    0.08 |    3 | 0.0268 |     352 B |        2.32 |
-| Publish_Mediator_10Handlers  |   580.04 ns |  11.763 ns |   7.000 ns |  6.26 |    0.18 |    4 | 0.0916 |    1200 B |        7.89 |
-| Publish_Plaxion_10Handlers   |   636.31 ns |  28.030 ns |  18.540 ns |  6.87 |    0.26 |    4 | 0.0992 |    1304 B |        8.58 |
-| Publish_MediatR_10Handlers   |   782.61 ns |  34.300 ns |  17.939 ns |  8.45 |    0.28 |    4 | 0.1917 |    2512 B |       16.53 |
-| Publish_Plaxion_50Handlers   | 2,846.66 ns |  59.386 ns |  39.280 ns | 30.74 |    0.89 |    5 | 0.4883 |    6424 B |       42.26 |
-| Publish_Mediator_50Handlers  | 3,033.18 ns |  79.506 ns |  47.313 ns | 32.75 |    0.97 |    5 | 0.4578 |    6000 B |       39.47 |
-| Publish_MediatR_50Handlers   | 3,640.85 ns | 198.495 ns | 131.292 ns | 39.31 |    1.69 |    5 | 0.9232 |   12112 B |       79.68 |
-| Publish_Plaxion_100Handlers  | 5,617.28 ns | 176.515 ns | 116.754 ns | 60.65 |    1.97 |    6 | 0.9766 |   12824 B |       84.37 |
-| Publish_Mediator_100Handlers | 6,134.23 ns | 120.178 ns |  71.516 ns | 66.24 |    1.85 |    6 | 0.9155 |   12000 B |       78.95 |
-| Publish_MediatR_100Handlers  | 8,156.95 ns | 598.272 ns | 395.720 ns | 88.08 |    4.66 |    7 | 1.8311 |   24112 B |      158.63 |
+| Publish_Mediator_1Handler    |    64.65 ns |   5.937 ns |   3.927 ns |  0.70 |    0.04 |    1 | 0.0092 |     120 B |        0.79 |
+| Publish_Plaxion_1Handler     |    91.92 ns |   2.484 ns |   1.478 ns |  1.00 |    0.02 |    2 | 0.0116 |     152 B |        1.00 |
+| Publish_MediatR_1Handler     |   116.21 ns |   5.129 ns |   3.052 ns |  1.26 |    0.04 |    3 | 0.0267 |     352 B |        2.32 |
+| Publish_Mediator_10Handlers  |   607.28 ns |  24.349 ns |  14.490 ns |  6.61 |    0.18 |    4 | 0.0916 |    1200 B |        7.89 |
+| Publish_Plaxion_10Handlers   |   607.29 ns |  27.111 ns |  17.933 ns |  6.61 |    0.21 |    4 | 0.0992 |    1304 B |        8.58 |
+| Publish_MediatR_10Handlers   |   765.33 ns |  33.025 ns |  21.844 ns |  8.33 |    0.26 |    5 | 0.1917 |    2512 B |       16.53 |
+| Publish_Plaxion_50Handlers   | 2,897.20 ns |  91.122 ns |  54.225 ns | 31.53 |    0.74 |    6 | 0.4883 |    6424 B |       42.26 |
+| Publish_Mediator_50Handlers  | 3,071.71 ns | 156.195 ns |  92.949 ns | 33.42 |    1.09 |    6 | 0.4578 |    6000 B |       39.47 |
+| Publish_MediatR_50Handlers   | 3,723.31 ns | 157.787 ns |  93.896 ns | 40.51 |    1.15 |    6 | 0.9232 |   12112 B |       79.68 |
+| Publish_Plaxion_100Handlers  | 6,014.73 ns | 537.252 ns | 319.710 ns | 65.45 |    3.45 |    7 | 0.9766 |   12824 B |       84.37 |
+| Publish_Mediator_100Handlers | 6,018.97 ns | 303.825 ns | 200.961 ns | 65.49 |    2.31 |    7 | 0.9155 |   12000 B |       78.95 |
+| Publish_MediatR_100Handlers  | 7,285.28 ns | 399.692 ns | 237.850 ns | 79.27 |    2.74 |    7 | 1.8311 |   24112 B |      158.63 |
