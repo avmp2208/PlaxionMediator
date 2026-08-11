@@ -30,4 +30,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PlaxionMediator.SourceGenerators.Tests" />
+  </ItemGroup>
 </Project>

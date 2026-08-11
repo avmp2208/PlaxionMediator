@@ -14,8 +14,31 @@ internal static class GeneratorTestHelper
 {
     public static (Compilation Compilation, ImmutableArray<Diagnostic> Diagnostics, GeneratorDriverRunResult RunResult) Run(string source)
     {
-        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
+        (GeneratorDriver driver, CSharpCompilation compilation) = CreateDriver(source);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation outputCompilation, out ImmutableArray<Diagnostic> diagnostics);
 
+        GeneratorDriverRunResult runResult = driver.GetRunResult();
+        return (outputCompilation, diagnostics.AddRange(runResult.Diagnostics), runResult);
+    }
+
+    public static (GeneratorDriver Driver, CSharpCompilation Compilation) CreateDriver(string source)
+    {
+        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
+        PortableExecutableReference[] references = CreateReferences();
+
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            assemblyName: "GeneratorTests",
+            syntaxTrees: [syntaxTree],
+            references: references,
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        PlaxionMediatorGenerator generator = new();
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        return (driver, compilation);
+    }
+
+    private static PortableExecutableReference[] CreateReferences()
+    {
         PortableExecutableReference[] references =
         [
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
@@ -52,17 +75,6 @@ internal static class GeneratorTestHelper
             references = all.ToArray();
         }
 
-        CSharpCompilation compilation = CSharpCompilation.Create(
-            assemblyName: "GeneratorTests",
-            syntaxTrees: [syntaxTree],
-            references: references,
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        PlaxionMediatorGenerator generator = new();
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation outputCompilation, out ImmutableArray<Diagnostic> diagnostics);
-
-        GeneratorDriverRunResult runResult = driver.GetRunResult();
-        return (outputCompilation, diagnostics.AddRange(runResult.Diagnostics), runResult);
+        return references;
     }
 }

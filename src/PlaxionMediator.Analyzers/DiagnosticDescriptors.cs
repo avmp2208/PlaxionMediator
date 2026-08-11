@@ -21,6 +21,8 @@ public static class DiagnosticDescriptors
     public const string DuplicateRegistrationId = "PlaxionMediator021";
     public const string IncorrectLifetimeId = "PlaxionMediator022";
     public const string PipelineBehaviorCapturesMutableStateId = "PlaxionMediator023";
+    public const string InvalidExtensionRegistrationId = "PlaxionMediator024";
+    public const string DuplicateExtensionRegistrationId = "PlaxionMediator025";
     public const string MissingCancellationTokenPropagationId = "PlaxionMediator031";
     public const string CancellationTokenNoneUsageId = "PlaxionMediator032";
     public const string AsyncVoidHandlerId = "PlaxionMediator040";
@@ -144,6 +146,24 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "Pipeline behaviors are often registered as singletons. Storing request-specific state in instance fields or properties can lead to race conditions and memory leaks.");
+
+    public static readonly DiagnosticDescriptor InvalidExtensionRegistration = new(
+        id: InvalidExtensionRegistrationId,
+        title: "Invalid pipeline extension registration",
+        messageFormat: "Type '{0}' does not implement IPipelineExtension and cannot be registered with PipelineExtensionBuilder.Use",
+        category: "PlaxionMediator.Pipeline",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "PipelineExtensionBuilder.Use<T>() must be called with a type that implements IPipelineExtension.");
+
+    public static readonly DiagnosticDescriptor DuplicateExtensionRegistration = new(
+        id: DuplicateExtensionRegistrationId,
+        title: "Duplicate pipeline extension registration",
+        messageFormat: "Extension type '{0}' is registered more than once for the same pipeline extension builder",
+        category: "PlaxionMediator.Pipeline",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "The same IPipelineExtension type registered twice on a PipelineExtensionBuilder chain is redundant and may change ordering unexpectedly.");
 
     public static readonly DiagnosticDescriptor MissingCancellationTokenPropagation = new(
         id: MissingCancellationTokenPropagationId,

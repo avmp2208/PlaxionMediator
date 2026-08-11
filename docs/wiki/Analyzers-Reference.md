@@ -16,6 +16,8 @@ All PlaxionMediator analyzers ship in `PlaxionMediator.Analyzers` (transitively 
 | `PlaxionMediator021` | Duplicate Registration | The same behavior type is registered more than once for the same pipeline | Warning |
 | `PlaxionMediator022` | Incorrect Lifetime | A Singleton handler/behavior captures a Scoped or Transient dependency | Warning |
 | `PlaxionMediator023` | Mutable State in Behavior | A pipeline behavior maintains mutable instance state (field/property writes) in its Handle method | Warning |
+| `PlaxionMediator024` | Invalid Extension Registration | `PipelineExtensionBuilder.Use<T>()` called with a type that does not implement `IPipelineExtension` | Error |
+| `PlaxionMediator025` | Duplicate Extension Registration | The same extension type is registered more than once on the same `PipelineExtensionBuilder` chain | Warning |
 | `PlaxionMediator031` | Missing CancellationToken Propagation | A handler/behavior receives a `CancellationToken` but doesn't pass it to an awaited async call | Warning |
 | `PlaxionMediator032` | CancellationToken.None Usage | `CancellationToken.None` used inside a handler where an ambient token is available | Info |
 | `PlaxionMediator040` | Async Void Handler | A handler or behavior method is declared `async void`, preventing proper exception observation | Error |

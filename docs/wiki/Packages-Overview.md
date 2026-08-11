@@ -4,9 +4,9 @@
 |---|---|---|
 | `PlaxionMediator.Abstractions` | Contracts: `IRequest<>`, `IRequestHandler<,>`, `INotification`, `INotificationHandler<>`, pipeline behaviors | Always (transitive via `PlaxionMediator`) |
 | `PlaxionMediator.Core` | `ISender`, `IPublisher`, the `PlaxionMediatorException` hierarchy (`HandlerNotFoundException`, `PipelineExecutionException`) | Always (transitive) |
-| `PlaxionMediator.Pipeline` | Delegate-chain pipeline behavior composition | Always (transitive) |
+| `PlaxionMediator.Pipeline` | Delegate-chain pipeline behavior composition; formal `IPipelineExtension` composition API and `IPipelineObserver` instrumentation seams (v0.6.0) | Always (transitive) |
 | `PlaxionMediator.SourceGenerators` | Incremental generator that emits handler/behavior registration at compile time — zero reflection | Always (transitive, build-time only) |
-| `PlaxionMediator.Analyzers` | Full analyzer catalog: missing/multiple handlers, mutable request, `CancellationToken` propagation, blocking calls, non-sealed handlers, duplicate registrations, performance anti-patterns | Always (transitive, build-time only) |
+| `PlaxionMediator.Analyzers` | Full analyzer catalog: missing/multiple handlers, mutable request, `CancellationToken` propagation, blocking calls, non-sealed handlers, duplicate behavior/extension registrations (`PlaxionMediator020`–`025`), performance anti-patterns | Always (transitive, build-time only) |
 | `PlaxionMediator` | `AddPlaxionMediator()` extension wiring the generated registrations into `IServiceCollection` | **Install this one** — it bundles everything above |
 | `PlaxionMediator.Testing` | `FakeSender` and other test doubles for unit-testing consumers of `ISender` | Always (transitive via `PlaxionMediator`) |
 | `PlaxionMediator.AspNetCore` | `UsePlaxionMediatorExceptionHandling()` middleware + RFC 7807 `ProblemDetails` mapping for `PlaxionMediatorException` | Building any ASP.NET Core app (opt-in) |

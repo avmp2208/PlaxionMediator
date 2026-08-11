@@ -11,7 +11,9 @@ Full detail lives in [`ReleaseProcess/01-mvp-development-phases.md`](https://git
 | OSS Phase D | `v0.4.0` | Validation, basic Caching/Retry (Pipeline simplification) | ✅ Done |
 | OSS Phase D | `v0.4.1` | Core pipeline execution engine rewrite (field-staged `PipelineExecutor`, pooled `PipelineRunner`) | ✅ Done |
 | OSS Phase D | `v0.4.2` | Circuit Breaker resilience behavior (`PlaxionMediator.Retry`, `Microsoft.Extensions.Resilience`) | ✅ Done |
-| OSS Phase D | `v0.4.3` | Stabilization & tech-debt pass: perf/allocation tuning, analyzer false-positive hardening, doc refresh | ⏳ In progress |
+| OSS Phase D | `v0.4.3` | Stabilization & tech-debt pass: perf/allocation tuning, analyzer false-positive hardening, doc refresh | ✅ Done |
+| OSS Phase D | `v0.5.0` | Diagnostic context on exceptions, FakeSender assertions/stream stubs, five new analyzers | ✅ Done |
+| OSS Phase E | `v0.6.0` | Source-generator incremental caching, formal pipeline extension points, telemetry hook groundwork (ADR-0007/0008) | ✅ Done |
 | OSS Phase E | `v0.7.0` | Baseline OpenTelemetry/logging, Aspire integration | Later |
 | OSS Phase F | `v0.8.0` | Basic Transactions, templates, CLI, full analyzer catalog | Later |
 | OSS Phase G | `v0.9.0` | Basic Authorization | Later |

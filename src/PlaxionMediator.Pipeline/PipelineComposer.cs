@@ -26,6 +26,7 @@ public static class PipelineComposer
     /// <summary>
     /// Composes <paramref name="behaviors"/> around <paramref name="handler"/> into a single delegate.
     /// Behaviors are applied in order: the first behavior is outermost (closest to the caller).
+    /// Registered <see cref="IPipelineExtension"/> instances wrap the composed chain as additional outer layers.
     /// </summary>
     public static RequestHandlerDelegate<TResponse> Compose<TRequest, TResponse>(
         TRequest request,
@@ -47,6 +48,8 @@ public static class PipelineComposer
     /// Executes the composed pipeline and returns the response.
     /// H3 EXPERIMENT: Try field-staged executor for shallow depths (1-5 behaviors).
     /// Fall back to index trampoline for deeper chains.
+    /// When no <see cref="IPipelineObserver"/> / <see cref="IPipelineExtension"/> subscribers are
+    /// registered the path is allocation-identical to pre-v0.6.0 (single length checks only).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<TResponse> ExecuteAsync<TRequest, TResponse>(
@@ -60,46 +63,20 @@ public static class PipelineComposer
         ArgumentNullException.ThrowIfNull(behaviors);
         ArgumentNullException.ThrowIfNull(handler);
 
-        if (behaviors.Count == 0)
+        // Hot path: no subscribers → identical to pre-v0.6.0 (no extra frames beyond ExecuteCore).
+        if (!PipelineExtensionRegistry.HasExtensions && !PipelineObserverHub.HasObservers)
         {
-            return handler(request, cancellationToken);
+            return ExecuteCore(request, behaviors, handler, handlerInstance: null, cancellationToken);
         }
 
-        // H3: Use field-staged executor for common depths (1-5 behaviors)
-        // This eliminates index trampoline overhead for typical pipelines
-        try
+        if (PipelineExtensionRegistry.HasExtensions)
         {
-            ValueTask<TResponse> result = behaviors.Count <= 5
-                ? PipelineExecutor<TRequest, TResponse>
-                    .Execute(request, behaviors, handler, handlerInstance: null, cancellationToken)
-                // Fallback to index trampoline for deep chains (>5)
-                : PipelineRunner<TRequest, TResponse>
-                    .Rent(request, behaviors, handler, handlerInstance: null, cancellationToken)
-                    .Run();
-            return result.IsCompletedSuccessfully ? result : UnwrapHandlerFault(result);
+            RequestHandlerDelegate<TResponse> inner = () =>
+                ExecuteWithOptionalObservers(request, behaviors, handler, handlerInstance: null, cancellationToken);
+            return PipelineExtensionRegistry.ApplyExtensions<TRequest, TResponse>(behaviors.Count, inner)();
         }
-        catch (HandlerFaultException hfe)
-        {
-            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
-            throw;
-        }
-    }
 
-    /// <summary>
-    /// Awaits the pipeline result, unwrapping a <see cref="HandlerFaultException"/> back to the
-    /// original handler exception so it surfaces to the caller raw and unmapped.
-    /// </summary>
-    private static async ValueTask<TResponse> UnwrapHandlerFault<TResponse>(ValueTask<TResponse> task)
-    {
-        try
-        {
-            return await task.ConfigureAwait(false);
-        }
-        catch (HandlerFaultException hfe)
-        {
-            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
-            throw;
-        }
+        return ExecuteWithOptionalObservers(request, behaviors, handler, handlerInstance: null, cancellationToken);
     }
 
     /// <summary>
@@ -121,22 +98,146 @@ public static class PipelineComposer
         ArgumentNullException.ThrowIfNull(behaviors);
         ArgumentNullException.ThrowIfNull(handler);
 
+        // Hot path: no subscribers → identical to pre-v0.6.0.
+        if (!PipelineExtensionRegistry.HasExtensions && !PipelineObserverHub.HasObservers)
+        {
+            return ExecuteCore(request, behaviors, handlerFunc: null, handler, cancellationToken);
+        }
+
+        if (PipelineExtensionRegistry.HasExtensions)
+        {
+            RequestHandlerDelegate<TResponse> inner = () =>
+                ExecuteWithOptionalObservers(request, behaviors, handlerFunc: null, handler, cancellationToken);
+            return PipelineExtensionRegistry.ApplyExtensions<TRequest, TResponse>(behaviors.Count, inner)();
+        }
+
+        return ExecuteWithOptionalObservers(request, behaviors, handlerFunc: null, handler, cancellationToken);
+    }
+
+    /// <summary>
+    /// Runs the core pipeline, optionally notifying ADR-0008 observers (start → execute → stop/fault).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ValueTask<TResponse> ExecuteWithOptionalObservers<TRequest, TResponse>(
+        TRequest request,
+        IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> behaviors,
+        Func<TRequest, CancellationToken, ValueTask<TResponse>>? handlerFunc,
+        IRequestHandler<TRequest, TResponse>? handlerInstance,
+        CancellationToken cancellationToken)
+        where TRequest : IRequest<TResponse>
+    {
+        if (!PipelineObserverHub.HasObservers)
+        {
+            return ExecuteCore(request, behaviors, handlerFunc, handlerInstance, cancellationToken);
+        }
+
+        PipelineCallContext callContext = new(typeof(TRequest), typeof(TResponse), behaviors.Count);
+        PipelineObserverHub.NotifyStarting(in callContext);
+
+        ValueTask<TResponse> result;
+        try
+        {
+            result = ExecuteCore(request, behaviors, handlerFunc, handlerInstance, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Sync faults from ExecuteCore (including rethrown unwrapped handler faults).
+            PipelineObserverHub.NotifyFaulted(in callContext, ex);
+            throw;
+        }
+
+        if (result.IsCompletedSuccessfully)
+        {
+            PipelineObserverHub.NotifyCompleted(in callContext);
+            return result;
+        }
+
+        if (result.IsCompleted)
+        {
+            // Faulted/canceled completed synchronously relative to the caller.
+            try
+            {
+                _ = result.Result;
+                PipelineObserverHub.NotifyCompleted(in callContext);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                PipelineObserverHub.NotifyFaulted(in callContext, ex);
+                throw;
+            }
+        }
+
+        return AwaitNotifyAsync(result, callContext);
+    }
+
+    private static async ValueTask<TResponse> AwaitNotifyAsync<TResponse>(
+        ValueTask<TResponse> task,
+        PipelineCallContext callContext)
+    {
+        try
+        {
+            TResponse result = await task.ConfigureAwait(false);
+            PipelineObserverHub.NotifyCompleted(in callContext);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            PipelineObserverHub.NotifyFaulted(in callContext, ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Core pipeline execution without extension wrapping. Observer notifications are handled by the caller.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ValueTask<TResponse> ExecuteCore<TRequest, TResponse>(
+        TRequest request,
+        IReadOnlyList<IPipelineBehavior<TRequest, TResponse>> behaviors,
+        Func<TRequest, CancellationToken, ValueTask<TResponse>>? handlerFunc,
+        IRequestHandler<TRequest, TResponse>? handlerInstance,
+        CancellationToken cancellationToken)
+        where TRequest : IRequest<TResponse>
+    {
         if (behaviors.Count == 0)
         {
-            return handler.Handle(request, cancellationToken);
+            // Direct terminal invoke — no HandlerFaultException wrap on the empty path (matches
+            // pre-v0.6.0 generated-sender fast path). Keep zero-allocation for completed ValueTasks.
+            return handlerInstance is not null
+                ? handlerInstance.Handle(request, cancellationToken)
+                : handlerFunc!(request, cancellationToken);
         }
 
         // H3: Use field-staged executor for common depths (1-5 behaviors)
+        // This eliminates index trampoline overhead for typical pipelines
         try
         {
             ValueTask<TResponse> result = behaviors.Count <= 5
                 ? PipelineExecutor<TRequest, TResponse>
-                    .Execute(request, behaviors, handlerFunc: null, handler, cancellationToken)
+                    .Execute(request, behaviors, handlerFunc, handlerInstance, cancellationToken)
                 // Fallback to index trampoline for deep chains (>5)
                 : PipelineRunner<TRequest, TResponse>
-                    .Rent(request, behaviors, handlerFunc: null, handler, cancellationToken)
+                    .Rent(request, behaviors, handlerFunc, handlerInstance, cancellationToken)
                     .Run();
             return result.IsCompletedSuccessfully ? result : UnwrapHandlerFault(result);
+        }
+        catch (HandlerFaultException hfe)
+        {
+            ExceptionDispatchInfo.Capture(hfe.InnerException!).Throw();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Awaits the pipeline result, unwrapping a <see cref="HandlerFaultException"/> back to the
+    /// original handler exception so it surfaces to the caller raw and unmapped.
+    /// </summary>
+    private static async ValueTask<TResponse> UnwrapHandlerFault<TResponse>(ValueTask<TResponse> task)
+    {
+        try
+        {
+            return await task.ConfigureAwait(false);
         }
         catch (HandlerFaultException hfe)
         {

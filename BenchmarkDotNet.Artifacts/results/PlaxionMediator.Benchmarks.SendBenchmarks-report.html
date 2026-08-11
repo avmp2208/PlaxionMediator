@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>PlaxionMediator.Benchmarks.SendBenchmarks-20260810-154551</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host]   : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  ShortRun : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method      </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Send_NoPipeline</td><td>40.59 ns</td><td>36.57 ns</td><td>2.005 ns</td><td>0.0079</td><td>104 B</td>
+</tr><tr><td>Send_OneBehavior</td><td>68.78 ns</td><td>21.44 ns</td><td>1.175 ns</td><td>0.0079</td><td>104 B</td>
+</tr><tr><td>Send_FiveBehaviors</td><td>105.89 ns</td><td>20.93 ns</td><td>1.147 ns</td><td>0.0079</td><td>104 B</td>
+</tr></tbody></table>
+</body>
+</html>

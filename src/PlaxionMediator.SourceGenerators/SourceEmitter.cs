@@ -305,9 +305,20 @@ internal static class SourceEmitter
             sb.AppendLine("            }");
             sb.AppendLine("        }");
             // Global fast path: no pipeline behaviors registered anywhere → skip per-type lookup.
+            // When ADR-0007/0008 subscribers are absent, call the handler directly (pre-v0.6.0 path).
+            // Otherwise route through PipelineComposer so observers/extensions still fire.
             sb.AppendLine("        if (PipelineBehaviorResolver.HasNoPipelineBehaviors())");
             sb.AppendLine("        {");
-            sb.AppendLine("            return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("            if (!PipelineObserverHub.HasObservers && !PipelineExtensionRegistry.HasExtensions)");
+            sb.AppendLine("            {");
+            sb.AppendLine("                return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("            }");
+            sb.AppendLine();
+            sb.Append("            return PipelineComposer.ExecuteAsync(request, System.Array.Empty<IPipelineBehavior<")
+                .Append(handler.RequestFullyQualifiedName)
+                .Append(", ")
+                .Append(handler.ResponseFullyQualifiedName)
+                .AppendLine(">>(), handler, cancellationToken);");
             sb.AppendLine("        }");
             sb.AppendLine();
             sb.Append("        System.Collections.Generic.IReadOnlyList<IPipelineBehavior<")
@@ -331,9 +342,13 @@ internal static class SourceEmitter
             sb.AppendLine("            }");
             sb.AppendLine("        }");
             sb.AppendLine();
+            // Empty behavior list: keep the direct handler call when no instrumentation is attached.
             sb.AppendLine("        if (behaviors.Count == 0)");
             sb.AppendLine("        {");
-            sb.AppendLine("            return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("            if (!PipelineObserverHub.HasObservers && !PipelineExtensionRegistry.HasExtensions)");
+            sb.AppendLine("            {");
+            sb.AppendLine("                return handler.Handle(request, cancellationToken);");
+            sb.AppendLine("            }");
             sb.AppendLine("        }");
             sb.AppendLine();
             // Pass the handler instance (not handler.Handle method-group) to avoid a per-call Func alloc.
