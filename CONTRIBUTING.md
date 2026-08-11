@@ -4,7 +4,8 @@ Thanks for your interest in contributing to PlaxionMediator!
 
 ## Prerequisites
 
-- .NET 9 SDK or later
+- .NET 9 SDK or later (required to build the repo; shippable packages multi-target `net8.0`/`net9.0` as of `v0.7.1`)
+- .NET 8 SDK, if you want to build/test the `net8.0` target of the shippable packages locally (the .NET 9 SDK alone can restore/build both TFMs, but running `net8.0` binaries needs the matching runtime)
 - A GitHub account
 
 ## Getting started

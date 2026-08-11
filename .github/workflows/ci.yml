@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
+            8.0.x
             9.0.x
 
       - name: Restore
@@ -30,3 +31,23 @@ jobs:
 
       - name: Benchmark project smoke
         run: dotnet run --project src/PlaxionMediator.Benchmarks/PlaxionMediator.Benchmarks.csproj --no-build --configuration Release -- --list flat
+
+      - name: Verify net8.0 packages build
+        # Only the shippable, multi-targeted packages declare net8.0;net9.0 — build each of
+        # them explicitly for net8.0 (test/sample/benchmark projects stay net9.0-only consumers).
+        run: |
+          for proj in \
+            src/PlaxionMediator.Abstractions/PlaxionMediator.Abstractions.csproj \
+            src/PlaxionMediator.Core/PlaxionMediator.Core.csproj \
+            src/PlaxionMediator.Pipeline/PlaxionMediator.Pipeline.csproj \
+            src/PlaxionMediator/PlaxionMediator.csproj \
+            src/PlaxionMediator.AspNetCore/PlaxionMediator.AspNetCore.csproj \
+            src/PlaxionMediator.MinimalApis/PlaxionMediator.MinimalApis.csproj \
+            src/PlaxionMediator.Caching/PlaxionMediator.Caching.csproj \
+            src/PlaxionMediator.Retry/PlaxionMediator.Retry.csproj \
+            src/PlaxionMediator.OpenTelemetry/PlaxionMediator.OpenTelemetry.csproj \
+            src/PlaxionMediator.Testing/PlaxionMediator.Testing.csproj \
+            src/PlaxionMediator.Validation/PlaxionMediator.Validation.csproj \
+            src/PlaxionMediator.Validation.FluentValidation/PlaxionMediator.Validation.FluentValidation.csproj; do
+            dotnet build "$proj" --configuration Release --framework net8.0
+          done

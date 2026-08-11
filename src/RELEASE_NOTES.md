@@ -2,6 +2,19 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.7.1
+
+### Changed
+- **Multi-targeting: `net8.0` and `net9.0`.** All shippable packages (`PlaxionMediator`, `.Core`, `.Abstractions`, `.Pipeline`, `.AspNetCore`, `.MinimalApis`, `.Validation`, `.Validation.FluentValidation`, `.Caching`, `.Retry`, `.OpenTelemetry`, `.Testing`) now build as `<TargetFrameworks>net8.0;net9.0</TargetFrameworks>` instead of `net9.0`-only. This is a pure packaging change — no source-level or behavioral changes were required, since the codebase never relied on .NET 9-exclusive BCL APIs. `PlaxionMediator.Analyzers`/`PlaxionMediator.SourceGenerators` remain `netstandard2.0`-only, as before.
+- **Why:** NuGet's target-framework compatibility rules previously blocked consumers still on .NET 8 (a large share of the current ecosystem) from referencing any `net9.0`-only PlaxionMediator package at all, regardless of whether the code itself used any .NET 9-specific feature. Multi-targeting removes that adoption barrier while fully preserving .NET 9 support for existing consumers.
+- **CI**: `.github/workflows/ci.yml` now installs both the .NET 8 and .NET 9 SDKs and adds a dedicated step that explicitly builds every multi-targeted package for `net8.0`, in addition to the existing default-TFM solution build/test/benchmark-smoke steps.
+- Test, sample, and benchmark projects remain `net9.0`-only (they are non-shipping consumers); the full solution test suite was re-run and is green on `net9.0`, and every shippable package was additionally verified to build cleanly for `net8.0`.
+
+### Verified
+- Full solution build (`dotnet build PlaxionMediator.sln -c Release`): 0 warnings, 0 errors, producing both `net8.0` and `net9.0` outputs for every multi-targeted package.
+- Full solution test suite (`dotnet test PlaxionMediator.sln -c Release`): all tests green, no regressions from the target-framework change.
+- `Microsoft.Extensions.Resilience` (used by `PlaxionMediator.Retry`'s circuit breaker) confirmed to restore and build cleanly against `net8.0`.
+
 ## v0.7.0
 
 ### Added

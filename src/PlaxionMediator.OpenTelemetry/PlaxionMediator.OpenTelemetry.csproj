@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>PlaxionMediator.OpenTelemetry</RootNamespace>
     <AssemblyName>PlaxionMediator.OpenTelemetry</AssemblyName>
     <PackageId>PlaxionMediator.OpenTelemetry</PackageId>
     <Description>Opt-in OpenTelemetry instrumentation (ActivitySource + Meter) for PlaxionMediator Send/Publish pipelines.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.7.0</Version>
+    <Version>0.7.1</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 

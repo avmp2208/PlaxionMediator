@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>PlaxionMediator.Retry</RootNamespace>
     <AssemblyName>PlaxionMediator.Retry</AssemblyName>
     <PackageId>PlaxionMediator.Retry</PackageId>
     <Description>Transient-fault retry pipeline behavior with exponential backoff for PlaxionMediator.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.4.2</Version>
+    <Version>0.7.1</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 
