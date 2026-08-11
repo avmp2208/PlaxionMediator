@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>PlaxionMediator.MinimalApis</RootNamespace>
     <AssemblyName>PlaxionMediator.MinimalApis</AssemblyName>
     <PackageId>PlaxionMediator.MinimalApis</PackageId>
     <Description>Minimal API endpoint mapping extensions for PlaxionMediator (MapPlaxionMediatorPost/Get/Put/Delete).</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.2.0</Version>
+    <Version>0.7.1</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>PlaxionMediator.Core</RootNamespace>
     <AssemblyName>PlaxionMediator.Core</AssemblyName>
     <PackageId>PlaxionMediator.Core</PackageId>
     <Description>Core dispatcher contracts (ISender, IPublisher) and exception hierarchy for PlaxionMediator.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.1.0</Version>
+    <Version>0.7.1</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 

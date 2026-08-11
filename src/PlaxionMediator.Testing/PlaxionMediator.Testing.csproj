@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <RootNamespace>PlaxionMediator.Testing</RootNamespace>
     <AssemblyName>PlaxionMediator.Testing</AssemblyName>
     <PackageId>PlaxionMediator.Testing</PackageId>
     <Description>Test doubles and helpers for PlaxionMediator (FakeSender, etc.).</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.1.0</Version>
+    <Version>0.7.1</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
