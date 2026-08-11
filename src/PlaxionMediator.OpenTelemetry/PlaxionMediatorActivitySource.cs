@@ -44,4 +44,18 @@ public static class PlaxionMediatorActivitySource
     /// Tag name for the number of pipeline behaviors/handlers involved in the call.
     /// </summary>
     public const string BehaviorCountTag = "plaxionmediator.behavior.count";
+
+    /// <summary>
+    /// Tag name for the correlation id associated with the call. Sourced from the ambient
+    /// <see cref="Activity.Current"/>'s W3C trace context (<see cref="ActivityTraceId"/>), or from a
+    /// caller-supplied <c>correlation.id</c> baggage item when present, so callers can flow their own
+    /// business-level correlation id without PlaxionMediator taking on any new dependency.
+    /// </summary>
+    public const string CorrelationIdTag = "plaxionmediator.correlation_id";
+
+    /// <summary>
+    /// Baggage key a caller can set via <see cref="Activity.SetBaggage(string, string?)"/> on the ambient
+    /// activity to supply a business-level correlation id that takes precedence over the trace id.
+    /// </summary>
+    public const string CorrelationIdBaggageKey = "correlation.id";
 }

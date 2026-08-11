@@ -26,6 +26,7 @@ public sealed class OpenTelemetryPipelineObserver : IPipelineObserver, INotifica
         activity?.SetTag(PlaxionMediatorActivitySource.RequestTypeTag, context.RequestType.FullName);
         activity?.SetTag(PlaxionMediatorActivitySource.ResponseTypeTag, context.ResponseType.FullName);
         activity?.SetTag(PlaxionMediatorActivitySource.BehaviorCountTag, context.BehaviorCount);
+        activity?.SetTag(PlaxionMediatorActivitySource.CorrelationIdTag, ResolveCorrelationId(activity));
 
         CurrentRequestActivity.Value = activity;
         RequestStartTimestamp.Value = Stopwatch.GetTimestamp();
@@ -78,6 +79,7 @@ public sealed class OpenTelemetryPipelineObserver : IPipelineObserver, INotifica
 
         activity?.SetTag(PlaxionMediatorActivitySource.NotificationTypeTag, context.NotificationType.FullName);
         activity?.SetTag(PlaxionMediatorActivitySource.BehaviorCountTag, context.HandlerCount);
+        activity?.SetTag(PlaxionMediatorActivitySource.CorrelationIdTag, ResolveCorrelationId(activity));
 
         CurrentNotificationActivity.Value = activity;
         NotificationStartTimestamp.Value = Stopwatch.GetTimestamp();
@@ -115,4 +117,21 @@ public sealed class OpenTelemetryPipelineObserver : IPipelineObserver, INotifica
 
     private static double ElapsedMilliseconds(long startTimestamp) =>
         startTimestamp == 0 ? 0 : Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
+
+    /// <summary>
+    /// Resolves a correlation id for the current call: a caller-supplied
+    /// <see cref="PlaxionMediatorActivitySource.CorrelationIdBaggageKey"/> baggage item takes precedence
+    /// (so business-level ids flow through untouched), falling back to the activity's own W3C
+    /// <see cref="ActivityTraceId"/> so every span/metric is correlatable even without any caller setup.
+    /// </summary>
+    private static string? ResolveCorrelationId(Activity? activity)
+    {
+        if (activity is null)
+        {
+            return null;
+        }
+
+        string? baggageCorrelationId = activity.GetBaggageItem(PlaxionMediatorActivitySource.CorrelationIdBaggageKey);
+        return !string.IsNullOrEmpty(baggageCorrelationId) ? baggageCorrelationId : activity.TraceId.ToString();
+    }
 }

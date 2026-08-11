@@ -161,4 +161,61 @@ public sealed class OpenTelemetryPipelineObserverTests : IDisposable
         Assert.Equal(ActivityStatusCode.Ok, activity.Status);
         Assert.Contains(activity.Tags, t => t.Key == PlaxionMediatorActivitySource.NotificationTypeTag);
     }
+
+    [Fact]
+    public void Send_Without_Baggage_Uses_TraceId_As_CorrelationId()
+    {
+        List<Activity> activities = [];
+        using ActivityListener listener = new()
+        {
+            ShouldListenTo = source => source.Name == PlaxionMediatorActivitySource.Name,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            ActivityStarted = activities.Add,
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        OpenTelemetryPipelineObserver observer = new();
+        PipelineCallContext context = new(typeof(string), typeof(int), 0);
+
+        observer.OnStarting(in context);
+        observer.OnCompleted(in context);
+
+        Activity activity = Assert.Single(activities);
+        KeyValuePair<string, object?> correlationTag = Assert.Single(activity.TagObjects, t => t.Key == PlaxionMediatorActivitySource.CorrelationIdTag);
+        Assert.Equal(activity.TraceId.ToString(), correlationTag.Value);
+    }
+
+    [Fact]
+    public void Send_With_Baggage_Uses_CallerSupplied_CorrelationId()
+    {
+        List<Activity> activities = [];
+        using ActivityListener listener = new()
+        {
+            ShouldListenTo = source => source.Name == PlaxionMediatorActivitySource.Name,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            ActivityStarted = activities.Add,
+        };
+        ActivitySource.AddActivityListener(listener);
+
+        using ActivitySource parentSource = new("PlaxionMediator.OpenTelemetry.Tests.Parent");
+        using ActivityListener parentListener = new()
+        {
+            ShouldListenTo = source => source.Name == parentSource.Name,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+        };
+        ActivitySource.AddActivityListener(parentListener);
+
+        using Activity? parentActivity = parentSource.StartActivity("parent");
+        parentActivity?.SetBaggage(PlaxionMediatorActivitySource.CorrelationIdBaggageKey, "business-correlation-id");
+
+        OpenTelemetryPipelineObserver observer = new();
+        PipelineCallContext context = new(typeof(string), typeof(int), 0);
+
+        observer.OnStarting(in context);
+        observer.OnCompleted(in context);
+
+        Activity activity = Assert.Single(activities);
+        KeyValuePair<string, object?> correlationTag = Assert.Single(activity.TagObjects, t => t.Key == PlaxionMediatorActivitySource.CorrelationIdTag);
+        Assert.Equal("business-correlation-id", correlationTag.Value);
+    }
 }

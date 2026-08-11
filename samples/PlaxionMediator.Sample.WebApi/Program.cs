@@ -57,9 +57,28 @@ builder.Services.AddSingleton<FlakyDownstreamSimulator>();
 
 // Observability (v0.7.0): opt-in OpenTelemetry instrumentation for Send/Publish, exported to the
 // console for demo purposes. See docs/wiki/Observability.md.
+//
+// Where to actually see the correlation id in this sample:
+// The trace console exporter below prints one "Activity." block per Send/Publish call
+// (Activity.TraceId, Activity.DisplayName, ... Activity.TagObjects, including
+// "plaxionmediator.correlation_id") *synchronously as soon as the mediator call finishes* -
+// i.e. it appears BEFORE the "Request finished ..." line logged by
+// Microsoft.AspNetCore.Hosting.Diagnostics for the same request, and well before any periodic
+// metrics dump. The middleware registered further down also logs the same correlation id via the
+// regular ASP.NET Core console logger, right next to "Request finished", so it's impossible to miss.
+//
+// IMPORTANT: .AddAspNetCoreInstrumentation() below is required, not optional. ASP.NET Core always
+// starts its own (internal) Activity for every incoming request; without an OpenTelemetry
+// instrumentation library telling the SDK to actually sample/record it, that request activity is
+// created but marked "not recorded", and the default ParentBasedSampler then makes PlaxionMediator's
+// own child Activity inherit that "not recorded" decision too - so ActivitySource.StartActivity
+// silently returns null and NOTHING is ever exported, even though everything else (DI registration,
+// AddSource, the console exporter) is wired up correctly. This was the actual bug behind the missing
+// correlation id output.
 builder.Services.AddPlaxionMediatorOpenTelemetry();
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
         .AddSource(PlaxionMediatorActivitySource.Name)
         .AddConsoleExporter())
     .WithMetrics(metrics => metrics
@@ -70,6 +89,28 @@ var app = builder.Build();
 
 // Must be registered before routing/endpoints so handler exceptions become problem+json.
 app.UsePlaxionMediatorExceptionHandling();
+
+// Observability demo: log the PlaxionMediator correlation id for every request using the plain
+// ASP.NET Core console logger, so it shows up right next to the standard
+// "Request starting/finished ..." lines you already see - no OpenTelemetry exporter/collector
+// required to observe it. Placed as the outermost middleware so Activity.Current here is the
+// ASP.NET Core request activity, whose TraceId is exactly what OpenTelemetryPipelineObserver uses
+// as the plaxionmediator.correlation_id tag on the mediator's own child Activity (unless a caller
+// overrides it via the "correlation.id" baggage item - see docs/wiki/Observability.md).
+app.Use(async (context, next) =>
+{
+    await next();
+
+    ILogger logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+        .CreateLogger("PlaxionMediator.Observability");
+    string correlationId = System.Diagnostics.Activity.Current?.TraceId.ToString()
+        ?? "(no active trace)";
+    logger.LogInformation(
+        "PlaxionMediator correlation id for {Method} {Path}: {CorrelationId}",
+        context.Request.Method,
+        context.Request.Path,
+        correlationId);
+});
 
 app.MapGet("/", () => "PlaxionMediator WebApi sample is running.");
 

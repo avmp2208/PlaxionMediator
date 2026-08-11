@@ -46,6 +46,9 @@ No PlaxionMediator-specific exporter configuration is required.
   - `plaxionmediator.handler.type`
   - `plaxionmediator.notification.type`
   - `plaxionmediator.behavior.count`
+  - `plaxionmediator.correlation_id` — a caller-supplied `correlation.id` `Activity.Baggage` item
+    (set via `Activity.Current?.SetBaggage("correlation.id", myId)`, e.g. from your own middleware),
+    or the activity's own W3C `TraceId` when no baggage item is set.
 - On fault, `Activity.Status` is set to `Error` with the exception message, and an
   `exception.type` tag is added.
 
