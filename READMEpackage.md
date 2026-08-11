@@ -92,6 +92,28 @@ builder.Services.AddPlaxionMediatorCircuitBreaker();
 app.UsePlaxionMediatorExceptionHandling();
 ```
 
+### Telemetry (`PlaxionMediator.OpenTelemetry`, v0.7.0+)
+
+Add tracing (`ActivitySource`) and metrics (`Meter`), both named `"PlaxionMediator"`, for every `ISender.Send` and `IPublisher.Publish` call — zero overhead when the package isn't installed.
+
+```bash
+dotnet add package PlaxionMediator.OpenTelemetry
+```
+
+```csharp
+using PlaxionMediator.OpenTelemetry;
+
+builder.Services.AddPlaxionMediator();
+builder.Services.AddPlaxionMediatorOpenTelemetry();
+
+// Wire it into your own OpenTelemetry SDK setup like any other instrumented library
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing.AddSource(PlaxionMediatorActivitySource.Name))
+    .WithMetrics(metrics => metrics.AddMeter(PlaxionMediatorMeter.Name));
+```
+
+Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plaxionmediator.handler_not_found.count` and `plaxionmediator.pipeline_exception.count` metrics, plus a span per `Send`/`Publish` call. See the [full write-up on GitHub](https://github.com/avmp2208/PlaxionMediator/blob/master/docs/wiki/Observability.md) for the semantic-convention reference.
+
 ## Packages
 
 | Package | Role |
@@ -109,6 +131,7 @@ app.UsePlaxionMediatorExceptionHandling();
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
 | `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
+| `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
 
 ## Benchmarks
 

@@ -8,6 +8,7 @@ PlaxionMediator's design principles:
 - **Immutable-by-default requests** — `sealed record`s, enforced by `PlaxionMediator003` (mutable request analyzer).
 - **Split `ISender`/`IPublisher` contracts** — request/response dispatch (`ISender.Send`) is separated from fan-out notifications (`IPublisher.Publish`), each with distinct failure semantics.
 - **Performance-first.** Benchmarks show sub-microsecond overhead for typical request pipelines (see [Benchmarks](Benchmarks)).
+- **Zero-overhead observability.** The `v0.7.0` `INotificationObserver`/`IPipelineObserver` seams (and `PlaxionMediator.OpenTelemetry` built on top of them) are gated behind a single `HasObservers` check on the hot path — when no observer is registered, `Send`/`Publish` dispatch is unchanged from pre-v0.7.0 behavior, preserving the zero-overhead/sub-microsecond design tenet above.
 
 ## Core types
 
