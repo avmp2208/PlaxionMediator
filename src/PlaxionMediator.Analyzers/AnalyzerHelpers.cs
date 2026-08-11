@@ -14,6 +14,8 @@ internal static class AnalyzerHelpers
     public const string HighFrequencyAttributeMetadataName = "PlaxionMediator.Abstractions.HighFrequencyAttribute";
     public const string SenderMetadataName = "PlaxionMediator.Core.ISender";
     public const string PipelineBuilderMetadataName = "PlaxionMediator.Pipeline.PipelineBuilder";
+    public const string PipelineExtensionBuilderMetadataName = "PlaxionMediator.Pipeline.PipelineExtensionBuilder";
+    public const string PipelineExtensionMetadataName = "PlaxionMediator.Pipeline.IPipelineExtension";
     public const int HotPathBehaviorThreshold = 3;
 
     public static bool ImplementsRequest(INamedTypeSymbol type, INamedTypeSymbol? requestUnbound, out ITypeSymbol? responseType)

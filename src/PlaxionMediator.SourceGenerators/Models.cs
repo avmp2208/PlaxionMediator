@@ -2,47 +2,27 @@ using System;
 
 namespace PlaxionMediator.SourceGenerators;
 
-internal sealed class RequestHandlerModel : IEquatable<RequestHandlerModel>
+/// <summary>
+/// Value-equality model for a discovered request handler.
+/// Location fields are intentionally excluded from equality so the incremental generator
+/// cache treats semantically identical inputs as unchanged across non-semantic edits
+/// (e.g. whitespace / line-number shifts).
+/// </summary>
+internal readonly record struct RequestHandlerModel(
+    string RequestFullyQualifiedName,
+    string ResponseFullyQualifiedName,
+    string HandlerFullyQualifiedName,
+    string RequestDisplayName,
+    string? RequestLocationPath,
+    int RequestLocationLine,
+    int RequestLocationSpanStart) : IEquatable<RequestHandlerModel>
 {
-    public RequestHandlerModel(
-        string requestFullyQualifiedName,
-        string responseFullyQualifiedName,
-        string handlerFullyQualifiedName,
-        string requestDisplayName,
-        string? requestLocationPath,
-        int requestLocationLine,
-        int requestLocationSpanStart)
+    public bool Equals(RequestHandlerModel other)
     {
-        RequestFullyQualifiedName = requestFullyQualifiedName;
-        ResponseFullyQualifiedName = responseFullyQualifiedName;
-        HandlerFullyQualifiedName = handlerFullyQualifiedName;
-        RequestDisplayName = requestDisplayName;
-        RequestLocationPath = requestLocationPath;
-        RequestLocationLine = requestLocationLine;
-        RequestLocationSpanStart = requestLocationSpanStart;
-    }
-
-    public string RequestFullyQualifiedName { get; }
-    public string ResponseFullyQualifiedName { get; }
-    public string HandlerFullyQualifiedName { get; }
-    public string RequestDisplayName { get; }
-    public string? RequestLocationPath { get; }
-    public int RequestLocationLine { get; }
-    public int RequestLocationSpanStart { get; }
-
-    public bool Equals(RequestHandlerModel? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
         return RequestFullyQualifiedName == other.RequestFullyQualifiedName
                && ResponseFullyQualifiedName == other.ResponseFullyQualifiedName
                && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName;
     }
-
-    public override bool Equals(object? obj) => Equals(obj as RequestHandlerModel);
 
     public override int GetHashCode()
     {
@@ -57,39 +37,20 @@ internal sealed class RequestHandlerModel : IEquatable<RequestHandlerModel>
     }
 }
 
-internal sealed class NotificationHandlerModel : IEquatable<NotificationHandlerModel>
+/// <summary>
+/// Value-equality model for a discovered notification handler.
+/// </summary>
+internal readonly record struct NotificationHandlerModel(
+    string NotificationFullyQualifiedName,
+    string HandlerFullyQualifiedName,
+    string PublishStrategy) : IEquatable<NotificationHandlerModel>
 {
-    public NotificationHandlerModel(
-        string notificationFullyQualifiedName,
-        string handlerFullyQualifiedName,
-        string publishStrategy)
+    public bool Equals(NotificationHandlerModel other)
     {
-        NotificationFullyQualifiedName = notificationFullyQualifiedName;
-        HandlerFullyQualifiedName = handlerFullyQualifiedName;
-        PublishStrategy = publishStrategy;
-    }
-
-    public string NotificationFullyQualifiedName { get; }
-    public string HandlerFullyQualifiedName { get; }
-
-    /// <summary>
-    /// "Sequential" or "Parallel" — matches <c>PublishStrategy</c> enum names.
-    /// </summary>
-    public string PublishStrategy { get; }
-
-    public bool Equals(NotificationHandlerModel? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
         return NotificationFullyQualifiedName == other.NotificationFullyQualifiedName
                && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName
                && PublishStrategy == other.PublishStrategy;
     }
-
-    public override bool Equals(object? obj) => Equals(obj as NotificationHandlerModel);
 
     public override int GetHashCode()
     {
@@ -104,38 +65,21 @@ internal sealed class NotificationHandlerModel : IEquatable<NotificationHandlerM
     }
 }
 
-internal sealed class StreamRequestHandlerModel : IEquatable<StreamRequestHandlerModel>
+/// <summary>
+/// Value-equality model for a discovered stream request handler.
+/// </summary>
+internal readonly record struct StreamRequestHandlerModel(
+    string RequestFullyQualifiedName,
+    string ResponseFullyQualifiedName,
+    string HandlerFullyQualifiedName,
+    string RequestDisplayName) : IEquatable<StreamRequestHandlerModel>
 {
-    public StreamRequestHandlerModel(
-        string requestFullyQualifiedName,
-        string responseFullyQualifiedName,
-        string handlerFullyQualifiedName,
-        string requestDisplayName)
+    public bool Equals(StreamRequestHandlerModel other)
     {
-        RequestFullyQualifiedName = requestFullyQualifiedName;
-        ResponseFullyQualifiedName = responseFullyQualifiedName;
-        HandlerFullyQualifiedName = handlerFullyQualifiedName;
-        RequestDisplayName = requestDisplayName;
-    }
-
-    public string RequestFullyQualifiedName { get; }
-    public string ResponseFullyQualifiedName { get; }
-    public string HandlerFullyQualifiedName { get; }
-    public string RequestDisplayName { get; }
-
-    public bool Equals(StreamRequestHandlerModel? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
         return RequestFullyQualifiedName == other.RequestFullyQualifiedName
                && ResponseFullyQualifiedName == other.ResponseFullyQualifiedName
                && HandlerFullyQualifiedName == other.HandlerFullyQualifiedName;
     }
-
-    public override bool Equals(object? obj) => Equals(obj as StreamRequestHandlerModel);
 
     public override int GetHashCode()
     {
@@ -150,43 +94,23 @@ internal sealed class StreamRequestHandlerModel : IEquatable<StreamRequestHandle
     }
 }
 
-internal sealed class RequestModel : IEquatable<RequestModel>
+/// <summary>
+/// Value-equality model for a discovered request type.
+/// Location fields are intentionally excluded from equality (see <see cref="RequestHandlerModel"/>).
+/// </summary>
+internal readonly record struct RequestModel(
+    string RequestFullyQualifiedName,
+    string ResponseFullyQualifiedName,
+    string RequestDisplayName,
+    string? LocationPath,
+    int LocationLine,
+    int LocationSpanStart) : IEquatable<RequestModel>
 {
-    public RequestModel(
-        string requestFullyQualifiedName,
-        string responseFullyQualifiedName,
-        string requestDisplayName,
-        string? locationPath,
-        int locationLine,
-        int locationSpanStart)
+    public bool Equals(RequestModel other)
     {
-        RequestFullyQualifiedName = requestFullyQualifiedName;
-        ResponseFullyQualifiedName = responseFullyQualifiedName;
-        RequestDisplayName = requestDisplayName;
-        LocationPath = locationPath;
-        LocationLine = locationLine;
-        LocationSpanStart = locationSpanStart;
-    }
-
-    public string RequestFullyQualifiedName { get; }
-    public string ResponseFullyQualifiedName { get; }
-    public string RequestDisplayName { get; }
-    public string? LocationPath { get; }
-    public int LocationLine { get; }
-    public int LocationSpanStart { get; }
-
-    public bool Equals(RequestModel? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
         return RequestFullyQualifiedName == other.RequestFullyQualifiedName
                && ResponseFullyQualifiedName == other.ResponseFullyQualifiedName;
     }
-
-    public override bool Equals(object? obj) => Equals(obj as RequestModel);
 
     public override int GetHashCode()
     {
@@ -200,43 +124,24 @@ internal sealed class RequestModel : IEquatable<RequestModel>
     }
 }
 
-internal sealed class GenerationModel : IEquatable<GenerationModel>
+/// <summary>
+/// Aggregate generation input. Value equality drives incremental source-output caching.
+/// </summary>
+internal readonly record struct GenerationModel(
+    EquatableArray<RequestHandlerModel> RequestHandlers,
+    EquatableArray<NotificationHandlerModel> NotificationHandlers,
+    EquatableArray<StreamRequestHandlerModel> StreamRequestHandlers,
+    EquatableArray<RequestModel> Requests,
+    string RootNamespace) : IEquatable<GenerationModel>
 {
-    public GenerationModel(
-        EquatableArray<RequestHandlerModel> requestHandlers,
-        EquatableArray<NotificationHandlerModel> notificationHandlers,
-        EquatableArray<StreamRequestHandlerModel> streamRequestHandlers,
-        EquatableArray<RequestModel> requests,
-        string rootNamespace)
+    public bool Equals(GenerationModel other)
     {
-        RequestHandlers = requestHandlers;
-        NotificationHandlers = notificationHandlers;
-        StreamRequestHandlers = streamRequestHandlers;
-        Requests = requests;
-        RootNamespace = rootNamespace;
-    }
-
-    public EquatableArray<RequestHandlerModel> RequestHandlers { get; }
-    public EquatableArray<NotificationHandlerModel> NotificationHandlers { get; }
-    public EquatableArray<StreamRequestHandlerModel> StreamRequestHandlers { get; }
-    public EquatableArray<RequestModel> Requests { get; }
-    public string RootNamespace { get; }
-
-    public bool Equals(GenerationModel? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
         return RootNamespace == other.RootNamespace
                && RequestHandlers.Equals(other.RequestHandlers)
                && NotificationHandlers.Equals(other.NotificationHandlers)
                && StreamRequestHandlers.Equals(other.StreamRequestHandlers)
                && Requests.Equals(other.Requests);
     }
-
-    public override bool Equals(object? obj) => Equals(obj as GenerationModel);
 
     public override int GetHashCode()
     {

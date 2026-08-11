@@ -16,29 +16,36 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        IncrementalValuesProvider<RequestHandlerModel?> requestHandlers = context.SyntaxProvider
+        // Each syntax provider projects to a value-equality record struct. Unchanged semantic
+        // inputs compare equal across edits, allowing the incremental host to skip Collect /
+        // Combine / source-output stages instead of re-executing the full pipeline.
+        IncrementalValuesProvider<RequestHandlerModel> requestHandlers = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => IsTypeDeclarationWithBaseList(node),
                 static (ctx, ct) => GetRequestHandlerModel(ctx, ct))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Select(static (m, _) => m!.Value);
 
-        IncrementalValuesProvider<NotificationHandlerModel?> notificationHandlers = context.SyntaxProvider
+        IncrementalValuesProvider<NotificationHandlerModel> notificationHandlers = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => IsTypeDeclarationWithBaseList(node),
                 static (ctx, ct) => GetNotificationHandlerModel(ctx, ct))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Select(static (m, _) => m!.Value);
 
-        IncrementalValuesProvider<StreamRequestHandlerModel?> streamHandlers = context.SyntaxProvider
+        IncrementalValuesProvider<StreamRequestHandlerModel> streamHandlers = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => IsTypeDeclarationWithBaseList(node),
                 static (ctx, ct) => GetStreamRequestHandlerModel(ctx, ct))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Select(static (m, _) => m!.Value);
 
-        IncrementalValuesProvider<RequestModel?> requests = context.SyntaxProvider
+        IncrementalValuesProvider<RequestModel> requests = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => IsTypeDeclarationWithBaseList(node),
                 static (ctx, ct) => GetRequestModel(ctx, ct))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Select(static (m, _) => m!.Value);
 
         IncrementalValueProvider<string> rootNamespace = context.CompilationProvider
             .Select(static (compilation, _) =>
@@ -59,41 +66,33 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
             .Combine(rootNamespace)
             .Select(static (tuple, _) =>
             {
-                ImmutableArray<RequestHandlerModel?> rh = tuple.Left.Left.Left.Left;
-                ImmutableArray<NotificationHandlerModel?> nh = tuple.Left.Left.Left.Right;
-                ImmutableArray<StreamRequestHandlerModel?> sh = tuple.Left.Left.Right;
-                ImmutableArray<RequestModel?> req = tuple.Left.Right;
+                ImmutableArray<RequestHandlerModel> rh = tuple.Left.Left.Left.Left;
+                ImmutableArray<NotificationHandlerModel> nh = tuple.Left.Left.Left.Right;
+                ImmutableArray<StreamRequestHandlerModel> sh = tuple.Left.Left.Right;
+                ImmutableArray<RequestModel> req = tuple.Left.Right;
                 string ns = tuple.Right;
 
                 ImmutableArray<RequestHandlerModel> requestHandlerModels = rh
-                    .Where(m => m is not null)
-                    .Select(m => m!)
                     .Distinct()
-                    .OrderBy(m => m.RequestFullyQualifiedName)
-                    .ThenBy(m => m.HandlerFullyQualifiedName)
+                    .OrderBy(static m => m.RequestFullyQualifiedName)
+                    .ThenBy(static m => m.HandlerFullyQualifiedName)
                     .ToImmutableArray();
 
                 ImmutableArray<NotificationHandlerModel> notificationHandlerModels = nh
-                    .Where(m => m is not null)
-                    .Select(m => m!)
                     .Distinct()
-                    .OrderBy(m => m.NotificationFullyQualifiedName)
-                    .ThenBy(m => m.HandlerFullyQualifiedName)
+                    .OrderBy(static m => m.NotificationFullyQualifiedName)
+                    .ThenBy(static m => m.HandlerFullyQualifiedName)
                     .ToImmutableArray();
 
                 ImmutableArray<StreamRequestHandlerModel> streamHandlerModels = sh
-                    .Where(m => m is not null)
-                    .Select(m => m!)
                     .Distinct()
-                    .OrderBy(m => m.RequestFullyQualifiedName)
-                    .ThenBy(m => m.HandlerFullyQualifiedName)
+                    .OrderBy(static m => m.RequestFullyQualifiedName)
+                    .ThenBy(static m => m.HandlerFullyQualifiedName)
                     .ToImmutableArray();
 
                 ImmutableArray<RequestModel> requestModels = req
-                    .Where(m => m is not null)
-                    .Select(m => m!)
                     .Distinct()
-                    .OrderBy(m => m.RequestFullyQualifiedName)
+                    .OrderBy(static m => m.RequestFullyQualifiedName)
                     .ToImmutableArray();
 
                 return new GenerationModel(

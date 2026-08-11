@@ -2,6 +2,27 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.6.0
+
+### Added
+- **Formal pipeline extension-point API** in `PlaxionMediator.Pipeline` (ADR-0007): `IPipelineExtension`, `PipelineExtensionContext`, `PipelineExtensionBuilder`, and `PipelineExtensionRegistry`. Extensions wrap the composed behavior+handler chain as outer layers without replacing `IPipelineBehavior<,>`; lower `Order` runs outermost. Runtime registration is instance-based and AOT-safe (no reflection).
+- **Telemetry hook groundwork** (ADR-0008): `IPipelineObserver`, `PipelineCallContext`, and `PipelineObserverHub` provide start/stop/fault notification seams inside `PipelineComposer` (field-staged `PipelineExecutor`, pooled `PipelineRunner`, and empty-behavior paths). No-op and zero-allocation when no observers are registered; Core/Pipeline take no OpenTelemetry dependency (actual emission remains v0.7.0).
+- **Two new analyzers** guarding the extension registration surface:
+  - `PlaxionMediator024` — `PipelineExtensionBuilder.Use<T>()` with a type that does not implement `IPipelineExtension`.
+  - `PlaxionMediator025` — duplicate extension type on the same `PipelineExtensionBuilder` chain.
+- **ADR-0007** and **ADR-0008** design records, published in the `documentation` repository's `architecture/adr/` folder alongside ADR-0001–ADR-0006.
+- **Generator incrementality tests** validating stable output across non-semantic edits and value-equality of generator models (location fields excluded from equality so line-number shifts do not force full re-emission).
+- **Pipeline extension/observer unit tests** covering registration, ordering, interaction with existing behaviors, default no-op hooks, and start → behaviors → handler → stop/fault ordering (including deep chains on the pooled runner path).
+
+### Changed
+- **`PlaxionMediator.SourceGenerators` incremental pipeline**: generator models converted to `readonly record struct` value types with semantic-only equality; `EquatableArray<T>` gains cached hash codes and robust default/empty handling so Roslyn's incremental caching layer correctly recognizes unchanged inputs.
+- **Generated sender empty-behavior path** now routes through `PipelineComposer.ExecuteAsync` (still with an empty behavior array) so ADR-0007/0008 seams fire uniformly for all `ISender.Send` dispatches without requiring behaviors to be present.
+- Documentation updates: `docs/wiki/Design-Overview.md`, `docs/wiki/Packages-Overview.md`, `docs/wiki/Analyzers-Reference.md`, `docs/wiki/Roadmap.md`.
+
+### Verified
+- Full solution build and full test suite (unit + integration) green.
+- `src/PlaxionMediator.Benchmarks` and `benchmarks-comparison/` re-checked for no measurable hot-path regression when hooks are unused; see `benchmarks-comparison/RESULTS.md`.
+
 ## v0.5.0
 
 ### Added
