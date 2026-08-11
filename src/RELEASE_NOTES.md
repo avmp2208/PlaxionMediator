@@ -2,6 +2,21 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.7.0
+
+### Added
+- **New `PlaxionMediator.OpenTelemetry` package**: opt-in `System.Diagnostics.Activity` tracing and `System.Diagnostics.Metrics` metrics for `ISender.Send`/`IPublisher.Publish`, built entirely on the ADR-0008 `IPipelineObserver` seam plus a new `INotificationObserver`/`NotificationObserverHub`/`NotificationCallContext` seam (ADR-0009) for notification fan-out instrumentation. Exposes `ActivitySource("PlaxionMediator")` and `Meter("PlaxionMediator")`, `OpenTelemetryPipelineObserver` (implementing both `IPipelineObserver` and `INotificationObserver`), and a single `AddPlaxionMediatorOpenTelemetry()` DI extension. Depends only on `PlaxionMediator.Abstractions` + `PlaxionMediator.Pipeline` and is never bundled into core `PlaxionMediator` (opt-in, following the project's zero-bloat philosophy).
+- **`INotificationObserver` seam** in `PlaxionMediator.Pipeline`, wired into the source generator's `EmitPublish`, so notification fan-out (`IPublisher.Publish`) gets the same start/stop/fault instrumentation hooks that `IPipelineObserver` already provided for `Send` as of `v0.6.0`. No-op and zero-allocation when `NotificationObserverHub.HasObservers` is `false`.
+- **Sample WebApi wiring**: `samples/PlaxionMediator.Sample.WebApi` references `PlaxionMediator.OpenTelemetry`, calls `AddPlaxionMediatorOpenTelemetry()` in `Program.cs`, and exports traces/metrics via the OpenTelemetry console exporter as an end-to-end demonstration. A full `.NET Aspire` AppHost/dashboard sample was considered but descoped due to sandbox/tooling constraints (workload availability); the console-exporter demo is a lighter-weight, still-real substitute, with a dedicated Aspire sample tracked as a follow-up.
+- **New test project** `test/PlaxionMediator.OpenTelemetry.Tests` covering the observer's tracing/metrics emission and DI registration (5 tests, all green).
+- **New benchmark coverage**: `src/PlaxionMediator.Benchmarks/ObservabilityOverheadBenchmarks.cs` compares `Send`/`Publish` with no observer registered against the same dispatch with `AddPlaxionMediatorOpenTelemetry()` registered.
+- **`docs/wiki/Observability.md`** describing the new package, its ActivitySource/Meter surface, and the zero-overhead-when-unused guarantee.
+
+### Verified
+- Full solution build (`dotnet build PlaxionMediator.sln -c Release`): 0 warnings, 0 errors, including the new `PlaxionMediator.OpenTelemetry` package and benchmark project.
+- `test/PlaxionMediator.OpenTelemetry.Tests` (5/5) and `test/PlaxionMediator.Pipeline.Tests` green.
+- **No regression versus the `v0.6.0` baseline**: a short-job `ObservabilityOverheadBenchmarks` run shows identical allocations with and without the OpenTelemetry observer registered (`Send`: 200 B either way; `Publish`: 128 B either way), with latency differences within run-to-run noise (~146 ns → ~154–162 ns on a short/quick job). A short-job re-run of `benchmarks-comparison`'s `TypeVarietyBenchmarks` (50-type dispatch) measured PlaxionMediator at ~908–1017 ns with 0 B allocated, consistent with the previously recorded baseline (~870 ns, 0 B) in `BenchmarkDotNet.Artifacts/results/Plaxion.BenchMarks.Comparison.TypeVarietyBenchmarks-report.html` — the no-observer hot path (gated behind `PipelineObserverHub.HasObservers`/`NotificationObserverHub.HasObservers`) is unchanged from pre-v0.7.0 behavior.
+
 ## v0.6.0
 
 ### Added

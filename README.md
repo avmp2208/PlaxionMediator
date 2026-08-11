@@ -182,6 +182,28 @@ public sealed record FlakyRequest(string Data) : IRequest<string>, ICircuitBreak
 
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
 
+### Telemetry (`PlaxionMediator.OpenTelemetry`, v0.7.0+)
+
+Add tracing (`ActivitySource`) and metrics (`Meter`), both named `"PlaxionMediator"`, for every `ISender.Send` and `IPublisher.Publish` call — zero overhead when the package isn't installed, no dependency added to `PlaxionMediator.Core`/`PlaxionMediator.Pipeline`.
+
+```bash
+dotnet add package PlaxionMediator.OpenTelemetry
+```
+
+```csharp
+using PlaxionMediator.OpenTelemetry;
+
+builder.Services.AddPlaxionMediator();
+builder.Services.AddPlaxionMediatorOpenTelemetry();
+
+// Wire it into your own OpenTelemetry SDK setup like any other instrumented library
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing.AddSource(PlaxionMediatorActivitySource.Name))
+    .WithMetrics(metrics => metrics.AddMeter(PlaxionMediatorMeter.Name));
+```
+
+Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plaxionmediator.handler_not_found.count` and `plaxionmediator.pipeline_exception.count` metrics, plus a span per `Send`/`Publish` call tagged with `plaxionmediator.request.type`/`plaxionmediator.notification.type`/`plaxionmediator.behavior.count`. See [`docs/wiki/Observability.md`](docs/wiki/Observability.md) for the full semantic-convention reference, and [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi) for a working console-exporter demo.
+
 ## Why PlaxionMediator?
 
 - **Zero reflection** at runtime — dispatch and DI registration are generated
@@ -207,8 +229,9 @@ See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mappi
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
 | `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
+| `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
 
-> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation`/`PlaxionMediator.Caching`/`PlaxionMediator.Retry` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
+> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation`/`PlaxionMediator.Caching`/`PlaxionMediator.Retry`/`PlaxionMediator.OpenTelemetry` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 
 ## Benchmarks
 

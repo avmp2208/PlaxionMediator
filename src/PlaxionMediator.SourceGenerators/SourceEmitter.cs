@@ -544,11 +544,28 @@ internal static class SourceEmitter
                 .Append(">[] handlers = _services.GetServices<INotificationHandler<")
                 .Append(group.Key)
                 .AppendLine(">>().ToArray();");
+            sb.AppendLine();
+            sb.AppendLine("        bool hasNotificationObservers = NotificationObserverHub.HasObservers;");
+            sb.AppendLine("        NotificationCallContext notificationObserverContext = default;");
+            sb.AppendLine("        if (hasNotificationObservers)");
+            sb.AppendLine("        {");
+            sb.Append("            notificationObserverContext = new NotificationCallContext(typeof(")
+                .Append(group.Key)
+                .AppendLine("), handlers.Length);");
+            sb.AppendLine("            NotificationObserverHub.NotifyStarting(in notificationObserverContext);");
+            sb.AppendLine("        }");
+            sb.AppendLine();
+            sb.AppendLine("        try");
+            sb.AppendLine("        {");
 
             if (parallel)
             {
                 sb.AppendLine("        if (handlers.Length == 0)");
                 sb.AppendLine("        {");
+                sb.AppendLine("            if (hasNotificationObservers)");
+                sb.AppendLine("            {");
+                sb.AppendLine("                NotificationObserverHub.NotifyCompleted(in notificationObserverContext);");
+                sb.AppendLine("            }");
                 sb.AppendLine("            return;");
                 sb.AppendLine("        }");
                 sb.AppendLine();
@@ -574,6 +591,11 @@ internal static class SourceEmitter
                 sb.AppendLine();
                 sb.AppendLine("        if (exceptions is { Count: 1 }) throw exceptions[0];");
                 sb.AppendLine("        if (exceptions is { Count: > 1 }) throw new AggregateException(exceptions);");
+                sb.AppendLine();
+                sb.AppendLine("        if (hasNotificationObservers)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            NotificationObserverHub.NotifyCompleted(in notificationObserverContext);");
+                sb.AppendLine("        }");
                 sb.AppendLine();
                 sb.AppendLine("        static async Task<Exception?> InvokeParallel(");
                 sb.AppendLine("            INotificationHandler<" + group.Key + "> handler,");
@@ -609,8 +631,22 @@ internal static class SourceEmitter
                 sb.AppendLine();
                 sb.AppendLine("        if (exceptions is { Count: 1 }) throw exceptions[0];");
                 sb.AppendLine("        if (exceptions is { Count: > 1 }) throw new AggregateException(exceptions);");
+                sb.AppendLine();
+                sb.AppendLine("        if (hasNotificationObservers)");
+                sb.AppendLine("        {");
+                sb.AppendLine("            NotificationObserverHub.NotifyCompleted(in notificationObserverContext);");
+                sb.AppendLine("        }");
             }
 
+            sb.AppendLine("        }");
+            sb.AppendLine("        catch (Exception notificationEx)");
+            sb.AppendLine("        {");
+            sb.AppendLine("            if (hasNotificationObservers)");
+            sb.AppendLine("            {");
+            sb.AppendLine("                NotificationObserverHub.NotifyFaulted(in notificationObserverContext, notificationEx);");
+            sb.AppendLine("            }");
+            sb.AppendLine("            throw;");
+            sb.AppendLine("        }");
             sb.AppendLine("    }");
             sb.AppendLine();
             pubIndex++;

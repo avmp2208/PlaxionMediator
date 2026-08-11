@@ -24,6 +24,8 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.Validation.FluentValidation\PlaxionMediator.Validation.FluentValidation.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.OpenTelemetry\PlaxionMediator.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
 
     <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
@@ -33,5 +35,10 @@
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false"
                       PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
   </ItemGroup>
 </Project>

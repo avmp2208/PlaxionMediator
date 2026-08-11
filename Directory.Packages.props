@@ -34,5 +34,9 @@
 
     <!-- Resilience -->
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="9.10.0" />
+
+    <!-- Observability -->
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.10.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
   </ItemGroup>
 </Project>

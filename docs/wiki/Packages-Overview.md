@@ -15,6 +15,7 @@
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidationAdapter<TRequest>` and DI extensions for wiring FluentValidation | Using FluentValidation for requests (opt-in, depends on `PlaxionMediator.Validation`) |
 | `PlaxionMediator.Caching` | `ICacheableRequest<TResponse>`, `CachingBehavior<TRequest,TResponse>` pipeline behavior, and `IPlaxionMediatorCacheInvalidator` | Implementing request caching (opt-in, depends on `Microsoft.Extensions.Caching.Memory`) |
 | `PlaxionMediator.Retry` | `IRetryableRequest`, `RetryBehavior<TRequest,TResponse>` pipeline behavior with backoff strategies; also hosts the opt-in `ICircuitBreakerRequest`, `CircuitBreakerBehavior<TRequest,TResponse>` (adapting `Microsoft.Extensions.Resilience`/Polly), and `ICircuitBreakerPolicyProvider<TRequest>` circuit breaker support added in `v0.4.2` | Implementing request retries and/or circuit breaking (opt-in, depends on `Microsoft.Extensions.Resilience` for the circuit breaker feature) |
+| `PlaxionMediator.OpenTelemetry` | `OpenTelemetryPipelineObserver` (`IPipelineObserver`/`INotificationObserver`), `AddPlaxionMediatorOpenTelemetry()` DI extension; emits `System.Diagnostics.Activity` traces and `System.Diagnostics.Metrics` metrics for `Send`/`Publish` (ActivitySource/Meter `PlaxionMediator`) added in `v0.7.0` | Enabling OpenTelemetry tracing/metrics for request dispatch and notification fan-out (opt-in, depends on `PlaxionMediator.Abstractions` + `PlaxionMediator.Pipeline`) |
 
 ## Why are `AspNetCore`/`MinimalApis` not bundled?
 
@@ -46,4 +47,6 @@ graph TD
     Caching --> Abstractions
     Retry[PlaxionMediator.Retry] --> Core
     Retry --> Abstractions
+    OpenTelemetry[PlaxionMediator.OpenTelemetry] --> Abstractions
+    OpenTelemetry --> Pipeline
 ```

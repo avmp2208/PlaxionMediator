@@ -7,9 +7,12 @@ using PlaxionMediator.Caching;
 using PlaxionMediator.Core;
 using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
+using PlaxionMediator.OpenTelemetry;
 using PlaxionMediator.Retry;
 using PlaxionMediator.Validation;
 using PlaxionMediator.Validation.FluentValidation;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +54,17 @@ builder.Services.AddSingleton<ItemStore>();
 builder.Services.AddSingleton<GetItemInvocationCounter>();
 builder.Services.AddSingleton<TransientFailureSimulator>();
 builder.Services.AddSingleton<FlakyDownstreamSimulator>();
+
+// Observability (v0.7.0): opt-in OpenTelemetry instrumentation for Send/Publish, exported to the
+// console for demo purposes. See docs/wiki/Observability.md.
+builder.Services.AddPlaxionMediatorOpenTelemetry();
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddSource(PlaxionMediatorActivitySource.Name)
+        .AddConsoleExporter())
+    .WithMetrics(metrics => metrics
+        .AddMeter(PlaxionMediatorMeter.Name)
+        .AddConsoleExporter());
 
 var app = builder.Build();
 
