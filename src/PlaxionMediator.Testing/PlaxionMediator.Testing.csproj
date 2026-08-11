@@ -30,7 +30,7 @@
   <PropertyGroup>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackTransitiveAnalyzers</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
-  <Target Name="PackTransitiveAnalyzers" DependsOnTargets="ResolveProjectReferences">
+  <Target Name="PackTransitiveAnalyzers" DependsOnTargets="ResolveProjectReferences" Condition="'$(TargetFramework)' == 'net9.0'">
     <ItemGroup>
       <TfmSpecificPackageFile Include="@(_ResolvedProjectReferencePaths)" 
                               Condition="'%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.SourceGenerators' or '%(_ResolvedProjectReferencePaths.Filename)' == 'PlaxionMediator.Analyzers'"
