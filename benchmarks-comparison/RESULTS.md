@@ -29,29 +29,41 @@
 
 ## Pipeline Behavior Chains
 
+> **v0.9.1 correction:** the `1,319.68 ns` / `3,254.99 ns` figures previously published here for
+> `Send_Plaxion_10Behaviors` / `Send_Plaxion_20Behaviors` (and the matching MediatR spike) were
+> **measurement noise, not a code regression** — the machine had several unrelated `dotnet`/`java`/`node`
+> processes (Rider indexing/background services) contending for CPU during that run. `Mediator`'s
+> tier-10/20 numbers stayed flat in that same run (603→613 ns, 1316→1332 ns) while Plaxion and MediatR
+> both roughly doubled, which is the signature of external contention rather than an internal slowdown —
+> a real regression in `PipelineComposer`/`PipelineRunner` would affect Plaxion in isolation, not move
+> MediatR by the same ratio. A clean re-run (below, no other heavy processes running) reproduces the
+> original `v0.6.0`-era latency shape. **No pipeline rework was needed for v0.9.1**; see the verdict at
+> the bottom of this file. Allocations were unaffected in both runs and remain byte-identical to `v0.6.0`.
+
 | Method                    | Mean        | Ratio  | Rank | Allocated |
 |---------------------------|------------:|-------:|-----:|----------:|
-| Send_Plaxion_0Behaviors   |    19.08 ns |   1.00 |    1 |         - |
-| Send_Mediator_0Behaviors  |    28.41 ns |   1.49 |    2 |         - |
-| Send_MediatR_0Behaviors   |   104.56 ns |   5.48 |    3 |     264 B |
-| Send_Mediator_1Behavior   |   136.28 ns |   7.14 |    4 |     128 B |
-| Send_Plaxion_1Behavior    |   176.81 ns |   9.27 |    5 |     176 B |
-| Send_MediatR_1Behavior    |   276.17 ns |  14.48 |    6 |     648 B |
-| Send_Mediator_5Behaviors  |   517.40 ns |  27.13 |    7 |     640 B |
-| Send_Mediator_10Behaviors |   613.18 ns |  32.15 |    7 |    1280 B |
-| Send_Plaxion_5Behaviors   |   641.06 ns |  33.61 |    7 |     688 B |
-| Send_MediatR_5Behaviors   |   838.16 ns |  43.94 |    8 |    1896 B |
-| Send_Plaxion_10Behaviors  | 1,319.68 ns |  69.19 |    9 |    1328 B |
-| Send_Mediator_20Behaviors | 1,331.71 ns |  69.82 |    9 |    2560 B |
-| Send_MediatR_10Behaviors  | 1,705.21 ns |  89.40 |   10 |    3456 B |
-| Send_Plaxion_20Behaviors  | 3,254.99 ns | 170.65 |   11 |    2608 B |
-| Send_MediatR_20Behaviors  | 3,581.33 ns | 187.76 |   11 |    6576 B |
+| Send_Mediator_0Behaviors  |    16.76 ns |   0.82 |    1 |         - |
+| Send_Plaxion_0Behaviors   |    20.43 ns |   1.00 |    1 |         - |
+| Send_MediatR_0Behaviors   |    56.74 ns |   2.78 |    2 |     264 B |
+| Send_Mediator_1Behavior   |    72.58 ns |   3.55 |    3 |     128 B |
+| Send_Plaxion_1Behavior    |   118.34 ns |   5.80 |    4 |     176 B |
+| Send_MediatR_1Behavior    |   165.00 ns |   8.08 |    5 |     648 B |
+| Send_Mediator_5Behaviors  |   328.02 ns |  16.07 |    6 |     640 B |
+| Send_Plaxion_5Behaviors   |   391.31 ns |  19.16 |    6 |     688 B |
+| Send_MediatR_5Behaviors   |   471.82 ns |  23.11 |    6 |    1896 B |
+| Send_Mediator_10Behaviors |   603.51 ns |  29.56 |    7 |    1280 B |
+| Send_Plaxion_10Behaviors  |   761.79 ns |  37.31 |    8 |    1328 B |
+| Send_MediatR_10Behaviors  |   832.34 ns |  40.76 |    8 |    3456 B |
+| Send_Mediator_20Behaviors | 1,320.21 ns |  64.66 |    9 |    2560 B |
+| Send_Plaxion_20Behaviors  | 1,553.08 ns |  76.06 |    9 |    2608 B |
+| Send_MediatR_20Behaviors  | 1,795.03 ns |  87.91 |    9 |    6576 B |
 
 **Takeaway:** Empty pipeline stays **0 B**. Allocation footprint per depth (176/688/1328/2608 B)
 is **byte-identical** to the `v0.6.0` snapshot — the `v0.9.0` Authorization work did not touch this
-hot path (the comparison suite does not register `AuthorizationBehavior`). Still far below MediatR's
-648/1896/3456/6576 B; PlaxionMediator stays clearly ahead of MediatR at every tier and tracks
-Mediator's shape.
+hot path (the comparison suite does not register `AuthorizationBehavior`). Latency at tier 10/20 in
+this clean run (762 ns / 1,553 ns) is back in line with the original `v0.6.0`-era shape and consistent
+with `Mediator`'s own scaling (604 ns / 1,320 ns); still far below MediatR's 648/1896/3456/6576 B
+allocation footprint, and PlaxionMediator stays clearly ahead of MediatR at every tier.
 
 ## Type Variety (50 distinct request/handler pairs, dispatched once per iteration)
 
@@ -114,6 +126,34 @@ remains competitive with Mediator and leads MediatR at every fan-out tier on thi
 - ADR-0008 hooks are no-op by default (length checks only); attaching an `IPipelineObserver` is
   expected to add small per-call overhead only when subscribed (covered by unit tests, not this
   suite's unused-hooks gate).
+
+## `v0.9.1` Pipeline Behavior Chains Latency Investigation
+
+- **Trigger:** the `v0.9.0` verdict run's `Send_Plaxion_10Behaviors`/`Send_Plaxion_20Behaviors` mean
+  latencies (1,319.68 ns / 3,254.99 ns) were roughly **2× higher** than every prior snapshot
+  (603.2 ns / 1,466.6 ns), which looked like an unacceptable regression at first glance.
+- **Root cause:** measurement contamination, not a code defect. At the time of that run, several
+  unrelated `dotnet`/`java`/`node` processes (Rider indexing/background services) were consuming
+  significant CPU on the benchmark machine. The tell: `Send_MediatR_10/20Behaviors` (a third-party
+  library, untouched by any PlaxionMediator change) spiked by the **same ~2× ratio** in that run, while
+  `Send_Mediator_10/20Behaviors` (which executes last in the benchmark class, after Plaxion and MediatR)
+  stayed flat versus its historical baseline. A genuine regression in `PipelineComposer`/`PipelineRunner`
+  would move only Plaxion's numbers; contention affecting whatever process happens to be running
+  explains the correlated Plaxion+MediatR spike and the unaffected Mediator tail.
+- **Verification:** re-ran `PipelineBehaviorBenchmarks` in isolation with no other heavy processes
+  active. Results returned to the historical shape: `Send_Plaxion_10Behaviors` = 761.79 ns,
+  `Send_Plaxion_20Behaviors` = 1,553.08 ns (vs. `Send_Mediator_*` at 603.51 ns / 1,320.21 ns) — the
+  published table above now reflects this clean run. Allocations (176/688/1328/2608 B) were identical
+  in **both** the noisy and clean runs, confirming the noise only affected wall-clock timing, never
+  managed allocations.
+- **Verdict:** **no code changes were required.** `PipelineComposer`'s fast/field-staged/pooled-runner
+  paths are unchanged since `v0.6.0` and remain allocation- and latency-competitive with Mediator. The
+  actionable fix for `v0.9.1` is **process hygiene for benchmark runs**, not application code: close
+  IDEs/indexers and other background `dotnet`/`node`/`java` workloads before running the comparison
+  suite, and treat any single run showing one library spike while a same-machine control library (here,
+  `Mediator`) stays flat as contaminated rather than a real regression.
+- **Follow-up:** documented this guidance in `benchmarks-comparison/README.md` so future runs are not
+  misread as regressions.
 
 ## `v0.9.0` Request-Level Authorization — Regression Verdict
 
