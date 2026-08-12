@@ -2,6 +2,17 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
+## v0.8.0 (Planned)
+
+### Added
+- **Transactions Support**: New opt-in package `PlaxionMediator.Transactions` providing a provider-agnostic transactional pipeline behavior (`ADR-0010`). Includes `ITransactionalRequest` marker interface and `ITransactionManager` abstraction.
+- **EF Core Adapter**: New opt-in package `PlaxionMediator.Transactions.EntityFrameworkCore` for seamless integration with Entity Framework Core DbContext transactions.
+- **Transaction Analyzers**: New diagnostics `PlaxionMediator042`–`045` to ensure transactional correctness, including behavior registration and ordering checks.
+- **Analyzer Hardening**: Full catalog review and reservation of unused ID bands for future high-value diagnostics.
+
+### Changed
+- **CLI/Templates Scope**: The `plaxion` CLI and project templates have been removed from the `v0.8.0` scope and moved to an independent engineering plan (`ADR-0011`).
+
 ## v0.7.1
 
 ### Changed
