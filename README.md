@@ -29,6 +29,9 @@ dotnet add package PlaxionMediator.Validation
 dotnet add package PlaxionMediator.Validation.FluentValidation
 dotnet add package PlaxionMediator.Caching
 dotnet add package PlaxionMediator.Retry
+dotnet add package PlaxionMediator.Transactions
+dotnet add package PlaxionMediator.Transactions.EntityFrameworkCore
+dotnet add package PlaxionMediator.OpenTelemetry
 ```
 
 ## Quickstart
@@ -133,14 +136,16 @@ Optimize performance with `CachingBehavior<,>` and resilience with `RetryBehavio
 ```csharp
 using PlaxionMediator.Caching;
 using PlaxionMediator.Retry;
+using PlaxionMediator.Transactions;
 
 builder.Services.AddPlaxionMediator(o =>
 {
-    // Recommended order: Validation → Caching → CircuitBreaker → Retry → Handler
+    // Recommended order: Validation → Caching → CircuitBreaker → Retry → Transaction → Handler
     o.UsePlaxionMediatorValidationBehavior();
     o.UsePlaxionMediatorCachingBehavior();
     o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
+    o.UsePlaxionMediatorTransactionBehavior();
 });
 
 builder.Services.AddPlaxionMediatorCaching(o => o.DefaultCacheDuration = TimeSpan.FromMinutes(5));
@@ -154,6 +159,8 @@ builder.Services.AddPlaxionMediatorCircuitBreaker(o =>
     o.FailureRatio = 0.5;
     o.MinimumThroughput = 10;
 });
+// Register exactly one ITransactionManager (custom or EF Core adapter package).
+builder.Services.AddPlaxionMediatorTransactions();
 ```
 
 Define a cacheable request:
@@ -179,6 +186,28 @@ Define a circuit-breaker protected request (v0.4.2+):
 ```csharp
 public sealed record FlakyRequest(string Data) : IRequest<string>, ICircuitBreakerRequest;
 ```
+
+### Transactions (`PlaxionMediator.Transactions`, v0.8.0+)
+
+Opt-in transactional boundaries via `ITransactionalRequest` and `TransactionBehavior`. Register Retry **outside** Transaction so each retry attempt gets a fresh transaction. Use `PlaxionMediator.Transactions.EntityFrameworkCore` for EF Core, or implement `ITransactionManager` yourself. Handlers still own `SaveChanges`.
+
+```csharp
+using PlaxionMediator.Transactions;
+using PlaxionMediator.Transactions.EntityFrameworkCore;
+
+builder.Services.AddDbContext<AppDbContext>(/* ... */);
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.UsePlaxionMediatorRetryBehavior();
+    o.UsePlaxionMediatorTransactionBehavior(); // after Retry
+});
+builder.Services.AddPlaxionMediatorTransactionsEntityFrameworkCore<AppDbContext>();
+
+public sealed record CreateOrderRequest(string CustomerId, decimal Total)
+    : IRequest<OrderDto>, ITransactionalRequest;
+```
+
+See [`docs/wiki/Transactions.md`](docs/wiki/Transactions.md) and the `/orders` endpoints in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi).
 
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
 
@@ -229,9 +258,11 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
 | `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
+| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
+| `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
 
-> `PlaxionMediator.AspNetCore`/`PlaxionMediator.MinimalApis`/`PlaxionMediator.Validation`/`PlaxionMediator.Caching`/`PlaxionMediator.Retry`/`PlaxionMediator.OpenTelemetry` are **separate opt-in packages** — they are not referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
+> Opt-in packages (`AspNetCore`, `MinimalApis`, `Validation`, `Caching`, `Retry`, `Transactions`, `OpenTelemetry`, …) are **not** referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 
 ## Benchmarks
 

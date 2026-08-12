@@ -71,10 +71,10 @@ Avoid disabling a diagnostic project-wide via `.editorconfig` unless you're cert
 - **Title:** Unsafe transaction behavior ordering
 - **Category:** Reliability
 - **Severity:** Error
-- **Trigger:** Both `TransactionBehavior` and `RetryBehavior` are registered, but `TransactionBehavior` is inner to `RetryBehavior` (i.e., `RetryBehavior` wraps `TransactionBehavior`).
-- **Non-Trigger:** `TransactionBehavior` is outer to `RetryBehavior` (recommended default).
-- **Rationale:** If a transaction wraps retries, a single transaction spans all attempts. If one attempt fails but a later one succeeds, the transaction might be in an inconsistent state or stay open too long. The recommended pattern is a fresh transaction per retry.
-- **Code-Fix:** Reorder registrations so `TransactionBehavior` is outer to `RetryBehavior`.
+- **Trigger:** Both `TransactionBehavior` and `RetryBehavior` are registered, but `TransactionBehavior` is **outer** to `RetryBehavior` (i.e., `TransactionBehavior` wraps `RetryBehavior` / Retry is inside Transaction).
+- **Non-Trigger:** `TransactionBehavior` is **inner** to `RetryBehavior` (recommended default: Retry → Transaction → Handler).
+- **Rationale:** If a transaction wraps retries, a single transaction spans all attempts. If one attempt fails but a later one succeeds, the transaction might be in an inconsistent state or stay open too long. The recommended pattern is a fresh transaction per retry (Retry outer, Transaction inner).
+- **Code-Fix:** Reorder registrations so `RetryBehavior` is outer to `TransactionBehavior` (call `UsePlaxionMediatorRetryBehavior()` before `UsePlaxionMediatorTransactionBehavior()`).
 - **False-Positive Risk:** Low; requires static analysis of registration order.
 - **Tests:** `RetryInsideTransaction_ReportsError`, `TransactionInsideRetry_NoDiagnostic`.
 

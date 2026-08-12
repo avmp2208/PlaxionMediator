@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
 using PlaxionMediator.Caching;
@@ -9,6 +10,8 @@ using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
 using PlaxionMediator.OpenTelemetry;
 using PlaxionMediator.Retry;
+using PlaxionMediator.Transactions;
+using PlaxionMediator.Transactions.EntityFrameworkCore;
 using PlaxionMediator.Validation;
 using PlaxionMediator.Validation.FluentValidation;
 using OpenTelemetry.Metrics;
@@ -17,16 +20,17 @@ using OpenTelemetry.Trace;
 var builder = WebApplication.CreateBuilder(args);
 
 // Global behavior order (outermost → innermost → handler):
-// Validation → Caching → CircuitBreaker → Retry → Handler
+// Validation → Caching → CircuitBreaker → Retry → Transaction → Handler
 // Validation fails fast; caching short-circuits before circuit breaker/retry/handler on hit;
 // circuit breaker is registered outside retry so an open circuit fails fast before any retry
-// attempts are made; retry wraps the handler only.
+// attempts are made; retry is outside transaction so each retry attempt gets a fresh transaction.
 builder.Services.AddPlaxionMediator(o =>
 {
     o.UsePlaxionMediatorValidationBehavior();
     o.UsePlaxionMediatorCachingBehavior();
     o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
+    o.UsePlaxionMediatorTransactionBehavior();
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 builder.Services.AddPlaxionMediatorCaching(o =>
@@ -50,6 +54,14 @@ builder.Services.AddPlaxionMediatorCircuitBreaker(o =>
     o.SamplingDuration = TimeSpan.FromSeconds(10);
     o.BreakDuration = TimeSpan.FromMilliseconds(500);
 });
+
+// Transactions (v0.8.0): SQLite-backed EF Core adapter. Sample uses a shared file DB so rollback
+// demos are observable across requests. EnsureCreated is called after Build.
+builder.Services.AddDbContext<SampleOrderDbContext>(o =>
+    o.UseSqlite("Data Source=plaxion-sample-orders.db"));
+builder.Services.AddPlaxionMediatorTransactionsEntityFrameworkCore<SampleOrderDbContext>();
+builder.Services.AddSingleton<OrderFailureSimulator>();
+
 builder.Services.AddSingleton<ItemStore>();
 builder.Services.AddSingleton<GetItemInvocationCounter>();
 builder.Services.AddSingleton<TransientFailureSimulator>();
@@ -86,6 +98,13 @@ builder.Services.AddOpenTelemetry()
         .AddConsoleExporter());
 
 var app = builder.Build();
+
+// Ensure the sample orders schema exists (SQLite file DB).
+using (var scope = app.Services.CreateScope())
+{
+    SampleOrderDbContext db = scope.ServiceProvider.GetRequiredService<SampleOrderDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Must be registered before routing/endpoints so handler exceptions become problem+json.
 app.UsePlaxionMediatorExceptionHandling();
@@ -182,6 +201,32 @@ app.MapPost("/demo/circuit-breaker/configure", (ConfigureFlakyDownstreamDto body
 
 app.MapGet("/demo/circuit-breaker/status", (FlakyDownstreamSimulator simulator) =>
     Results.Ok(new FlakyDownstreamStatusDto(simulator.AlwaysFail, simulator.Attempts)));
+
+// --- Transactions demo (v0.8.0) ---
+// Validation → Transaction → Handler → EF Core SaveChanges → Commit
+app.MapPlaxionMediatorPost<CreateOrderRequest, OrderDto>("/orders")
+    .WithName("CreateOrder")
+    .Produces<OrderDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
+
+// Force the next CreateOrder handler invocation to throw after SaveChanges so rollback is demonstrated.
+app.MapPost("/demo/orders/configure-failure", (ConfigureOrderFailureDto body, OrderFailureSimulator simulator) =>
+{
+    simulator.FailNext = body.FailNext;
+    return Results.Ok(new OrderFailureStatusDto(simulator.FailNext));
+});
+
+app.MapGet("/demo/orders/status", (OrderFailureSimulator simulator) =>
+    Results.Ok(new OrderFailureStatusDto(simulator.FailNext)));
+
+app.MapGet("/orders", async (SampleOrderDbContext db, CancellationToken ct) =>
+{
+    List<OrderDto> orders = await db.Orders
+        .OrderBy(o => o.CreatedUtc)
+        .Select(o => new OrderDto(o.Id, o.CustomerId, o.Total, o.CreatedUtc))
+        .ToListAsync(ct);
+    return Results.Ok(orders);
+});
 
 // Forces HandlerNotFoundException so integration tests can assert problem+json mapping.
 // Thrown directly: introducing an IRequest without a handler would fail the build (PlaxionMediator001).
@@ -556,6 +601,99 @@ public sealed class UnstableOperationHandler : IRequestHandler<UnstableOperation
     {
         _simulator.ThrowIfShouldFail();
         return ValueTask.FromResult(new UnstableOperationResponse(request.Payload, _simulator.Attempts));
+    }
+}
+
+// --- Transactions demo (v0.8.0) ---
+
+public sealed class SampleOrder
+{
+    public Guid Id { get; set; }
+    public string CustomerId { get; set; } = "";
+    public decimal Total { get; set; }
+    public DateTime CreatedUtc { get; set; }
+}
+
+public sealed class SampleOrderDbContext : DbContext
+{
+    public SampleOrderDbContext(DbContextOptions<SampleOrderDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<SampleOrder> Orders => Set<SampleOrder>();
+}
+
+public sealed record OrderDto(Guid Id, string CustomerId, decimal Total, DateTime CreatedUtc);
+
+public sealed record ConfigureOrderFailureDto(bool FailNext);
+
+public sealed record OrderFailureStatusDto(bool FailNext);
+
+/// <summary>
+/// When <see cref="FailNext"/> is true, the next CreateOrderHandler invocation throws after SaveChanges
+/// so TransactionBehavior rolls back the EF transaction.
+/// </summary>
+public sealed class OrderFailureSimulator
+{
+    private int _failNext;
+
+    public bool FailNext
+    {
+        get => Volatile.Read(ref _failNext) != 0;
+        set => Interlocked.Exchange(ref _failNext, value ? 1 : 0);
+    }
+
+    public bool ConsumeFailNext()
+    {
+        return Interlocked.Exchange(ref _failNext, 0) != 0;
+    }
+}
+
+public sealed record CreateOrderRequest(string CustomerId, decimal Total)
+    : IRequest<OrderDto>, ITransactionalRequest
+{
+    public TransactionIsolationLevel? IsolationLevel => TransactionIsolationLevel.ReadCommitted;
+}
+
+public sealed class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
+{
+    public CreateOrderRequestValidator()
+    {
+        RuleFor(x => x.CustomerId).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Total).GreaterThan(0);
+    }
+}
+
+public sealed class CreateOrderHandler : IRequestHandler<CreateOrderRequest, OrderDto>
+{
+    private readonly SampleOrderDbContext _db;
+    private readonly OrderFailureSimulator _failureSimulator;
+
+    public CreateOrderHandler(SampleOrderDbContext db, OrderFailureSimulator failureSimulator)
+    {
+        _db = db;
+        _failureSimulator = failureSimulator;
+    }
+
+    public async ValueTask<OrderDto> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
+    {
+        SampleOrder order = new()
+        {
+            Id = Guid.NewGuid(),
+            CustomerId = request.CustomerId.Trim(),
+            Total = request.Total,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync(cancellationToken);
+
+        if (_failureSimulator.ConsumeFailNext())
+        {
+            throw new InvalidOperationException("Simulated order handler failure after SaveChanges (expect rollback).");
+        }
+
+        return new OrderDto(order.Id, order.CustomerId, order.Total, order.CreatedUtc);
     }
 }
 

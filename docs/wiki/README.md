@@ -12,6 +12,8 @@ Pages:
 - `ASPNET-Core-and-Minimal-APIs.md`
 - `Design-Overview.md`
 - `Analyzers-Reference.md`
+- `Transactions.md`
+- `Observability.md`
 - `Testing-Guide.md`
 - `Roadmap.md`
 - `FAQ.md`

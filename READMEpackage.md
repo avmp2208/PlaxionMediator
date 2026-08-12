@@ -23,6 +23,9 @@ dotnet add package PlaxionMediator.Validation
 dotnet add package PlaxionMediator.Validation.FluentValidation
 dotnet add package PlaxionMediator.Caching
 dotnet add package PlaxionMediator.Retry
+dotnet add package PlaxionMediator.Transactions
+dotnet add package PlaxionMediator.Transactions.EntityFrameworkCore
+dotnet add package PlaxionMediator.OpenTelemetry
 ```
 
 ## Quickstart
@@ -77,16 +80,18 @@ builder.Services.AddPlaxionMediator(o =>
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 
-// Resilience & Caching (v0.4.0+)
+// Resilience, Caching & Transactions (v0.4.0+ / v0.8.0+)
 builder.Services.AddPlaxionMediator(o =>
 {
     o.UsePlaxionMediatorCachingBehavior();
     o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
+    o.UsePlaxionMediatorTransactionBehavior(); // after Retry
 });
 builder.Services.AddPlaxionMediatorCaching();
 builder.Services.AddPlaxionMediatorRetry();
 builder.Services.AddPlaxionMediatorCircuitBreaker();
+// builder.Services.AddPlaxionMediatorTransactionsEntityFrameworkCore<AppDbContext>();
 
 // ... failures return 400 ProblemDetails automatically
 app.UsePlaxionMediatorExceptionHandling();
@@ -131,6 +136,8 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
 | `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
 | `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
+| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
+| `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
 
 ## Benchmarks

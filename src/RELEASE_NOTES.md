@@ -2,16 +2,25 @@
 
 All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
 
-## v0.8.0 (Planned)
+## v0.8.0
 
 ### Added
-- **Transactions Support**: New opt-in package `PlaxionMediator.Transactions` providing a provider-agnostic transactional pipeline behavior (`ADR-0010`). Includes `ITransactionalRequest` marker interface and `ITransactionManager` abstraction.
-- **EF Core Adapter**: New opt-in package `PlaxionMediator.Transactions.EntityFrameworkCore` for seamless integration with Entity Framework Core DbContext transactions.
-- **Transaction Analyzers**: New diagnostics `PlaxionMediator042`–`045` to ensure transactional correctness, including behavior registration and ordering checks.
-- **Analyzer Hardening**: Full catalog review and reservation of unused ID bands for future high-value diagnostics.
+- **Transactions Support**: New opt-in package `PlaxionMediator.Transactions` providing a provider-agnostic transactional pipeline behavior (`ADR-0010`). Includes `ITransactionalRequest` marker, `ITransactionManager` / `ITransactionScope` abstraction, `TransactionBehavior<TRequest,TResponse>` with the same fast-path guard pattern as `RetryBehavior`, `PlaxionMediatorTransactionOptions`, and DI helpers `AddPlaxionMediatorTransactions` / `UsePlaxionMediatorTransactionBehavior` / `AddPlaxionMediatorTransactionManager<T>`.
+- **EF Core Adapter**: New opt-in package `PlaxionMediator.Transactions.EntityFrameworkCore` with `EfCoreTransactionManager<TDbContext>` wrapping `Database.BeginTransactionAsync` / commit / rollback (never calls `SaveChanges`) and `AddPlaxionMediatorTransactionsEntityFrameworkCore<TDbContext>()`. Join-don't-nest when `CurrentTransaction` is already set.
+- **Transaction Analyzers**: New diagnostics `PlaxionMediator042`–`045`:
+  - `042` Error — `ITransactionalRequest` without `TransactionBehavior` registered
+  - `043` Error — `TransactionBehavior` outer to `RetryBehavior` (unsafe; recommended Retry → Transaction)
+  - `044` Error — multiple `ITransactionManager` registrations without keyed resolution
+  - `045` Warning — isolation level statically known unsupported (e.g. Snapshot + SQLite/InMemory)
+- **Tests**: `test/PlaxionMediator.Transactions.Tests` (18-scenario matrix) and `test/PlaxionMediator.Transactions.EntityFrameworkCore.Tests` (SQLite integration).
+- **Benchmarks**: `TransactionBenchmarks` in `src/PlaxionMediator.Benchmarks` (baseline Send, fast-path, no-op manager, commit, rollback). Core Send/dispatch hot path unchanged.
+- **Sample**: `samples/PlaxionMediator.Sample.WebApi` `/orders` CreateOrder flow (Validation → Transaction → EF Core SQLite → Commit) plus failure/rollback demo endpoints; Postman requests added.
+- **Docs**: `docs/wiki/Transactions.md`; package READMEs; root README / READMEpackage updates.
+- **Analyzer Hardening**: Catalog review and reservation of unused ID bands for future high-value diagnostics.
 
 ### Changed
 - **CLI/Templates Scope**: The `plaxion` CLI and project templates have been removed from the `v0.8.0` scope and moved to an independent engineering plan (`ADR-0011`).
+- Recommended global pipeline order is now **Validation → Authorization → Retry → Transaction → Handler** (Transaction innermost before the handler).
 
 ## v0.7.1
 

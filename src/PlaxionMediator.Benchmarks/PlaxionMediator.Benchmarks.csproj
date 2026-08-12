@@ -22,6 +22,7 @@
     <ProjectReference Include="..\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
     <ProjectReference Include="..\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
     <ProjectReference Include="..\PlaxionMediator.OpenTelemetry\PlaxionMediator.OpenTelemetry.csproj" />
     <ProjectReference Include="..\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
