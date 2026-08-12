@@ -16,6 +16,11 @@ internal static class AnalyzerHelpers
     public const string PipelineBuilderMetadataName = "PlaxionMediator.Pipeline.PipelineBuilder";
     public const string PipelineExtensionBuilderMetadataName = "PlaxionMediator.Pipeline.PipelineExtensionBuilder";
     public const string PipelineExtensionMetadataName = "PlaxionMediator.Pipeline.IPipelineExtension";
+    public const string TransactionalRequestMetadataName = "PlaxionMediator.Transactions.ITransactionalRequest";
+    public const string TransactionBehaviorMetadataName = "PlaxionMediator.Transactions.TransactionBehavior`2";
+    public const string TransactionManagerMetadataName = "PlaxionMediator.Transactions.ITransactionManager";
+    public const string TransactionIsolationLevelMetadataName = "PlaxionMediator.Transactions.TransactionIsolationLevel";
+    public const string RetryBehaviorMetadataName = "PlaxionMediator.Retry.RetryBehavior`2";
     public const int HotPathBehaviorThreshold = 3;
 
     public static bool ImplementsRequest(INamedTypeSymbol type, INamedTypeSymbol? requestUnbound, out ITypeSymbol? responseType)

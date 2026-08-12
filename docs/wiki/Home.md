@@ -13,6 +13,8 @@ Welcome to the **PlaxionMediator** wiki. PlaxionMediator is a Native AOT-safe, z
 - [Design Overview](Design-Overview) — core concepts: `ISender`, `IPublisher`, pipeline behaviors, source generation
 - [Benchmarks](Benchmarks) — performance results for send, publish, and stream operations
 - [Analyzers Reference](Analyzers-Reference) — every `PlaxionMediatorNNN` diagnostic, what triggers it, and how to fix it
+- [Transactions](Transactions) — provider-agnostic transactional pipeline (`ITransactionalRequest`, EF Core adapter, analyzers 042–045)
+- [Observability](Observability) — OpenTelemetry tracing/metrics via `PlaxionMediator.OpenTelemetry`
 - [Testing Guide](Testing-Guide) — using `PlaxionMediator.Testing`'s `FakeSender`, unit vs. integration testing patterns
 - [Roadmap](Roadmap) — what's shipped and what's coming next
 - [FAQ](FAQ) — common questions

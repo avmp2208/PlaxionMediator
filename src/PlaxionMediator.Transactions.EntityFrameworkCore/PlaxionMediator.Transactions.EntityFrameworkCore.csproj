@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <RootNamespace>PlaxionMediator.Transactions.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>PlaxionMediator.Transactions.EntityFrameworkCore</AssemblyName>
+    <PackageId>PlaxionMediator.Transactions.EntityFrameworkCore</PackageId>
+    <Description>Entity Framework Core ITransactionManager adapter for PlaxionMediator.Transactions.</Description>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <Version>0.8.0</Version>
+    <PackageIcon>plaxionlogonuget.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
+  </ItemGroup>
+</Project>

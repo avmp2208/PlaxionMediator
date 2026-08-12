@@ -27,6 +27,10 @@ public static class DiagnosticDescriptors
     public const string CancellationTokenNoneUsageId = "PlaxionMediator032";
     public const string AsyncVoidHandlerId = "PlaxionMediator040";
     public const string HandlerDependsOnISenderSelfTypeId = "PlaxionMediator041";
+    public const string MissingTransactionBehaviorId = "PlaxionMediator042";
+    public const string InvalidTransactionOrderingId = "PlaxionMediator043";
+    public const string AmbiguousTransactionManagerId = "PlaxionMediator044";
+    public const string UnsupportedIsolationLevelId = "PlaxionMediator045";
     public const string LinqUsageInHighFrequencyHandlerId = "PlaxionMediator050";
     public const string ClosureCaptureInHandlerId = "PlaxionMediator051";
     public const string UnnecessaryBehaviorOnHotPathId = "PlaxionMediator080";
@@ -200,6 +204,46 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "A handler injects ISender and sends a request of its own type (risk of infinite recursion).");
+
+    public static readonly DiagnosticDescriptor MissingTransactionBehavior = new(
+        id: MissingTransactionBehaviorId,
+        title: "Transactional request used without transaction behavior",
+        messageFormat: "Request type '{0}' implements ITransactionalRequest but TransactionBehavior is not registered in the pipeline",
+        category: "PlaxionMediator.Correctness",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Declaring a request as transactional implies an expectation of atomicity. Register TransactionBehavior via UsePlaxionMediatorTransactionBehavior or PipelineBuilder.",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor InvalidTransactionOrdering = new(
+        id: InvalidTransactionOrderingId,
+        title: "Unsafe transaction behavior ordering",
+        messageFormat: "TransactionBehavior is registered outer to RetryBehavior; register Retry outside Transaction so each retry attempt gets a fresh transaction",
+        category: "PlaxionMediator.Reliability",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "If a transaction wraps retries, a single transaction spans all attempts. Prefer Retry → Transaction → Handler (outer → inner).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor AmbiguousTransactionManager = new(
+        id: AmbiguousTransactionManagerId,
+        title: "Multiple transaction managers registered",
+        messageFormat: "Multiple ITransactionManager implementations are registered ({0}); register exactly one or use keyed resolution",
+        category: "PlaxionMediator.Configuration",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "TransactionBehavior needs a single ITransactionManager. Ambiguity leads to runtime resolution failures.",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor UnsupportedIsolationLevel = new(
+        id: UnsupportedIsolationLevelId,
+        title: "Unsupported transaction isolation level",
+        messageFormat: "Request '{0}' requests isolation level '{1}' which is unsupported by the registered transaction provider",
+        category: "PlaxionMediator.ProviderSpecific",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Best-effort check for isolation levels statically known to be unsupported by the registered provider (e.g. Snapshot with SQLite/InMemory).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     public static readonly DiagnosticDescriptor LinqUsageInHighFrequencyHandler = new(
         id: LinqUsageInHighFrequencyHandlerId,

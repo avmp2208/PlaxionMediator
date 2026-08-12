@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "3c1d9b0a-6e2f-4b1a-9a3e-plaxion-webapi-01",
     "name": "PlaxionMediator.Sample.WebApi",
-    "description": "CRUD sample built with PlaxionMediator.AspNetCore + PlaxionMediator.MinimalApis (Phase B/D). Exercises MapPlaxionMediatorPost/Get/Put/Patch/Delete, ProblemDetails exception-handling middleware, global ValidationBehavior, CachingBehavior, RetryBehavior, and CircuitBreakerBehavior (v0.4.x). CircuitBreaker is a new, independent addition to PlaxionMediator.Retry: it is registered outside RetryBehavior so an open circuit fails fast before any retry attempts are made, and does not modify existing retry behavior.\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.WebApi`\n\nDefault URL: http://localhost:5000",
+    "description": "CRUD sample built with PlaxionMediator.AspNetCore + PlaxionMediator.MinimalApis (Phase B/D). Exercises MapPlaxionMediatorPost/Get/Put/Patch/Delete, ProblemDetails exception-handling middleware, global ValidationBehavior, CachingBehavior, RetryBehavior, CircuitBreakerBehavior (v0.4.x), and TransactionBehavior + EF Core orders demo (v0.8.0). Pipeline order: Validation → Caching → CircuitBreaker → Retry → Transaction → Handler.\n\nRun the sample first:\n`dotnet run --project samples/PlaxionMediator.Sample.WebApi`\n\nDefault URL: http://localhost:5000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -843,6 +843,149 @@
           ]
         },
         "description": "Demonstrates true real-time streaming to the client by returning IAsyncEnumerable directly. Also observable cancellation if the request is aborted."
+      }
+    },
+    {
+      "name": "Create Order (Transactional Commit)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Response has order fields', () => {",
+              "    pm.expect(body).to.have.property('id');",
+              "    pm.expect(body).to.have.property('customerId', 'cust-postman');",
+              "    pm.expect(body).to.have.property('total', 19.99);",
+              "});",
+              "pm.collectionVariables.set('orderId', body.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"cust-postman\",\n  \"total\": 19.99\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "v0.8.0 Transactions demo: CreateOrderRequest implements ITransactionalRequest. Pipeline Validation → Transaction → Handler → EF Core SaveChanges → Commit."
+      }
+    },
+    {
+      "name": "List Orders",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Body is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Lists persisted orders from the sample SQLite EF Core database."
+      }
+    },
+    {
+      "name": "Configure Order Failure (enable rollback demo)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('FailNext is true', () => pm.expect(pm.response.json().failNext).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"failNext\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/demo/orders/configure-failure",
+          "host": ["{{baseUrl}}"],
+          "path": ["demo", "orders", "configure-failure"]
+        },
+        "description": "Arms the OrderFailureSimulator so the next Create Order call throws after SaveChanges and TransactionBehavior rolls back."
+      }
+    },
+    {
+      "name": "Create Order (Handler Failure -> Rollback)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// FailNext is consumed (reset to false) by the very first CreateOrder call after it is armed,",
+              "// so this request self-arms every time it runs. Without this, re-running ONLY this request",
+              "// (without re-running 'Configure Order Failure' first) would hit the handler with FailNext",
+              "// already false, the order would be created successfully (200), and the test below would fail.",
+              "pm.sendRequest({",
+              "    url: pm.variables.replaceIn('{{baseUrl}}/demo/orders/configure-failure'),",
+              "    method: 'POST',",
+              "    header: { 'Content-Type': 'application/json' },",
+              "    body: { mode: 'raw', raw: JSON.stringify({ failNext: true }) }",
+              "}, (err, res) => {",
+              "    if (err) { console.error('Failed to arm OrderFailureSimulator:', err); }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is not 200 (handler failed)', () => pm.expect(pm.response.code).to.not.eql(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"cust-rollback\",\n  \"total\": 1.00\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Self-arms OrderFailureSimulator via a prerequest script (calling /demo/orders/configure-failure), then creates the order; the handler throws after SaveChanges and TransactionBehavior rolls back so 'cust-rollback' is not persisted. Safe to re-run this single request repeatedly - it no longer depends on 'Configure Order Failure' having been run immediately before it. Follow with List Orders to verify."
       }
     },
     {

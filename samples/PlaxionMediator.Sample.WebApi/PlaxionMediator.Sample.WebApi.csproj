@@ -24,6 +24,8 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.Validation.FluentValidation\PlaxionMediator.Validation.FluentValidation.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Transactions.EntityFrameworkCore\PlaxionMediator.Transactions.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.OpenTelemetry\PlaxionMediator.OpenTelemetry.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
 
@@ -41,5 +43,6 @@
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
 </Project>
