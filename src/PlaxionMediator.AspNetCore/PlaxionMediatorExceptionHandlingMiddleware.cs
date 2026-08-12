@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlaxionMediator.Authorization;
 using PlaxionMediator.Core;
 using PlaxionMediator.Validation;
 
@@ -37,6 +38,14 @@ internal sealed class PlaxionMediatorExceptionHandlingMiddleware
             await _next(context).ConfigureAwait(false);
         }
         catch (PlaxionMediatorValidationException ex)
+        {
+            await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex)).ConfigureAwait(false);
+        }
+        catch (PlaxionMediatorUnauthenticatedException ex)
+        {
+            await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex)).ConfigureAwait(false);
+        }
+        catch (PlaxionMediatorForbiddenException ex)
         {
             await WriteProblemDetailsAsync(context, PlaxionMediatorProblemDetailsFactory.Create(ex)).ConfigureAwait(false);
         }

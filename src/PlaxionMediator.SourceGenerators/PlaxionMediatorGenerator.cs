@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace PlaxionMediator.SourceGenerators;
 
 /// <summary>
-/// Incremental generator that discovers PlaxionMediator handlers/requests and emits
+/// Incremental generator that discovers PlaxionMediator handlers/requests/authorization checks and emits
 /// dispatcher + DI registration code with compile-time diagnostics.
 /// </summary>
 [Generator]
@@ -47,6 +47,15 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
             .Where(static m => m is not null)
             .Select(static (m, _) => m!.Value);
 
+        // Authorization checks are optional: discovery is a no-op when PlaxionMediator.Authorization
+        // is not referenced (IRequestAuthorization<> is unresolvable in the compilation).
+        IncrementalValuesProvider<AuthorizationCheckModel> authorizationChecks = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                static (node, _) => IsTypeDeclarationWithBaseList(node),
+                static (ctx, ct) => GetAuthorizationCheckModel(ctx, ct))
+            .Where(static m => m is not null)
+            .Select(static (m, _) => m!.Value);
+
         IncrementalValueProvider<string> rootNamespace = context.CompilationProvider
             .Select(static (compilation, _) =>
             {
@@ -63,13 +72,15 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
             .Combine(notificationHandlers.Collect())
             .Combine(streamHandlers.Collect())
             .Combine(requests.Collect())
+            .Combine(authorizationChecks.Collect())
             .Combine(rootNamespace)
             .Select(static (tuple, _) =>
             {
-                ImmutableArray<RequestHandlerModel> rh = tuple.Left.Left.Left.Left;
-                ImmutableArray<NotificationHandlerModel> nh = tuple.Left.Left.Left.Right;
-                ImmutableArray<StreamRequestHandlerModel> sh = tuple.Left.Left.Right;
-                ImmutableArray<RequestModel> req = tuple.Left.Right;
+                ImmutableArray<RequestHandlerModel> rh = tuple.Left.Left.Left.Left.Left;
+                ImmutableArray<NotificationHandlerModel> nh = tuple.Left.Left.Left.Left.Right;
+                ImmutableArray<StreamRequestHandlerModel> sh = tuple.Left.Left.Left.Right;
+                ImmutableArray<RequestModel> req = tuple.Left.Left.Right;
+                ImmutableArray<AuthorizationCheckModel> auth = tuple.Left.Right;
                 string ns = tuple.Right;
 
                 ImmutableArray<RequestHandlerModel> requestHandlerModels = rh
@@ -95,11 +106,20 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
                     .OrderBy(static m => m.RequestFullyQualifiedName)
                     .ToImmutableArray();
 
+                // Stable order for AuthorizationBehavior AND/short-circuit evaluation:
+                // request FQN ascending, then check FQN ascending.
+                ImmutableArray<AuthorizationCheckModel> authorizationCheckModels = auth
+                    .Distinct()
+                    .OrderBy(static m => m.RequestFullyQualifiedName)
+                    .ThenBy(static m => m.CheckFullyQualifiedName)
+                    .ToImmutableArray();
+
                 return new GenerationModel(
                     new EquatableArray<RequestHandlerModel>(requestHandlerModels),
                     new EquatableArray<NotificationHandlerModel>(notificationHandlerModels),
                     new EquatableArray<StreamRequestHandlerModel>(streamHandlerModels),
                     new EquatableArray<RequestModel>(requestModels),
+                    new EquatableArray<AuthorizationCheckModel>(authorizationCheckModels),
                     ns);
             });
 
@@ -108,7 +128,8 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
             if (generationModel.RequestHandlers.Length == 0 &&
                 generationModel.NotificationHandlers.Length == 0 &&
                 generationModel.StreamRequestHandlers.Length == 0 &&
-                generationModel.Requests.Length == 0)
+                generationModel.Requests.Length == 0 &&
+                generationModel.AuthorizationChecks.Length == 0)
             {
                 return;
             }
@@ -323,6 +344,41 @@ public sealed class PlaxionMediatorGenerator : IIncrementalGenerator
             location.SourceTree?.FilePath,
             lineSpan.StartLinePosition.Line + 1,
             location.SourceSpan.Start);
+    }
+
+    private static AuthorizationCheckModel? GetAuthorizationCheckModel(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        if (context.Node is not BaseTypeDeclarationSyntax typeDecl)
+        {
+            return null;
+        }
+
+        if (context.SemanticModel.GetDeclaredSymbol(typeDecl, cancellationToken) is not INamedTypeSymbol typeSymbol)
+        {
+            return null;
+        }
+
+        if (!SymbolHelpers.IsConcreteNamedType(typeSymbol))
+        {
+            return null;
+        }
+
+        // No-op when PlaxionMediator.Authorization is not referenced by the compilation.
+        INamedTypeSymbol? checkInterface = SymbolHelpers.FindGenericInterface(
+            typeSymbol,
+            SymbolHelpers.RequestAuthorizationMetadataName,
+            context.SemanticModel.Compilation);
+
+        if (checkInterface is null || checkInterface.TypeArguments.Length != 1)
+        {
+            return null;
+        }
+
+        ITypeSymbol requestType = checkInterface.TypeArguments[0];
+
+        return new AuthorizationCheckModel(
+            SymbolHelpers.ToFullyQualifiedName(requestType),
+            SymbolHelpers.ToFullyQualifiedName(typeSymbol));
     }
 
     private static void ReportDiagnostics(SourceProductionContext context, GenerationModel model)

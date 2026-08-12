@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PlaxionMediator.Authorization.AspNetCore.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization.AspNetCore\PlaxionMediator.Authorization.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization\PlaxionMediator.Authorization.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+  </ItemGroup>
+</Project>

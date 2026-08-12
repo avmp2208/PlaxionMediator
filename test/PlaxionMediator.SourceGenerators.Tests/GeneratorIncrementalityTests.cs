@@ -135,9 +135,14 @@ public sealed class GeneratorIncrementalityTests
         Assert.Equal(arrA, arrB);
         Assert.Equal(arrA.GetHashCode(), arrB.GetHashCode());
 
-        GenerationModel ga = new(arrA, default, default, new EquatableArray<RequestModel>(ImmutableArray.Create(ra)), "Demo");
-        GenerationModel gb = new(arrB, default, default, new EquatableArray<RequestModel>(ImmutableArray.Create(rb)), "Demo");
+        GenerationModel ga = new(arrA, default, default, new EquatableArray<RequestModel>(ImmutableArray.Create(ra)), default, "Demo");
+        GenerationModel gb = new(arrB, default, default, new EquatableArray<RequestModel>(ImmutableArray.Create(rb)), default, "Demo");
         Assert.Equal(ga, gb);
+
+        AuthorizationCheckModel aca = new("global::Demo.Ping", "global::Demo.PingAuth");
+        AuthorizationCheckModel acb = new("global::Demo.Ping", "global::Demo.PingAuth");
+        Assert.Equal(aca, acb);
+        Assert.Equal(aca.GetHashCode(), acb.GetHashCode());
     }
 
     [Fact]

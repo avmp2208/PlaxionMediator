@@ -17,7 +17,7 @@ Full detail lives in [`ReleaseProcess/01-mvp-development-phases.md`](https://git
 | OSS Phase E | `v0.7.0` | Baseline OpenTelemetry/logging (`PlaxionMediator.OpenTelemetry`, `INotificationObserver` seam) | ✅ Done (Aspire integration descoped as a follow-up) |
 | OSS Phase E | `v0.7.1` | Multi-targeting `net8.0`/`net9.0` across all shippable packages, lowering the adoption barrier for .NET 8 consumers | ✅ Done |
 | OSS Phase F | `v0.8.0` | Transactions & Analyzer Hardening (`PlaxionMediator.Transactions`, EF Core adapter, analyzers 042–045) | ✅ Done |
-| OSS Phase G | `v0.9.0` | Basic Authorization | Later |
+| OSS Phase G | `v0.9.0` | Request-Level Authorization | Later |
 | OSS Phase H | `v1.0.0` | API stability commitment | Later |
 
 Commercial/enterprise phases (validation policy DSLs, dashboards, multi-tenant policy bundles, etc.) are tracked separately and are **not** part of the free/OSS roadmap.

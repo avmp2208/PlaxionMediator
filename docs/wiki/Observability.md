@@ -83,10 +83,25 @@ builder.Services.AddOpenTelemetry()
         .AddConsoleExporter())
     .WithMetrics(metrics => metrics
         .AddMeter(PlaxionMediatorMeter.Name)
+        .AddMeter("PlaxionMediator.Authorization") // required for authorization metrics
         .AddConsoleExporter());
 ```
 
 This is exactly what `samples/PlaxionMediator.Sample.WebApi` does (see below).
+
+#### Authorization
+
+`PlaxionMediator.Authorization` emits its own low-cardinality metrics directly from `AuthorizationBehavior`, independent of `PlaxionMediator.OpenTelemetry`. This ensures authorization remains dependency-light while still being observable.
+
+- Name: `PlaxionMediator.Authorization`
+- Instruments:
+  - `plaxionmediator.authorization.allowed` (`Counter<long>`) — Incremented on successful authorization.
+  - `plaxionmediator.authorization.denied` (`Counter<long>`) — Incremented when authorization is denied (Unauthenticated or Forbidden).
+  - `plaxionmediator.authorization.duration` (`Histogram<double>`, milliseconds) — Duration of the authorization evaluation phase.
+- Tags:
+  - `plaxionmediator.request.type` (Full name of the request type).
+
+To enable these metrics, add `.AddMeter("PlaxionMediator.Authorization")` to your `MeterProviderBuilder` as shown in the example above.
 
 #### Zero overhead when unused
 

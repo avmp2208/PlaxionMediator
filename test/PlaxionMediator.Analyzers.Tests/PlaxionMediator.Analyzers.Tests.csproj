@@ -24,5 +24,7 @@
     <ProjectReference Include="..\..\src\PlaxionMediator\PlaxionMediator.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization\PlaxionMediator.Authorization.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
   </ItemGroup>
 </Project>

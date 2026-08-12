@@ -31,6 +31,10 @@ public static class DiagnosticDescriptors
     public const string InvalidTransactionOrderingId = "PlaxionMediator043";
     public const string AmbiguousTransactionManagerId = "PlaxionMediator044";
     public const string UnsupportedIsolationLevelId = "PlaxionMediator045";
+    public const string AuthorizationRegisteredBehindCacheId = "PlaxionMediator046";
+    public const string UnregisteredAuthorizationBehaviorId = "PlaxionMediator047";
+    public const string AmbiguousAuthorizationOrderingId = "PlaxionMediator048";
+    public const string DuplicateAuthorizationRegistrationId = "PlaxionMediator049";
     public const string LinqUsageInHighFrequencyHandlerId = "PlaxionMediator050";
     public const string ClosureCaptureInHandlerId = "PlaxionMediator051";
     public const string UnnecessaryBehaviorOnHotPathId = "PlaxionMediator080";
@@ -243,6 +247,46 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "Best-effort check for isolation levels statically known to be unsupported by the registered provider (e.g. Snapshot with SQLite/InMemory).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor AuthorizationRegisteredBehindCache = new(
+        id: AuthorizationRegisteredBehindCacheId,
+        title: "Authorization registered behind cache",
+        messageFormat: "AuthorizationBehavior is registered inner to CachingBehavior; register Authorization outside Caching so authorization runs before any cache lookup",
+        category: "PlaxionMediator.Correctness",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "If Caching is outer to Authorization, a cached response for a protected resource may be served to an unauthorized caller. Prefer Authorization → Caching (outer → inner).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor UnregisteredAuthorizationBehavior = new(
+        id: UnregisteredAuthorizationBehaviorId,
+        title: "Unregistered authorization behavior",
+        messageFormat: "Type '{0}' implements IRequestAuthorization but AuthorizationBehavior is not registered in the pipeline",
+        category: "PlaxionMediator.Correctness",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Implementing IRequestAuthorization implies authorization checks should run. Register AuthorizationBehavior via UsePlaxionMediatorAuthorizationBehavior, AddPlaxionMediatorAuthorization, or PipelineBuilder.",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor AmbiguousAuthorizationOrdering = new(
+        id: AmbiguousAuthorizationOrderingId,
+        title: "Ambiguous authorization ordering vs retry/transaction",
+        messageFormat: "AuthorizationBehavior is registered inner to {0}; register Authorization outside Retry and Transaction so authorization is not re-evaluated per retry and transactions are not opened before authorization",
+        category: "PlaxionMediator.Reliability",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Recommended order is Authorization outer to both Retry and Transaction (Authorization → Retry → Transaction → Handler). Authorization inside Retry re-evaluates checks on every attempt; Authorization inside Transaction opens a transaction before authorization runs.",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
+
+    public static readonly DiagnosticDescriptor DuplicateAuthorizationRegistration = new(
+        id: DuplicateAuthorizationRegistrationId,
+        title: "Duplicate authorization registration",
+        messageFormat: "Authorization check type '{0}' is registered more than once for request type '{1}'",
+        category: "PlaxionMediator.Configuration",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Registering the same IRequestAuthorization check type twice for the same request is redundant and may indicate a copy-paste error. Multiple different check types for one request are intentional.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     public static readonly DiagnosticDescriptor LinqUsageInHighFrequencyHandler = new(

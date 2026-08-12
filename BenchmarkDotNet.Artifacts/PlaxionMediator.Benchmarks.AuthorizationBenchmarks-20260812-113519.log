@@ -1,0 +1,432 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 5 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\obj\Release\net9.0/" /p:OutDir="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0/" /p:OutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0/" in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a
+// command took 2.16 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\obj\Release\net9.0/" /p:OutDir="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0/" /p:OutputPath="C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0/" --output "C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0/" in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a
+// command took 22.48 sec and exited with 0
+// ***** Done, took 00:00:24 (24.84 sec)   *****
+// Found 5 benchmarks:
+//   AuthorizationBenchmarks.Send_Baseline_NoAuth: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+//   AuthorizationBenchmarks.Send_AuthBehavior_NoChecks_FastPath: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+//   AuthorizationBenchmarks.Send_OneCheck_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+//   AuthorizationBenchmarks.Send_ThreeChecks_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+//   AuthorizationBenchmarks.Send_OneCheck_Denied_Exception: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: AuthorizationBenchmarks.Send_Baseline_NoAuth: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 01565710-69a6-40fc-aac3-63f961d3ff0a.dll --anonymousPipes 1620 1616 --benchmarkName PlaxionMediator.Benchmarks.AuthorizationBenchmarks.Send_Baseline_NoAuth --job ShortRun --benchmarkId 0 in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 175100.00 ns, 175.1000 us/op
+WorkloadJitting  1: 1 op, 3559300.00 ns, 3.5593 ms/op
+
+OverheadJitting  2: 16 op, 285200.00 ns, 17.8250 us/op
+WorkloadJitting  2: 16 op, 292900.00 ns, 18.3063 us/op
+
+WorkloadPilot    1: 16 op, 3200.00 ns, 200.0000 ns/op
+WorkloadPilot    2: 32 op, 3700.00 ns, 115.6250 ns/op
+WorkloadPilot    3: 64 op, 4900.00 ns, 76.5625 ns/op
+WorkloadPilot    4: 128 op, 11700.00 ns, 91.4063 ns/op
+WorkloadPilot    5: 256 op, 23300.00 ns, 91.0156 ns/op
+WorkloadPilot    6: 512 op, 37600.00 ns, 73.4375 ns/op
+WorkloadPilot    7: 1024 op, 72800.00 ns, 71.0938 ns/op
+WorkloadPilot    8: 2048 op, 138000.00 ns, 67.3828 ns/op
+WorkloadPilot    9: 4096 op, 276800.00 ns, 67.5781 ns/op
+WorkloadPilot   10: 8192 op, 453800.00 ns, 55.3955 ns/op
+WorkloadPilot   11: 16384 op, 1198800.00 ns, 73.1689 ns/op
+WorkloadPilot   12: 32768 op, 1934700.00 ns, 59.0424 ns/op
+WorkloadPilot   13: 65536 op, 4001000.00 ns, 61.0504 ns/op
+WorkloadPilot   14: 131072 op, 7965200.00 ns, 60.7697 ns/op
+WorkloadPilot   15: 262144 op, 16176700.00 ns, 61.7092 ns/op
+WorkloadPilot   16: 524288 op, 27543500.00 ns, 52.5351 ns/op
+WorkloadPilot   17: 1048576 op, 53518600.00 ns, 51.0393 ns/op
+WorkloadPilot   18: 2097152 op, 112576100.00 ns, 53.6805 ns/op
+WorkloadPilot   19: 4194304 op, 103008000.00 ns, 24.5590 ns/op
+WorkloadPilot   20: 8388608 op, 212404100.00 ns, 25.3205 ns/op
+WorkloadPilot   21: 16777216 op, 412492400.00 ns, 24.5865 ns/op
+WorkloadPilot   22: 33554432 op, 828865300.00 ns, 24.7021 ns/op
+
+OverheadWarmup   1: 33554432 op, 82889000.00 ns, 2.4703 ns/op
+OverheadWarmup   2: 33554432 op, 83009100.00 ns, 2.4739 ns/op
+OverheadWarmup   3: 33554432 op, 78095100.00 ns, 2.3274 ns/op
+OverheadWarmup   4: 33554432 op, 70877600.00 ns, 2.1123 ns/op
+OverheadWarmup   5: 33554432 op, 70622900.00 ns, 2.1047 ns/op
+OverheadWarmup   6: 33554432 op, 69290900.00 ns, 2.0650 ns/op
+OverheadWarmup   7: 33554432 op, 70307400.00 ns, 2.0953 ns/op
+OverheadWarmup   8: 33554432 op, 71196000.00 ns, 2.1218 ns/op
+OverheadWarmup   9: 33554432 op, 71447000.00 ns, 2.1293 ns/op
+OverheadWarmup  10: 33554432 op, 70061400.00 ns, 2.0880 ns/op
+
+OverheadActual   1: 33554432 op, 69305400.00 ns, 2.0655 ns/op
+OverheadActual   2: 33554432 op, 70171300.00 ns, 2.0913 ns/op
+OverheadActual   3: 33554432 op, 73538100.00 ns, 2.1916 ns/op
+OverheadActual   4: 33554432 op, 71701100.00 ns, 2.1369 ns/op
+OverheadActual   5: 33554432 op, 96863400.00 ns, 2.8868 ns/op
+OverheadActual   6: 33554432 op, 136596000.00 ns, 4.0709 ns/op
+OverheadActual   7: 33554432 op, 143212700.00 ns, 4.2681 ns/op
+OverheadActual   8: 33554432 op, 142200200.00 ns, 4.2379 ns/op
+OverheadActual   9: 33554432 op, 132675900.00 ns, 3.9540 ns/op
+OverheadActual  10: 33554432 op, 137146500.00 ns, 4.0873 ns/op
+OverheadActual  11: 33554432 op, 136624900.00 ns, 4.0717 ns/op
+OverheadActual  12: 33554432 op, 133726200.00 ns, 3.9854 ns/op
+OverheadActual  13: 33554432 op, 142460100.00 ns, 4.2456 ns/op
+OverheadActual  14: 33554432 op, 136191400.00 ns, 4.0588 ns/op
+OverheadActual  15: 33554432 op, 137633300.00 ns, 4.1018 ns/op
+OverheadActual  16: 33554432 op, 146679900.00 ns, 4.3714 ns/op
+OverheadActual  17: 33554432 op, 115501500.00 ns, 3.4422 ns/op
+OverheadActual  18: 33554432 op, 131463200.00 ns, 3.9179 ns/op
+OverheadActual  19: 33554432 op, 132976600.00 ns, 3.9630 ns/op
+OverheadActual  20: 33554432 op, 130945700.00 ns, 3.9025 ns/op
+
+WorkloadWarmup   1: 33554432 op, 1389335400.00 ns, 41.4054 ns/op
+WorkloadWarmup   2: 33554432 op, 1407211200.00 ns, 41.9382 ns/op
+WorkloadWarmup   3: 33554432 op, 1350569100.00 ns, 40.2501 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 33554432 op, 1387863000.00 ns, 41.3615 ns/op
+WorkloadActual   2: 33554432 op, 1394191600.00 ns, 41.5501 ns/op
+WorkloadActual   3: 33554432 op, 1369394500.00 ns, 40.8111 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 33554432 op, 1254511600.00 ns, 37.3874 ns/op
+WorkloadResult   2: 33554432 op, 1260840200.00 ns, 37.5760 ns/op
+WorkloadResult   3: 33554432 op, 1236043100.00 ns, 36.8370 ns/op
+// GC:  143 0 0 1879048592 33554432
+// Threading:  0 0 33554432
+
+// AfterAll
+// Benchmark Process 24156 has exited with code 0.
+
+Mean = 37.267 ns, StdErr = 0.222 ns (0.59%), N = 3, StdDev = 0.384 ns
+Min = 36.837 ns, Q1 = 37.112 ns, Median = 37.387 ns, Q3 = 37.482 ns, Max = 37.576 ns
+IQR = 0.370 ns, LowerFence = 36.558 ns, UpperFence = 38.036 ns
+ConfidenceInterval = [30.261 ns; 44.272 ns] (CI 99.9%), Margin = 7.005 ns (18.80% of Mean)
+Skewness = -0.28, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 4 (80.0%) benchmark(s) to run. Estimated finish 2026-08-12 11:37 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: AuthorizationBenchmarks.Send_AuthBehavior_NoChecks_FastPath: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 01565710-69a6-40fc-aac3-63f961d3ff0a.dll --anonymousPipes 3460 3404 --benchmarkName PlaxionMediator.Benchmarks.AuthorizationBenchmarks.Send_AuthBehavior_NoChecks_FastPath --job ShortRun --benchmarkId 1 in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 181200.00 ns, 181.2000 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> PlaxionMediator.Authorization.PlaxionMediatorForbiddenException: Forbidden: caller is not permitted to execute request 'AuthPing'.
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.ThrowAsyncException(Exception ex, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 491
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.AwaitAndReturn(ValueTask`1 valueTask, PipelineExecutor`2 executor, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 462
+   at PlaxionMediator.Pipeline.PipelineComposer.UnwrapHandlerFault[TResponse](ValueTask`1 task) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 240
+   at BenchmarkDotNet.Helpers.AwaitHelper.GetResult[T](ValueTask`1 task)
+   at BenchmarkDotNet.Autogenerated.Runnable_1.<.ctor>b__3_2() in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 400
+   at BenchmarkDotNet.Autogenerated.Runnable_1.WorkloadActionNoUnroll(Int64 invokeCount) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 516
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_1.Run(IHost host, String benchmarkName) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 379
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 57220 has exited with code -1.
+
+// ** Remained 3 (60.0%) benchmark(s) to run. Estimated finish 2026-08-12 11:36 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: AuthorizationBenchmarks.Send_OneCheck_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 01565710-69a6-40fc-aac3-63f961d3ff0a.dll --anonymousPipes 3460 3404 --benchmarkName PlaxionMediator.Benchmarks.AuthorizationBenchmarks.Send_OneCheck_Success --job ShortRun --benchmarkId 2 in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 180000.00 ns, 180.0000 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> PlaxionMediator.Authorization.PlaxionMediatorForbiddenException: Forbidden: caller is not permitted to execute request 'AuthPing'.
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.ThrowAsyncException(Exception ex, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 491
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.AwaitAndReturn(ValueTask`1 valueTask, PipelineExecutor`2 executor, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 462
+   at PlaxionMediator.Pipeline.PipelineComposer.UnwrapHandlerFault[TResponse](ValueTask`1 task) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 240
+   at BenchmarkDotNet.Helpers.AwaitHelper.GetResult[T](ValueTask`1 task)
+   at BenchmarkDotNet.Autogenerated.Runnable_2.<.ctor>b__3_2() in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 600
+   at BenchmarkDotNet.Autogenerated.Runnable_2.WorkloadActionNoUnroll(Int64 invokeCount) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 716
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_2.Run(IHost host, String benchmarkName) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 579
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 20812 has exited with code -1.
+
+// ** Remained 2 (40.0%) benchmark(s) to run. Estimated finish 2026-08-12 11:36 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: AuthorizationBenchmarks.Send_ThreeChecks_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 01565710-69a6-40fc-aac3-63f961d3ff0a.dll --anonymousPipes 1612 3008 --benchmarkName PlaxionMediator.Benchmarks.AuthorizationBenchmarks.Send_ThreeChecks_Success --job ShortRun --benchmarkId 3 in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 332500.00 ns, 332.5000 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> PlaxionMediator.Authorization.PlaxionMediatorForbiddenException: Forbidden: caller is not permitted to execute request 'AuthPing'.
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.ThrowAsyncException(Exception ex, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 491
+   at PlaxionMediator.Pipeline.PipelineComposer.PipelineExecutor`2.AwaitAndReturn(ValueTask`1 valueTask, PipelineExecutor`2 executor, IPipelineBehavior`2 behavior) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 462
+   at PlaxionMediator.Pipeline.PipelineComposer.UnwrapHandlerFault[TResponse](ValueTask`1 task) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Pipeline\PipelineComposer.cs:line 240
+   at BenchmarkDotNet.Helpers.AwaitHelper.GetResult[T](ValueTask`1 task)
+   at BenchmarkDotNet.Autogenerated.Runnable_3.<.ctor>b__3_2() in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 800
+   at BenchmarkDotNet.Autogenerated.Runnable_3.WorkloadActionNoUnroll(Int64 invokeCount) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 916
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_3.Run(IHost host, String benchmarkName) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 779
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\01565710-69a6-40fc-aac3-63f961d3ff0a.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 36940 has exited with code -1.
+
+// ** Remained 1 (20.0%) benchmark(s) to run. Estimated finish 2026-08-12 11:36 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: AuthorizationBenchmarks.Send_OneCheck_Denied_Exception: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 01565710-69a6-40fc-aac3-63f961d3ff0a.dll --anonymousPipes 1720 1712 --benchmarkName PlaxionMediator.Benchmarks.AuthorizationBenchmarks.Send_OneCheck_Denied_Exception --job ShortRun --benchmarkId 4 in C:\Users\Angel\RiderProjects\PlaxionMediator\src\PlaxionMediator.Benchmarks\bin\Release\net9.0\01565710-69a6-40fc-aac3-63f961d3ff0a\bin\Release\net9.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT,AvxVnni,SERIALIZE VectorSize=256
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 142000.00 ns, 142.0000 us/op
+WorkloadJitting  1: 1 op, 12196700.00 ns, 12.1967 ms/op
+
+OverheadJitting  2: 16 op, 125100.00 ns, 7.8188 us/op
+WorkloadJitting  2: 16 op, 433900.00 ns, 27.1188 us/op
+
+WorkloadPilot    1: 16 op, 335800.00 ns, 20.9875 us/op
+WorkloadPilot    2: 32 op, 553600.00 ns, 17.3000 us/op
+WorkloadPilot    3: 64 op, 1088400.00 ns, 17.0063 us/op
+WorkloadPilot    4: 128 op, 2240600.00 ns, 17.5047 us/op
+WorkloadPilot    5: 256 op, 4359000.00 ns, 17.0273 us/op
+WorkloadPilot    6: 512 op, 8494300.00 ns, 16.5904 us/op
+WorkloadPilot    7: 1024 op, 17841200.00 ns, 17.4230 us/op
+WorkloadPilot    8: 2048 op, 34875900.00 ns, 17.0292 us/op
+WorkloadPilot    9: 4096 op, 78657700.00 ns, 19.2035 us/op
+WorkloadPilot   10: 8192 op, 143445000.00 ns, 17.5104 us/op
+WorkloadPilot   11: 16384 op, 217789400.00 ns, 13.2928 us/op
+WorkloadPilot   12: 32768 op, 434191800.00 ns, 13.2505 us/op
+WorkloadPilot   13: 65536 op, 882438400.00 ns, 13.4649 us/op
+
+OverheadWarmup   1: 65536 op, 114400.00 ns, 1.7456 ns/op
+OverheadWarmup   2: 65536 op, 113800.00 ns, 1.7365 ns/op
+OverheadWarmup   3: 65536 op, 113700.00 ns, 1.7349 ns/op
+OverheadWarmup   4: 65536 op, 113600.00 ns, 1.7334 ns/op
+OverheadWarmup   5: 65536 op, 113800.00 ns, 1.7365 ns/op
+OverheadWarmup   6: 65536 op, 114200.00 ns, 1.7426 ns/op
+OverheadWarmup   7: 65536 op, 113700.00 ns, 1.7349 ns/op
+OverheadWarmup   8: 65536 op, 113500.00 ns, 1.7319 ns/op
+OverheadWarmup   9: 65536 op, 113600.00 ns, 1.7334 ns/op
+OverheadWarmup  10: 65536 op, 120200.00 ns, 1.8341 ns/op
+
+OverheadActual   1: 65536 op, 113700.00 ns, 1.7349 ns/op
+OverheadActual   2: 65536 op, 113800.00 ns, 1.7365 ns/op
+OverheadActual   3: 65536 op, 114000.00 ns, 1.7395 ns/op
+OverheadActual   4: 65536 op, 113700.00 ns, 1.7349 ns/op
+OverheadActual   5: 65536 op, 114200.00 ns, 1.7426 ns/op
+OverheadActual   6: 65536 op, 123600.00 ns, 1.8860 ns/op
+OverheadActual   7: 65536 op, 116100.00 ns, 1.7715 ns/op
+OverheadActual   8: 65536 op, 116800.00 ns, 1.7822 ns/op
+OverheadActual   9: 65536 op, 116200.00 ns, 1.7731 ns/op
+OverheadActual  10: 65536 op, 113700.00 ns, 1.7349 ns/op
+OverheadActual  11: 65536 op, 115900.00 ns, 1.7685 ns/op
+OverheadActual  12: 65536 op, 213700.00 ns, 3.2608 ns/op
+OverheadActual  13: 65536 op, 116400.00 ns, 1.7761 ns/op
+OverheadActual  14: 65536 op, 116000.00 ns, 1.7700 ns/op
+OverheadActual  15: 65536 op, 128600.00 ns, 1.9623 ns/op
+
+WorkloadWarmup   1: 65536 op, 870761600.00 ns, 13.2868 us/op
+WorkloadWarmup   2: 65536 op, 1277942300.00 ns, 19.4999 us/op
+WorkloadWarmup   3: 65536 op, 1325870500.00 ns, 20.2312 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 65536 op, 1348816200.00 ns, 20.5813 us/op
+WorkloadActual   2: 65536 op, 1368237700.00 ns, 20.8777 us/op
+WorkloadActual   3: 65536 op, 1357847200.00 ns, 20.7191 us/op
+
+// AfterActualRun
+WorkloadResult   1: 65536 op, 1348700200.00 ns, 20.5795 us/op
+WorkloadResult   2: 65536 op, 1368121700.00 ns, 20.8759 us/op
+WorkloadResult   3: 65536 op, 1357731200.00 ns, 20.7173 us/op
+// GC:  14 0 0 189795368 65536
+// Threading:  0 0 65536
+// Exceptions:  5
+
+// AfterAll
+// Benchmark Process 26920 has exited with code 0.
+
+Mean = 20.724 μs, StdErr = 0.086 μs (0.41%), N = 3, StdDev = 0.148 μs
+Min = 20.580 μs, Q1 = 20.648 μs, Median = 20.717 μs, Q3 = 20.797 μs, Max = 20.876 μs
+IQR = 0.148 μs, LowerFence = 20.426 μs, UpperFence = 21.019 μs
+ConfidenceInterval = [18.019 μs; 23.430 μs] (CI 99.9%), Margin = 2.705 μs (13.05% of Mean)
+Skewness = 0.05, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-08-12 11:36 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\PlaxionMediator.Benchmarks.AuthorizationBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\PlaxionMediator.Benchmarks.AuthorizationBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\PlaxionMediator.Benchmarks.AuthorizationBenchmarks-report.html
+
+// * Detailed results *
+AuthorizationBenchmarks.Send_AuthBehavior_NoChecks_FastPath: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+AuthorizationBenchmarks.Send_OneCheck_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+AuthorizationBenchmarks.Send_ThreeChecks_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+AuthorizationBenchmarks.Send_Baseline_NoAuth: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 37.267 ns, StdErr = 0.222 ns (0.59%), N = 3, StdDev = 0.384 ns
+Min = 36.837 ns, Q1 = 37.112 ns, Median = 37.387 ns, Q3 = 37.482 ns, Max = 37.576 ns
+IQR = 0.370 ns, LowerFence = 36.558 ns, UpperFence = 38.036 ns
+ConfidenceInterval = [30.261 ns; 44.272 ns] (CI 99.9%), Margin = 7.005 ns (18.80% of Mean)
+Skewness = -0.28, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[36.488 ns ; 37.925 ns) | @@@
+---------------------------------------------------
+
+AuthorizationBenchmarks.Send_OneCheck_Denied_Exception: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+Runtime = .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 20.724 μs, StdErr = 0.086 μs (0.41%), N = 3, StdDev = 0.148 μs
+Min = 20.580 μs, Q1 = 20.648 μs, Median = 20.717 μs, Q3 = 20.797 μs, Max = 20.876 μs
+IQR = 0.148 μs, LowerFence = 20.426 μs, UpperFence = 21.019 μs
+ConfidenceInterval = [18.019 μs; 23.430 μs] (CI 99.9%), Margin = 2.705 μs (13.05% of Mean)
+Skewness = 0.05, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[20.445 μs ; 21.011 μs) | @@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host]   : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  ShortRun : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+
+Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+
+| Method                              | Mean         | Error        | StdDev     | Ratio  | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|------------------------------------ |-------------:|-------------:|-----------:|-------:|--------:|-------:|----------:|------------:|
+| Send_AuthBehavior_NoChecks_FastPath |           NA |           NA |         NA |      ? |       ? |     NA |        NA |           ? |
+| Send_OneCheck_Success               |           NA |           NA |         NA |      ? |       ? |     NA |        NA |           ? |
+| Send_ThreeChecks_Success            |           NA |           NA |         NA |      ? |       ? |     NA |        NA |           ? |
+| Send_Baseline_NoAuth                |     37.27 ns |     7.005 ns |   0.384 ns |   1.00 |    0.01 | 0.0043 |      56 B |        1.00 |
+| Send_OneCheck_Denied_Exception      | 20,724.25 ns | 2,705.457 ns | 148.295 ns | 556.14 |    6.06 | 0.2136 |    2896 B |       51.71 |
+
+Benchmarks with issues:
+  AuthorizationBenchmarks.Send_AuthBehavior_NoChecks_FastPath: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+  AuthorizationBenchmarks.Send_OneCheck_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+  AuthorizationBenchmarks.Send_ThreeChecks_Success: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+// * Warnings *
+Environment
+  Summary -> Detected error exit code from one of the benchmarks. It might be caused by following antivirus software:
+        - Windows Defender (windowsdefender://)
+Use InProcessEmitToolchain or InProcessNoEmitToolchain to avoid new process creation.
+
+BaselineCustomAnalyzer
+  Summary -> A question mark '?' symbol indicates that it was not possible to compute the (Ratio, RatioSD, Alloc Ratio) column(s) because the baseline value is too close to zero.
+
+// * Legends *
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  StdDev      : Standard deviation of all measurements
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD     : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  Gen0        : GC Generation 0 collects per 1000 operations
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ns        : 1 Nanosecond (0.000000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:27 (27.52 sec), executed benchmarks: 5
+
+Global total time: 00:00:52 (52.72 sec), executed benchmarks: 5
+// * Artifacts cleanup *
+Artifacts cleanup is finished

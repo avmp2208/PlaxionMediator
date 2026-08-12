@@ -1,6 +1,20 @@
 # Release Notes
 
-All notable changes to `PlaxionMediator` and its companion packages are documented in this file.
+## v0.9.0
+
+### Added
+- **Authorization Support**: New opt-in package `PlaxionMediator.Authorization` providing a transport-neutral, request-level authorization system integrated into the mediator pipeline (`ADR-0012`). Includes `IRequestAuthorization<TRequest>` interface, `AuthorizationOutcome` (Authorized/Unauthenticated/Forbidden), `IAuthorizationContext` / `AuthorizationContext`, `IAuthorizationContextAccessor`, and `AuthorizationBehavior<TRequest,TResponse>`.
+- **ASP.NET Core Adapter**: New opt-in package `PlaxionMediator.Authorization.AspNetCore` with `HttpAuthorizationContextAccessor` pulling the current user from `HttpContext.User`, and `MicrosoftAuthorizationPolicyCheck<TRequest>` for reusing existing Microsoft Authorization policies within the mediator pipeline.
+- **Source Generator Integration**: `IRequestAuthorization<TRequest>` implementations are automatically discovered and registered into DI at compile time.
+- **Authorization Analyzers**: New diagnostics `PlaxionMediator046`–`049`:
+  - `046` Error — `AuthorizationBehavior` registered inner to `CachingBehavior` (security risk).
+  - `047` Error — `IRequestAuthorization<T>` exists but `AuthorizationBehavior` is not registered.
+  - `048` Warning — `AuthorizationBehavior` registered inner to `RetryBehavior` or `TransactionBehavior`.
+  - `049` Warning — Same `IRequestAuthorization` check type is registered twice for one request.
+- **Observability**: `AuthorizationBehavior` emits low-cardinality metrics via `System.Diagnostics.Metrics.Meter("PlaxionMediator.Authorization")`, including `plaxionmediator.authorization.allowed`, `plaxionmediator.authorization.denied` counters and `plaxionmediator.authorization.duration` histogram.
+- **Benchmarks**: `AuthorizationBenchmarks` in `src/PlaxionMediator.Benchmarks` covering baseline Send, fast-path (no checks), single check, multiple checks, and denied (exception) paths.
+- **Sample**: `samples/PlaxionMediator.Sample.WebApi` updated with `CancelOrderRequest` and resource-based ownership authorization, a fake authentication scheme for demos, and internal call authorization verification.
+- **Docs**: New `docs/wiki/Authorization.md`; updated `README.md` and `docs/wiki/Packages-Overview.md`.
 
 ## v0.8.0
 

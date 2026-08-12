@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>PlaxionMediator.Benchmarks.AuthorizationBenchmarks-20260812-113810</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK 9.0.202
+  [Host]   : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  ShortRun : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                       </th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Send_Baseline_NoAuth</td><td>33.23 ns</td><td>16.47 ns</td><td>0.903 ns</td><td>1.00</td><td>0.03</td><td>0.0018</td><td>24 B</td><td>1.00</td>
+</tr><tr><td>Send_AuthBehavior_NoChecks_FastPath</td><td>137.76 ns</td><td>46.82 ns</td><td>2.567 ns</td><td>4.15</td><td>0.12</td><td>0.0055</td><td>72 B</td><td>3.00</td>
+</tr><tr><td>Send_OneCheck_Success</td><td>218.06 ns</td><td>77.62 ns</td><td>4.255 ns</td><td>6.56</td><td>0.19</td><td>0.0079</td><td>104 B</td><td>4.33</td>
+</tr><tr><td>Send_ThreeChecks_Success</td><td>240.34 ns</td><td>56.40 ns</td><td>3.091 ns</td><td>7.24</td><td>0.19</td><td>0.0079</td><td>104 B</td><td>4.33</td>
+</tr><tr><td>Send_OneCheck_Denied_Exception</td><td>20,395.00 ns</td><td>3,717.34 ns</td><td>203.760 ns</td><td>613.97</td><td>15.29</td><td>0.2136</td><td>2936 B</td><td>122.33</td>
+</tr></tbody></table>
+</body>
+</html>

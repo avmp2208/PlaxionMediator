@@ -32,6 +32,8 @@ dotnet add package PlaxionMediator.Retry
 dotnet add package PlaxionMediator.Transactions
 dotnet add package PlaxionMediator.Transactions.EntityFrameworkCore
 dotnet add package PlaxionMediator.OpenTelemetry
+dotnet add package PlaxionMediator.Authorization
+dotnet add package PlaxionMediator.Authorization.AspNetCore
 ```
 
 ## Quickstart
@@ -209,6 +211,35 @@ public sealed record CreateOrderRequest(string CustomerId, decimal Total)
 
 See [`docs/wiki/Transactions.md`](docs/wiki/Transactions.md) and the `/orders` endpoints in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi).
 
+### Authorization (`PlaxionMediator.Authorization`, v0.9.0+)
+
+Protect application operations with fine-grained authorization checks that apply regardless of the caller (HTTP, background worker, internal call). Register Authorization **outside** Retry and Transaction.
+
+```csharp
+using PlaxionMediator.Authorization;
+using PlaxionMediator.Authorization.AspNetCore;
+
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.UsePlaxionMediatorValidationBehavior();
+    o.UsePlaxionMediatorAuthorizationBehavior(); // after Validation
+});
+builder.Services.AddPlaxionMediatorAuthorization();
+builder.Services.AddPlaxionMediatorAuthorizationAspNetCore(); // For ASP.NET Core integration
+
+public sealed class CancelOrderAuthorization : IRequestAuthorization<CancelOrderRequest>
+{
+    public ValueTask<AuthorizationOutcome> AuthorizeAsync(CancelOrderRequest request, IAuthorizationContext context, CancellationToken ct)
+    {
+        return context.Principal?.IsInRole("Admin") == true 
+            ? ValueTask.FromResult(AuthorizationOutcome.Authorized)
+            : ValueTask.FromResult(AuthorizationOutcome.Forbidden);
+    }
+}
+```
+
+See [`docs/wiki/Authorization.md`](docs/wiki/Authorization.md) and the `/orders/cancel` endpoint in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi).
+
 See the full CRUD walkthrough (`POST`/`GET`/`PUT`/`PATCH`/`DELETE` + error mapping) in [`samples/PlaxionMediator.Sample.WebApi`](samples/PlaxionMediator.Sample.WebApi), and the Postman collections in [`postman-tests`](postman-tests) for ready-to-run request examples against both sample apps.
 
 ### Telemetry (`PlaxionMediator.OpenTelemetry`, v0.7.0+)
@@ -261,8 +292,10 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
+| `PlaxionMediator.Authorization` | `IAuthorizationContext`, `IRequestAuthorization<>`, and `AuthorizationBehavior<,>` (transport-neutral). |
+| `PlaxionMediator.Authorization.AspNetCore` | `HttpAuthorizationContextAccessor` and bridge to Microsoft `IAuthorizationService`. |
 
-> Opt-in packages (`AspNetCore`, `MinimalApis`, `Validation`, `Caching`, `Retry`, `Transactions`, `OpenTelemetry`, …) are **not** referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
+> Opt-in packages (`AspNetCore`, `MinimalApis`, `Validation`, `Caching`, `Retry`, `Transactions`, `OpenTelemetry`, `Authorization`, …) are **not** referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.
 
 ## Benchmarks
 

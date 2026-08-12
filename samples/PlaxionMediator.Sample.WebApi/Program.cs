@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using PlaxionMediator.Abstractions;
 using PlaxionMediator.AspNetCore;
 using PlaxionMediator.Caching;
+using PlaxionMediator.Authorization;
+using PlaxionMediator.Authorization.AspNetCore;
 using PlaxionMediator.Core;
 using PlaxionMediator;
 using PlaxionMediator.MinimalApis;
@@ -16,6 +18,10 @@ using PlaxionMediator.Validation;
 using PlaxionMediator.Validation.FluentValidation;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
+using System.Text.Encodings.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,11 +33,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPlaxionMediator(o =>
 {
     o.UsePlaxionMediatorValidationBehavior();
+    o.UsePlaxionMediatorAuthorizationBehavior();
     o.UsePlaxionMediatorCachingBehavior();
     o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
     o.UsePlaxionMediatorTransactionBehavior();
 });
+builder.Services.AddPlaxionMediatorAuthorization();
+builder.Services.AddPlaxionMediatorAuthorizationAspNetCore();
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 builder.Services.AddPlaxionMediatorCaching(o =>
 {
@@ -95,7 +104,13 @@ builder.Services.AddOpenTelemetry()
         .AddConsoleExporter())
     .WithMetrics(metrics => metrics
         .AddMeter(PlaxionMediatorMeter.Name)
+        .AddMeter("PlaxionMediator.Authorization")
         .AddConsoleExporter());
+
+// Fake Authentication for demo purposes.
+builder.Services.AddAuthentication("Fake")
+    .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>("Fake", null);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -105,6 +120,9 @@ using (var scope = app.Services.CreateScope())
     SampleOrderDbContext db = scope.ServiceProvider.GetRequiredService<SampleOrderDbContext>();
     db.Database.EnsureCreated();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Must be registered before routing/endpoints so handler exceptions become problem+json.
 app.UsePlaxionMediatorExceptionHandling();
@@ -226,6 +244,39 @@ app.MapGet("/orders", async (SampleOrderDbContext db, CancellationToken ct) =>
         .Select(o => new OrderDto(o.Id, o.CustomerId, o.Total, o.CreatedUtc))
         .ToListAsync(ct);
     return Results.Ok(orders);
+});
+
+// --- Authorization demo (v0.9.0) ---
+// Requires "Fake" authentication. The FakeAuthHandler grants "OwnerOf" claim for "order-456".
+// Try canceling an order you don't own to see 403 Forbidden.
+app.MapPlaxionMediatorPost<CancelOrderRequest, OrderDto>("/orders/cancel")
+    .WithName("CancelOrder")
+    .RequireAuthorization()
+    .Produces<OrderDto>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status401Unauthorized)
+    .ProducesProblem(StatusCodes.Status403Forbidden);
+
+// Internal call demo: bypasses HTTP middleware but AuthorizationBehavior STILL runs.
+// This uses SystemAuthorizationContextAccessor internally because it's a direct Send call
+// (though in this WebApi host, HttpAuthorizationContextAccessor is registered and will 
+// find the HttpContext if called within a request).
+app.MapPost("/demo/orders/cancel-system", async (Guid orderId, ISender sender) =>
+{
+    // This call will fail with Unauthenticated because SystemAuthorizationContextAccessor
+    // (or HttpAuthorizationContextAccessor without a user) defaults to Unauthenticated.
+    try
+    {
+        var result = await sender.Send(new CancelOrderRequest(orderId));
+        return Results.Ok(result);
+    }
+    catch (PlaxionMediatorUnauthenticatedException)
+    {
+        return Results.Problem("System call was unauthenticated as expected.", statusCode: 401);
+    }
+    catch (PlaxionMediatorForbiddenException)
+    {
+        return Results.Problem("System call was forbidden.", statusCode: 403);
+    }
 });
 
 // Forces HandlerNotFoundException so integration tests can assert problem+json mapping.
@@ -786,3 +837,60 @@ public sealed class StreamTicksHandler : IStreamRequestHandler<StreamTicksReques
 }
 
 public partial class Program { }
+
+// --- Authorization demo (v0.9.0) ---
+
+public sealed record CancelOrderRequest(Guid OrderId) : IRequest<OrderDto>, ITransactionalRequest;
+
+public sealed class CancelOrderHandler(SampleOrderDbContext db) : IRequestHandler<CancelOrderRequest, OrderDto>
+{
+    public async ValueTask<OrderDto> Handle(CancelOrderRequest request, CancellationToken cancellationToken)
+    {
+        var order = await db.Orders.FindAsync(new object[] { request.OrderId }, cancellationToken);
+        if (order == null) throw new KeyNotFoundException($"Order {request.OrderId} not found.");
+        
+        // In a real app we'd mark it as cancelled in the DB.
+        return new OrderDto(order.Id, order.CustomerId, order.Total, order.CreatedUtc);
+    }
+}
+
+public sealed class CancelOrderAuthorization : IRequestAuthorization<CancelOrderRequest>
+{
+    public ValueTask<AuthorizationOutcome> AuthorizeAsync(CancelOrderRequest request, IAuthorizationContext context, CancellationToken cancellationToken)
+    {
+        if (!context.IsAuthenticated) return ValueTask.FromResult(AuthorizationOutcome.Unauthenticated);
+        
+        // Resource-based authorization demo:
+        // User is authorized if they are an Admin OR if they own the specific order.
+        if (context.Principal?.IsInRole("Admin") == true) return ValueTask.FromResult(AuthorizationOutcome.Authorized);
+        
+        var ownerOf = context.Principal?.FindFirst("OwnerOf")?.Value;
+        if (ownerOf == request.OrderId.ToString()) return ValueTask.FromResult(AuthorizationOutcome.Authorized);
+        
+        return ValueTask.FromResult(AuthorizationOutcome.Forbidden);
+    }
+}
+
+/// <summary>
+/// Fakes a logged-in user for demonstration.
+/// Always succeeds and grants "OwnerOf" for a hardcoded ID "order-456".
+/// </summary>
+public class FakeAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+{
+    public FakeAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder) 
+        : base(options, logger, encoder) { }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var claims = new[] 
+        { 
+            new Claim(ClaimTypes.Name, "Demo User"),
+            new Claim(ClaimTypes.NameIdentifier, "user-123"), 
+            new Claim("OwnerOf", "00000000-0000-0000-0000-000000000456") // Hardcoded for demo
+        };
+        var identity = new ClaimsIdentity(claims, "Fake");
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, "Fake");
+        return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+}
