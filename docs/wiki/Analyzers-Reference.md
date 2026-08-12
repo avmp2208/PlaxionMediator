@@ -30,6 +30,10 @@ All PlaxionMediator analyzers ship in `PlaxionMediator.Analyzers` (transitively 
 | `PlaxionMediator043` | Invalid Transaction Ordering | `TransactionBehavior` registered in unsafe order relative to `RetryBehavior` | Error |
 | `PlaxionMediator044` | Ambiguous Transaction Manager | Multiple `ITransactionManager` implementations registered without resolution | Error |
 | `PlaxionMediator045` | Unsupported Isolation Level | `ITransactionalRequest.IsolationLevel` unsupported by registered provider | Warning |
+| `PlaxionMediator046` | Authorization Behind Cache | `AuthorizationBehavior` registered inner to `CachingBehavior` | Error |
+| `PlaxionMediator047` | Unregistered Authorization Behavior | `IRequestAuthorization<T>` exists but `AuthorizationBehavior` not registered | Error |
+| `PlaxionMediator048` | Ambiguous Authorization Ordering | `AuthorizationBehavior` registered inner to `RetryBehavior` or `TransactionBehavior` | Warning |
+| `PlaxionMediator049` | Duplicate Authorization Registration | Same `IRequestAuthorization` check type registered twice for the same request | Warning |
 | `PlaxionMediator050` | LINQ in High-Frequency Handler | A `[HighFrequency]` request handler uses LINQ extension methods | Info |
 | `PlaxionMediator051` | Closure Capture in Hot Path | A lambda or local function inside a handler/behavior Handle method captures local state | Info |
 | `PlaxionMediator070` | Fire-and-Forget Task.Run | `Task.Run(...)` invoked inside a Handle method without being awaited or returned | Warning |
@@ -99,3 +103,49 @@ Avoid disabling a diagnostic project-wide via `.editorconfig` unless you're cert
 - **Code-Fix:** Change `IsolationLevel` to a supported value.
 - **False-Positive Risk:** Medium; depends on the analyzer's knowledge of provider capabilities.
 - **Tests:** `UnsupportedIsolation_ReportsWarning`, `SupportedIsolation_NoDiagnostic`.
+
+## Authorization-Specific Diagnostics (v0.9.0)
+
+### PlaxionMediator046: Authorization Registered Behind Cache
+- **Title:** Authorization registered behind cache
+- **Category:** Correctness
+- **Severity:** Error
+- **Trigger:** Both `AuthorizationBehavior` and `CachingBehavior` are registered, but `AuthorizationBehavior` is **inner** to `CachingBehavior` (i.e., Caching is outer and may serve a cached response before authorization runs).
+- **Non-Trigger:** `AuthorizationBehavior` is **outer** to `CachingBehavior`, or only one of the two is registered.
+- **Rationale:** If Caching wraps Authorization, a cached response for a protected resource can be returned to an unauthorized caller without re-running authorization checks. Recommended order: Authorization → Caching (outer → inner).
+- **Code-Fix:** Reorder registrations so `UsePlaxionMediatorAuthorizationBehavior()` is called before `UsePlaxionMediatorCachingBehavior()` (or equivalent `GlobalBehaviors.Add` / `PipelineBuilder.Use` order).
+- **False-Positive Risk:** Low; requires static analysis of registration order.
+- **Tests:** `AuthorizationBehindCache_ReportsError`, `AuthorizationOuterToCache_NoDiagnostic`.
+
+### PlaxionMediator047: Unregistered Authorization Behavior
+- **Title:** Unregistered authorization behavior
+- **Category:** Correctness
+- **Severity:** Error
+- **Trigger:** A concrete class implementing `IRequestAuthorization<TRequest>` exists in the compiling assembly, but `AuthorizationBehavior` is not registered anywhere (`UsePlaxionMediatorAuthorizationBehavior` / non-generic `AddPlaxionMediatorAuthorization` / `GlobalBehaviors.Add(typeof(AuthorizationBehavior<,>))` / `PipelineBuilder.Use<AuthorizationBehavior<,>>()`).
+- **Non-Trigger:** `AuthorizationBehavior` is registered.
+- **Rationale:** Implementing an authorization check implies those checks should run in the pipeline. Without `AuthorizationBehavior`, checks are never evaluated and protected requests execute unrestricted.
+- **Code-Fix:** Call `options.UsePlaxionMediatorAuthorizationBehavior()` or `services.AddPlaxionMediatorAuthorization()`, or register `AuthorizationBehavior<,>` via `GlobalBehaviors` / `PipelineBuilder`.
+- **False-Positive Risk:** Low; deterministic interface implementation + registration scan.
+- **Tests:** `AuthorizationCheck_MissingBehavior_ReportsError`, `AuthorizationCheck_WithBehavior_NoDiagnostic`.
+
+### PlaxionMediator048: Ambiguous Authorization Ordering vs Retry/Transaction
+- **Title:** Ambiguous authorization ordering vs retry/transaction
+- **Category:** Reliability
+- **Severity:** Warning
+- **Trigger:** `AuthorizationBehavior` is registered **inner** to (later than) `RetryBehavior` or `TransactionBehavior`.
+- **Non-Trigger:** `AuthorizationBehavior` is outer to both Retry and Transaction, or only Authorization is registered (no Retry/Transaction present).
+- **Rationale:** Authorization inside Retry re-evaluates checks on every retry attempt; Authorization inside Transaction opens a transaction before authorization runs. Recommended order: Authorization → Retry → Transaction → Handler (outer → inner).
+- **Code-Fix:** Reorder registrations so `UsePlaxionMediatorAuthorizationBehavior()` is called before `UsePlaxionMediatorRetryBehavior()` and `UsePlaxionMediatorTransactionBehavior()`.
+- **False-Positive Risk:** Low; requires static analysis of registration order.
+- **Tests:** `AuthorizationInsideRetry_ReportsWarning`, `AuthorizationOuterToRetryAndTransaction_NoDiagnostic`.
+
+### PlaxionMediator049: Duplicate Authorization Registration
+- **Title:** Duplicate authorization registration
+- **Category:** Configuration
+- **Severity:** Warning
+- **Trigger:** The same concrete `IRequestAuthorization` check type is registered more than once for the same request type via `AddPlaxionMediatorAuthorization<TRequest, TCheck>()`.
+- **Non-Trigger:** Different check types for the same request (intentional multi-check), or the same check type registered for different request types.
+- **Rationale:** Duplicate identical check registrations are redundant and often indicate a copy-paste error. Multiple distinct checks per request are supported and intentional.
+- **Code-Fix:** Remove the duplicate `AddPlaxionMediatorAuthorization<TRequest, TCheck>()` call.
+- **False-Positive Risk:** None for identical type-argument pairs.
+- **Tests:** `DuplicateSameCheck_ReportsWarning`, `DifferentChecksSameRequest_NoDiagnostic`.

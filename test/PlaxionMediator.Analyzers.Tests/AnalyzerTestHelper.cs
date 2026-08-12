@@ -27,6 +27,8 @@ internal static class AnalyzerTestHelper
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(PlaxionMediator.Transactions.ITransactionalRequest).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(PlaxionMediator.Retry.IRetryableRequest).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(PlaxionMediator.Authorization.IRequestAuthorization<>).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(PlaxionMediator.Caching.CachingBehavior<,>).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(PlaxionMediatorOptions).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly.Location),
             MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),

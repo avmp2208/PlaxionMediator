@@ -27,6 +27,8 @@
     <ProjectReference Include="..\..\src\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Transactions.EntityFrameworkCore\PlaxionMediator.Transactions.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.OpenTelemetry\PlaxionMediator.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization\PlaxionMediator.Authorization.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization.AspNetCore\PlaxionMediator.Authorization.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Pipeline\PlaxionMediator.Pipeline.csproj" />
 
     <ProjectReference Include="..\..\src\PlaxionMediator.SourceGenerators\PlaxionMediator.SourceGenerators.csproj"

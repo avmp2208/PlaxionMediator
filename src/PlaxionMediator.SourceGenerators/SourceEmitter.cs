@@ -22,6 +22,11 @@ internal static class SourceEmitter
         sb.AppendLine("using PlaxionMediator.Abstractions;");
         sb.AppendLine("using PlaxionMediator.Core;");
         sb.AppendLine("using PlaxionMediator;");
+        if (model.AuthorizationChecks.Length > 0)
+        {
+            sb.AppendLine("using PlaxionMediator.Authorization;");
+        }
+
         sb.AppendLine("using Microsoft.Extensions.DependencyInjection;");
         sb.AppendLine("using Microsoft.Extensions.DependencyInjection.Extensions;");
         sb.AppendLine();
@@ -67,6 +72,17 @@ internal static class SourceEmitter
                 .Append(">), typeof(")
                 .Append(handler.HandlerFullyQualifiedName)
                 .AppendLine("), options.DefaultHandlerLifetime));");
+        }
+
+        // Authorization checks: Scoped lifetime matches AddPlaxionMediatorAuthorization<TRequest,TCheck>() default.
+        // Order is stable (request FQN, then check FQN) so AuthorizationBehavior evaluation order is deterministic.
+        foreach (AuthorizationCheckModel check in model.AuthorizationChecks)
+        {
+            sb.Append("        services.TryAddEnumerable(new ServiceDescriptor(typeof(IRequestAuthorization<")
+                .Append(check.RequestFullyQualifiedName)
+                .Append(">), typeof(")
+                .Append(check.CheckFullyQualifiedName)
+                .AppendLine("), ServiceLifetime.Scoped));");
         }
 
         sb.AppendLine("        services.TryAddScoped<PlaxionMediatorSender>();");

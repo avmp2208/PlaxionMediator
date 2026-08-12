@@ -989,6 +989,132 @@
       }
     },
     {
+      "name": "Cancel Order (Owner) -> 500 KeyNotFound (Authorized, resource missing)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500 (order not found, but authorization passed)', () => pm.response.to.have.status(500));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"00000000-0000-0000-0000-000000000456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "cancel"]
+        },
+        "description": "v0.9.0 Authorization demo: CancelOrderRequest is protected by CancelOrderAuthorization (IRequestAuthorization<CancelOrderRequest>). The sample's FakeAuthHandler always authenticates as 'Demo User' with an 'OwnerOf' claim for order '00000000-0000-0000-0000-000000000456', so this call passes AuthorizationBehavior (runs before the handler) and only fails afterward with 500 because no such order actually exists in the sample DB."
+      }
+    },
+    {
+      "name": "Cancel Order (Non-Owner) -> 403 Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+              "pm.test('Content-Type is application/problem+json', () => {",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Type is forbidden', () => {",
+              "    pm.expect(body.type).to.include('forbidden');",
+              "    pm.expect(body.requestTypeName).to.eql('CancelOrderRequest');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"11111111-1111-1111-1111-111111111111\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "cancel"]
+        },
+        "description": "Demonstrates AuthorizationBehavior denying the request with PlaxionMediatorForbiddenException (mapped to 403 problem+json) because the fake authenticated user is not an Admin and does not own order '11111111-1111-1111-1111-111111111111'. The CancelOrderHandler is never invoked."
+      }
+    },
+    {
+      "name": "Cancel Order System (Owner Id) -> 500 KeyNotFound (Authorized)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 500 (order not found, but authorization passed)', () => pm.response.to.have.status(500));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/demo/orders/cancel-system?orderId=00000000-0000-0000-0000-000000000456",
+          "host": ["{{baseUrl}}"],
+          "path": ["demo", "orders", "cancel-system"],
+          "query": [
+            { "key": "orderId", "value": "00000000-0000-0000-0000-000000000456" }
+          ]
+        },
+        "description": "Internal-call demo (v0.9.0): sends CancelOrderRequest directly via ISender.Send, bypassing the /orders/cancel route's RequireAuthorization() but still passing through AuthorizationBehavior in the pipeline. Because this WebApi host resolves the Fake-authenticated ClaimsPrincipal via HttpAuthorizationContextAccessor, the owning caller passes authorization and only fails afterward (500) because the order does not exist in the sample DB - proving authorization is enforced at the mediator layer regardless of the invocation route."
+      }
+    },
+    {
+      "name": "Cancel Order System (Non-Owner Id) -> 403 Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Detail indicates forbidden system call', () => {",
+              "    pm.expect(body.detail).to.include('forbidden');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/demo/orders/cancel-system?orderId=22222222-2222-2222-2222-222222222222",
+          "host": ["{{baseUrl}}"],
+          "path": ["demo", "orders", "cancel-system"],
+          "query": [
+            { "key": "orderId", "value": "22222222-2222-2222-2222-222222222222" }
+          ]
+        },
+        "description": "Same internal-call path as above, but with an order id the fake user does not own: AuthorizationBehavior throws PlaxionMediatorForbiddenException, which the endpoint catches explicitly and returns as a 403 problem response - confirming the same authorization check applies independent of the HTTP route being called."
+      }
+    },
+    {
       "name": "Get Item By Id (Not Found -> Raw 500, unmapped exception)",
       "event": [
         {

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlaxionMediator.Authorization;
 using PlaxionMediator.Core;
 using PlaxionMediator.Validation;
 
@@ -13,6 +14,8 @@ internal static class PlaxionMediatorProblemDetailsFactory
     internal const string HandlerNotFoundType = "https://plaxionmediator.dev/errors/handler-not-found";
     internal const string PipelineExecutionType = "https://plaxionmediator.dev/errors/pipeline-execution";
     internal const string ValidationType = "https://plaxionmediator.dev/errors/validation";
+    internal const string UnauthenticatedType = "https://plaxionmediator.dev/errors/unauthenticated";
+    internal const string ForbiddenType = "https://plaxionmediator.dev/errors/forbidden";
 
     internal const string HandlerNotFoundTitle =
         "A required PlaxionMediator handler could not be resolved at runtime — this indicates a build-time invariant was violated.";
@@ -22,6 +25,12 @@ internal static class PlaxionMediatorProblemDetailsFactory
 
     internal const string ValidationTitle =
         "One or more validation errors occurred.";
+
+    internal const string UnauthenticatedTitle =
+        "The caller is not authenticated.";
+
+    internal const string ForbiddenTitle =
+        "The caller is not authorized to perform this action.";
 
     /// <summary>
     /// Creates problem details for a missing handler failure.
@@ -109,6 +118,46 @@ internal static class PlaxionMediatorProblemDetailsFactory
             Extensions =
             {
                 ["errors"] = errors,
+            },
+        };
+    }
+
+    /// <summary>
+    /// Creates problem details for an unauthenticated failure (HTTP 401).
+    /// </summary>
+    public static ProblemDetails Create(PlaxionMediatorUnauthenticatedException exception)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status401Unauthorized,
+            Title = UnauthenticatedTitle,
+            Type = UnauthenticatedType,
+            Detail = exception.Message,
+            Extensions =
+            {
+                ["requestTypeName"] = exception.RequestTypeName,
+            },
+        };
+    }
+
+    /// <summary>
+    /// Creates problem details for a forbidden failure (HTTP 403).
+    /// </summary>
+    public static ProblemDetails Create(PlaxionMediatorForbiddenException exception)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status403Forbidden,
+            Title = ForbiddenTitle,
+            Type = ForbiddenType,
+            Detail = exception.Message,
+            Extensions =
+            {
+                ["requestTypeName"] = exception.RequestTypeName,
             },
         };
     }

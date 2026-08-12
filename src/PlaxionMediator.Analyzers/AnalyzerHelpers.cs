@@ -21,6 +21,9 @@ internal static class AnalyzerHelpers
     public const string TransactionManagerMetadataName = "PlaxionMediator.Transactions.ITransactionManager";
     public const string TransactionIsolationLevelMetadataName = "PlaxionMediator.Transactions.TransactionIsolationLevel";
     public const string RetryBehaviorMetadataName = "PlaxionMediator.Retry.RetryBehavior`2";
+    public const string AuthorizationBehaviorMetadataName = "PlaxionMediator.Authorization.AuthorizationBehavior`2";
+    public const string RequestAuthorizationInterfaceMetadataName = "PlaxionMediator.Authorization.IRequestAuthorization`1";
+    public const string CachingBehaviorMetadataName = "PlaxionMediator.Caching.CachingBehavior`2";
     public const int HotPathBehaviorThreshold = 3;
 
     public static bool ImplementsRequest(INamedTypeSymbol type, INamedTypeSymbol? requestUnbound, out ITypeSymbol? responseType)

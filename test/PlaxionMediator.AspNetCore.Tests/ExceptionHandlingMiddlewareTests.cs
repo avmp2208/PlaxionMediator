@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlaxionMediator.Authorization;
 using PlaxionMediator.Core;
 using PlaxionMediator.Validation;
 
@@ -105,6 +106,38 @@ public sealed class ExceptionHandlingMiddlewareTests
         Assert.Equal(
             "Name is required.",
             doc.RootElement.GetProperty("errors")[0].GetProperty("errorMessage").GetString());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Unauthenticated_Writes_ProblemJson()
+    {
+        var exception = new PlaxionMediatorUnauthenticatedException("Ping");
+        (int status, string? contentType, string body) = await InvokeAndReadAsync(
+            _ => throw exception);
+
+        Assert.Equal(StatusCodes.Status401Unauthorized, status);
+        Assert.Equal("application/problem+json", contentType);
+        using JsonDocument doc = JsonDocument.Parse(body);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.UnauthenticatedType, doc.RootElement.GetProperty("type").GetString());
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.UnauthenticatedTitle, doc.RootElement.GetProperty("title").GetString());
+        Assert.Equal(401, doc.RootElement.GetProperty("status").GetInt32());
+        Assert.Equal("Ping", doc.RootElement.GetProperty("requestTypeName").GetString());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Forbidden_Writes_ProblemJson()
+    {
+        var exception = new PlaxionMediatorForbiddenException("Ping");
+        (int status, string? contentType, string body) = await InvokeAndReadAsync(
+            _ => throw exception);
+
+        Assert.Equal(StatusCodes.Status403Forbidden, status);
+        Assert.Equal("application/problem+json", contentType);
+        using JsonDocument doc = JsonDocument.Parse(body);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ForbiddenType, doc.RootElement.GetProperty("type").GetString());
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ForbiddenTitle, doc.RootElement.GetProperty("title").GetString());
+        Assert.Equal(403, doc.RootElement.GetProperty("status").GetInt32());
+        Assert.Equal("Ping", doc.RootElement.GetProperty("requestTypeName").GetString());
     }
 
     [Fact]

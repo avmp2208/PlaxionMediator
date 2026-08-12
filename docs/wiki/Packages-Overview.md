@@ -18,6 +18,8 @@
 | `PlaxionMediator.OpenTelemetry` | `OpenTelemetryPipelineObserver` (`IPipelineObserver`/`INotificationObserver`), `AddPlaxionMediatorOpenTelemetry()` DI extension; emits `System.Diagnostics.Activity` traces and `System.Diagnostics.Metrics` metrics for `Send`/`Publish` (ActivitySource/Meter `PlaxionMediator`) added in `v0.7.0` | Enabling OpenTelemetry tracing/metrics for request dispatch and notification fan-out (opt-in, depends on `PlaxionMediator.Abstractions` + `PlaxionMediator.Pipeline`) |
 | `PlaxionMediator.Transactions` | `ITransactionalRequest`, `TransactionBehavior<TRequest,TResponse>` pipeline behavior with `ITransactionManager` abstraction; provider-agnostic core added in `v0.8.0` | Implementing transactional boundaries for requests (opt-in, depends on `PlaxionMediator.Abstractions` + `PlaxionMediator.Core`) |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter for Entity Framework Core | Using EF Core for transactional request boundaries (opt-in, depends on `PlaxionMediator.Transactions` + EF Core) |
+| `PlaxionMediator.Authorization` | `IAuthorizationContext`, `IRequestAuthorization<TRequest>`, and `AuthorizationBehavior<TRequest,TResponse>` pipeline behavior; transport-neutral core added in `v0.9.0` | Implementing request-level authorization (opt-in) |
+| `PlaxionMediator.Authorization.AspNetCore` | `HttpAuthorizationContextAccessor` and `MicrosoftAuthorizationPolicyCheck<TRequest>` adapter for ASP.NET Core authorization | Using ASP.NET Core `ClaimsPrincipal` and policies for authorization (opt-in, depends on `PlaxionMediator.Authorization` + `Microsoft.AspNetCore.App`) |
 
 ## Why are `AspNetCore`/`MinimalApis` not bundled?
 
@@ -54,4 +56,8 @@ graph TD
     Transactions[PlaxionMediator.Transactions] --> Abstractions
     Transactions --> Core
     EfCoreTransactions[PlaxionMediator.Transactions.EntityFrameworkCore] --> Transactions
+    Authorization[PlaxionMediator.Authorization] --> Abstractions
+    Authorization --> Core
+    AuthorizationAspNetCore[PlaxionMediator.Authorization.AspNetCore] --> Authorization
+    AuthorizationAspNetCore --> Abstractions
 ```

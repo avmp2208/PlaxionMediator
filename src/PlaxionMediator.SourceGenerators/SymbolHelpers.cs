@@ -12,6 +12,7 @@ internal static class SymbolHelpers
     public const string StreamRequestMetadataName = "PlaxionMediator.Abstractions.IStreamRequest`1";
     public const string NotificationMetadataName = "PlaxionMediator.Abstractions.INotification";
     public const string NotificationPublishStrategyAttributeMetadataName = "PlaxionMediator.Abstractions.NotificationPublishStrategyAttribute";
+    public const string RequestAuthorizationMetadataName = "PlaxionMediator.Authorization.IRequestAuthorization`1";
 
     public static string ToFullyQualifiedName(ITypeSymbol symbol)
     {

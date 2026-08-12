@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlaxionMediator.Authorization;
 using PlaxionMediator.Core;
 using PlaxionMediator.Validation;
 
@@ -126,5 +127,33 @@ public sealed class ProblemDetailsFactoryTests
         Assert.Equal("Name is required.", errors[0]["errorMessage"]);
         Assert.Equal("Id", errors[1]["propertyName"]);
         Assert.Equal("Id must not be empty.", errors[1]["errorMessage"]);
+    }
+
+    [Fact]
+    public void Create_Unauthenticated_Maps_Status_Title_Type_And_RequestTypeName()
+    {
+        var exception = new PlaxionMediatorUnauthenticatedException("Ping");
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception);
+
+        Assert.Equal(StatusCodes.Status401Unauthorized, problem.Status);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.UnauthenticatedTitle, problem.Title);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.UnauthenticatedType, problem.Type);
+        Assert.Equal(exception.Message, problem.Detail);
+        Assert.Equal("Ping", problem.Extensions["requestTypeName"]);
+    }
+
+    [Fact]
+    public void Create_Forbidden_Maps_Status_Title_Type_And_RequestTypeName()
+    {
+        var exception = new PlaxionMediatorForbiddenException("Ping");
+
+        ProblemDetails problem = PlaxionMediatorProblemDetailsFactory.Create(exception);
+
+        Assert.Equal(StatusCodes.Status403Forbidden, problem.Status);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ForbiddenTitle, problem.Title);
+        Assert.Equal(PlaxionMediatorProblemDetailsFactory.ForbiddenType, problem.Type);
+        Assert.Equal(exception.Message, problem.Detail);
+        Assert.Equal("Ping", problem.Extensions["requestTypeName"]);
     }
 }

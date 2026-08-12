@@ -1,6 +1,7 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using PlaxionMediator.Abstractions;
+using PlaxionMediator.Authorization;
 using PlaxionMediator.Core;
 using PlaxionMediator;
 using PlaxionMediator.Pipeline;
@@ -14,7 +15,14 @@ internal static class GeneratorTestHelper
 {
     public static (Compilation Compilation, ImmutableArray<Diagnostic> Diagnostics, GeneratorDriverRunResult RunResult) Run(string source)
     {
-        (GeneratorDriver driver, CSharpCompilation compilation) = CreateDriver(source);
+        return Run(source, includeAuthorization: false);
+    }
+
+    public static (Compilation Compilation, ImmutableArray<Diagnostic> Diagnostics, GeneratorDriverRunResult RunResult) Run(
+        string source,
+        bool includeAuthorization)
+    {
+        (GeneratorDriver driver, CSharpCompilation compilation) = CreateDriver(source, includeAuthorization);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation outputCompilation, out ImmutableArray<Diagnostic> diagnostics);
 
         GeneratorDriverRunResult runResult = driver.GetRunResult();
@@ -23,8 +31,13 @@ internal static class GeneratorTestHelper
 
     public static (GeneratorDriver Driver, CSharpCompilation Compilation) CreateDriver(string source)
     {
+        return CreateDriver(source, includeAuthorization: false);
+    }
+
+    public static (GeneratorDriver Driver, CSharpCompilation Compilation) CreateDriver(string source, bool includeAuthorization)
+    {
         SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
-        PortableExecutableReference[] references = CreateReferences();
+        PortableExecutableReference[] references = CreateReferences(includeAuthorization);
 
         CSharpCompilation compilation = CSharpCompilation.Create(
             assemblyName: "GeneratorTests",
@@ -37,9 +50,9 @@ internal static class GeneratorTestHelper
         return (driver, compilation);
     }
 
-    private static PortableExecutableReference[] CreateReferences()
+    private static PortableExecutableReference[] CreateReferences(bool includeAuthorization)
     {
-        PortableExecutableReference[] references =
+        List<PortableExecutableReference> references =
         [
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
@@ -53,11 +66,15 @@ internal static class GeneratorTestHelper
             MetadataReference.CreateFromFile(typeof(ValueTask).Assembly.Location),
         ];
 
+        if (includeAuthorization)
+        {
+            references.Add(MetadataReference.CreateFromFile(typeof(IRequestAuthorization<>).Assembly.Location));
+        }
+
         // Add common BCL references from the runtime directory
         string? tpa = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
         if (tpa is not null)
         {
-            List<PortableExecutableReference> all = [.. references];
             foreach (string path in tpa.Split(Path.PathSeparator))
             {
                 string name = Path.GetFileNameWithoutExtension(path);
@@ -65,16 +82,14 @@ internal static class GeneratorTestHelper
                     or "System.Runtime" or "System.Private.CoreLib" or "System.ComponentModel"
                     or "Microsoft.Extensions.DependencyInjection.Abstractions")
                 {
-                    if (all.All(r => r.Display != path))
+                    if (references.All(r => r.Display != path))
                     {
-                        all.Add(MetadataReference.CreateFromFile(path));
+                        references.Add(MetadataReference.CreateFromFile(path));
                     }
                 }
             }
-
-            references = all.ToArray();
         }
 
-        return references;
+        return references.ToArray();
     }
 }
