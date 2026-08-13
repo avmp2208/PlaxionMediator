@@ -15,5 +15,10 @@
     <ProjectReference Include="..\..\src\PlaxionMediator\PlaxionMediator.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\PlaxionMediator.Core\PlaxionMediator.Core.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Validation\PlaxionMediator.Validation.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Authorization\PlaxionMediator.Authorization.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Caching\PlaxionMediator.Caching.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Retry\PlaxionMediator.Retry.csproj" />
+    <ProjectReference Include="..\..\src\PlaxionMediator.Transactions\PlaxionMediator.Transactions.csproj" />
   </ItemGroup>
 </Project>
