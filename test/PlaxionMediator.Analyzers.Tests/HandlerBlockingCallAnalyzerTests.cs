@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 
 namespace PlaxionMediator.Analyzers.Tests;
@@ -28,7 +29,7 @@ public sealed class HandlerBlockingCallAnalyzerTests
             new HandlerBlockingCallAnalyzer(),
             source);
 
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -55,7 +56,7 @@ public sealed class HandlerBlockingCallAnalyzerTests
             new HandlerBlockingCallAnalyzer(),
             source);
 
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -82,7 +83,7 @@ public sealed class HandlerBlockingCallAnalyzerTests
             new HandlerBlockingCallAnalyzer(),
             source);
 
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator006" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
