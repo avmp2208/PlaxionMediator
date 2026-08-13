@@ -49,7 +49,7 @@ Console.WriteLine(result); // Pong: hello
 
 - Looking for more examples? See the [Full Usage Guide](Full-Usage-Guide) for Minimal APIs, Validation, and more.
 - Building a web API? See [ASP.NET Core & Minimal APIs](ASPNET-Core-and-Minimal-APIs).
-- Want to add request validation? See the new `PlaxionMediator.Validation` package and `ValidationBehavior<,>`.
+- Want to add request validation? See the new `PlaxionMediator.Validation` package and the validation behavior.
 - Want to optimize performance? See `PlaxionMediator.Caching` for request caching.
 - Want to add resilience? See `PlaxionMediator.Retry` for request retries with backoff strategies.
 - Want to unit test handlers/behaviors without a real DI container? See [Testing Guide](Testing-Guide).

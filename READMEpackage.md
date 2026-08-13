@@ -132,11 +132,11 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` endpoint helpers |
-| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
+| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and validation behavior |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
-| `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
-| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
-| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
+| `PlaxionMediator.Caching` | `ICacheableRequest<>` and caching behavior |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, retry behavior, and circuit breaker behavior |
+| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, and transaction behavior (provider-agnostic) |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
 

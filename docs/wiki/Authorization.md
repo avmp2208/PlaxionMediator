@@ -18,7 +18,7 @@ Application operations often require authorization checks that are more granular
 
 | Package | Role |
 |---------|------|
-| `PlaxionMediator.Authorization` | `IRequestAuthorization<TRequest>`, `AuthorizationBehavior`, `IAuthorizationContext` |
+| `PlaxionMediator.Authorization` | `IRequestAuthorization<TRequest>`, authorization behavior, `IAuthorizationContext` |
 | `PlaxionMediator.Authorization.AspNetCore` | `HttpAuthorizationContextAccessor`, `MicrosoftAuthorizationPolicyCheck<TRequest>` adapter |
 
 Core depends only on `PlaxionMediator.Abstractions`. Both packages are AOT-compatible.
@@ -83,7 +83,7 @@ If `Send` is called outside an active HTTP request (e.g. from a `BackgroundServi
 
 ## Failure semantics
 
-When an authorization check fails, `AuthorizationBehavior` throws one of two exceptions:
+When an authorization check fails, the authorization behavior throws one of two exceptions:
 
 | Outcome | Exception | ASP.NET Core Mapping |
 |---------|-----------|----------------------|
@@ -105,7 +105,7 @@ If multiple `IRequestAuthorization<TRequest>` implementations are registered for
 - **Validation first:** Ensures the request is well-formed before checking permissions.
 - **Authorization before Retry/Transaction:** Prevents unnecessary resource usage (retries, database transactions) if the user is not allowed to perform the action.
 
-> **Security Note:** If you use `PlaxionMediator.Caching`, ensure `AuthorizationBehavior` is **outer** to `CachingBehavior`. If caching is outer to authorization, a cached response for a protected resource might be served to an unauthorized caller (flagged by `PlaxionMediator046`).
+> **Security Note:** If you use `PlaxionMediator.Caching`, ensure the authorization behavior is **outer** to the caching behavior. If caching is outer to authorization, a cached response for a protected resource might be served to an unauthorized caller (flagged by `PlaxionMediator046`).
 
 ## ASP.NET Core Integration
 
@@ -132,9 +132,9 @@ All metrics are tagged with `plaxionmediator.request.type`.
 
 | ID | Severity | Meaning |
 |----|----------|---------|
-| `PlaxionMediator046` | Error | `AuthorizationBehavior` is registered inner to `CachingBehavior` (security risk). |
-| `PlaxionMediator047` | Error | `IRequestAuthorization<T>` exists but `AuthorizationBehavior` is not registered. |
-| `PlaxionMediator048` | Warning | `AuthorizationBehavior` is registered inner to `RetryBehavior` or `TransactionBehavior`. |
+| `PlaxionMediator046` | Error | Authorization behavior is registered inner to caching behavior (security risk). |
+| `PlaxionMediator047` | Error | `IRequestAuthorization<T>` exists but authorization behavior is not registered. |
+| `PlaxionMediator048` | Warning | Authorization behavior is registered inner to retry behavior or transaction behavior. |
 | `PlaxionMediator049` | Warning | Same `IRequestAuthorization` check type is registered twice for one request. |
 
 See [Analyzers-Reference.md](Analyzers-Reference.md).

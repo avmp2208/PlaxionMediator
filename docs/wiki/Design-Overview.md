@@ -14,10 +14,10 @@ PlaxionMediator's design principles:
 
 - `IRequest<TResponse>` / `IRequestHandler<TRequest, TResponse>` — one request, exactly one handler, returns `TResponse`.
 - `INotification` / `INotificationHandler<TNotification>` — one notification, zero or more handlers (fan-out).
-- `IPipelineBehavior<TRequest, TResponse>` — middleware around a request's `Handle` call (Validation, Caching, Circuit Breaker, Retry, etc.).
+- `IPipelineBehavior<TRequest, TResponse>` — middleware around a request's `Handle` call (validation, caching, circuit breaker, retry, etc.).
 - `IPipelineExtension` / `PipelineExtensionBuilder` / `PipelineExtensionRegistry` — formal composition extension points that wrap the behavior+handler chain without replacing behaviors (see ADR-0007, "Formal Pipeline Extension Point Contract", in the `documentation` repo's `architecture/adr/` folder).
 - `IPipelineObserver` / `PipelineObserverHub` — allocation-conscious start/stop/fault instrumentation seams for future telemetry packages (see ADR-0008, "Telemetry Hook Groundwork", in the `documentation` repo's `architecture/adr/` folder); no-op when unused.
-- `PlaxionMediatorException` (abstract) → `HandlerNotFoundException`, `PipelineExecutionException`, `HandlerFaultException`, `PlaxionMediatorValidationException` — the core exception types the framework itself throws.
+- `PlaxionMediatorException` (abstract) → `HandlerNotFoundException`, `PipelineExecutionException`, `PlaxionMediatorValidationException` — the core exception types the framework itself throws.
 
 ## Pipeline extension points (v0.6.0)
 

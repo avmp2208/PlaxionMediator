@@ -105,7 +105,7 @@ app.Run();
 
 ### Validation (v0.4.0+)
 
-Enable global request validation by adding `ValidationBehavior<,>` to the pipeline and registering your validators.
+Enable global request validation by adding the validation behavior to the pipeline and registering your validators.
 
 ```csharp
 using PlaxionMediator.Validation;
@@ -133,7 +133,7 @@ app.Run();
 
 ### Resilience & Caching (v0.4.0+)
 
-Optimize performance with `CachingBehavior<,>` and resilience with `RetryBehavior<,>` and `CircuitBreakerBehavior<,>`.
+Optimize performance with caching and resilience with retries and circuit breakers.
 
 ```csharp
 using PlaxionMediator.Caching;
@@ -191,7 +191,7 @@ public sealed record FlakyRequest(string Data) : IRequest<string>, ICircuitBreak
 
 ### Transactions (`PlaxionMediator.Transactions`, v0.8.0+)
 
-Opt-in transactional boundaries via `ITransactionalRequest` and `TransactionBehavior`. Register Retry **outside** Transaction so each retry attempt gets a fresh transaction. Use `PlaxionMediator.Transactions.EntityFrameworkCore` for EF Core, or implement `ITransactionManager` yourself. Handlers still own `SaveChanges`.
+Opt-in transactional boundaries via `ITransactionalRequest` and the transaction behavior. Register Retry **outside** Transaction so each retry attempt gets a fresh transaction. Use `PlaxionMediator.Transactions.EntityFrameworkCore` for EF Core, or implement `ITransactionManager` yourself. Handlers still own `SaveChanges`.
 
 ```csharp
 using PlaxionMediator.Transactions;
@@ -285,14 +285,14 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` Minimal API endpoint helpers |
-| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
+| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and validation behavior |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
-| `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
-| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
-| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
+| `PlaxionMediator.Caching` | `ICacheableRequest<>` and caching behavior |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, retry behavior, and circuit breaker behavior |
+| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, and transaction behavior (provider-agnostic) |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
-| `PlaxionMediator.Authorization` | `IAuthorizationContext`, `IRequestAuthorization<>`, and `AuthorizationBehavior<,>` (transport-neutral). |
+| `PlaxionMediator.Authorization` | `IAuthorizationContext`, `IRequestAuthorization<>`, and authorization behavior (transport-neutral). |
 | `PlaxionMediator.Authorization.AspNetCore` | `HttpAuthorizationContextAccessor` and bridge to Microsoft `IAuthorizationService`. |
 
 > Opt-in packages (`AspNetCore`, `MinimalApis`, `Validation`, `Caching`, `Retry`, `Transactions`, `OpenTelemetry`, `Authorization`, …) are **not** referenced transitively by `PlaxionMediator`, so plain console/worker apps never pull in extra dependencies.

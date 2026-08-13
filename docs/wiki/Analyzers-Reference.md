@@ -26,13 +26,13 @@ All PlaxionMediator analyzers ship in `PlaxionMediator.Analyzers` (transitively 
 | `PlaxionMediator033`–`039` | _Reserved_ | Intentionally reserved; no high-value diagnostic identified | — |
 | `PlaxionMediator040` | Async Void Handler | A handler or behavior method is declared `async void`, preventing proper exception observation | Error |
 | `PlaxionMediator041` | Handler Self-Send | A handler sends a request of its own type, risking infinite recursion | Warning |
-| `PlaxionMediator042` | Missing Transaction Behavior | `ITransactionalRequest` used but `TransactionBehavior` not registered | Error |
-| `PlaxionMediator043` | Invalid Transaction Ordering | `TransactionBehavior` registered in unsafe order relative to `RetryBehavior` | Error |
+| `PlaxionMediator042` | Missing Transaction Behavior | `ITransactionalRequest` used but transaction behavior not registered | Error |
+| `PlaxionMediator043` | Invalid Transaction Ordering | Transaction behavior registered in unsafe order relative to retry behavior | Error |
 | `PlaxionMediator044` | Ambiguous Transaction Manager | Multiple `ITransactionManager` implementations registered without resolution | Error |
 | `PlaxionMediator045` | Unsupported Isolation Level | `ITransactionalRequest.IsolationLevel` unsupported by registered provider | Warning |
-| `PlaxionMediator046` | Authorization Behind Cache | `AuthorizationBehavior` registered inner to `CachingBehavior` | Error |
-| `PlaxionMediator047` | Unregistered Authorization Behavior | `IRequestAuthorization<T>` exists but `AuthorizationBehavior` not registered | Error |
-| `PlaxionMediator048` | Ambiguous Authorization Ordering | `AuthorizationBehavior` registered inner to `RetryBehavior` or `TransactionBehavior` | Warning |
+| `PlaxionMediator046` | Authorization Behind Cache | Authorization behavior registered inner to caching behavior | Error |
+| `PlaxionMediator047` | Unregistered Authorization Behavior | `IRequestAuthorization<T>` exists but authorization behavior not registered | Error |
+| `PlaxionMediator048` | Ambiguous Authorization Ordering | Authorization behavior registered inner to retry behavior or transaction behavior | Warning |
 | `PlaxionMediator049` | Duplicate Authorization Registration | Same `IRequestAuthorization` check type registered twice for the same request | Warning |
 | `PlaxionMediator050` | LINQ in High-Frequency Handler | A `[HighFrequency]` request handler uses LINQ extension methods | Info |
 | `PlaxionMediator051` | Closure Capture in Hot Path | A lambda or local function inside a handler/behavior Handle method captures local state | Info |
@@ -64,10 +64,10 @@ Avoid disabling a diagnostic project-wide via `.editorconfig` unless you're cert
 - **Title:** Transactional request used without transaction behavior
 - **Category:** Correctness
 - **Severity:** Error
-- **Trigger:** A request implements `ITransactionalRequest` but `TransactionBehavior<,>` is not registered in the pipeline (neither via global behaviors nor `PipelineBuilder`).
-- **Non-Trigger:** Request implements `ITransactionalRequest` and `TransactionBehavior` is registered.
+- **Trigger:** A request implements `ITransactionalRequest` but the transaction behavior is not registered in the pipeline.
+- **Non-Trigger:** Request implements `ITransactionalRequest` and the transaction behavior is registered.
 - **Rationale:** Declaring a request as transactional implies an expectation of atomicity. If the behavior is missing, the request executes without a transaction boundary, risking partial data updates.
-- **Code-Fix:** Add `.AddTransactions()` to `AddPlaxionMediator()` or register `TransactionBehavior` manually.
+- **Code-Fix:** Use `options.UsePlaxionMediatorTransactionBehavior()` in `AddPlaxionMediator()` or call `services.AddPlaxionMediatorTransactions()`.
 - **False-Positive Risk:** None (deterministic marker interface check).
 - **Tests:** `TransactionalRequest_MissingBehavior_ReportsError`, `TransactionalRequest_WithBehavior_NoDiagnostic`.
 
@@ -110,10 +110,10 @@ Avoid disabling a diagnostic project-wide via `.editorconfig` unless you're cert
 - **Title:** Authorization registered behind cache
 - **Category:** Correctness
 - **Severity:** Error
-- **Trigger:** Both `AuthorizationBehavior` and `CachingBehavior` are registered, but `AuthorizationBehavior` is **inner** to `CachingBehavior` (i.e., Caching is outer and may serve a cached response before authorization runs).
-- **Non-Trigger:** `AuthorizationBehavior` is **outer** to `CachingBehavior`, or only one of the two is registered.
+- **Trigger:** Both the authorization and caching behaviors are registered, but authorization is **inner** to caching (i.e., Caching is outer and may serve a cached response before authorization runs).
+- **Non-Trigger:** Authorization is **outer** to caching, or only one of the two is registered.
 - **Rationale:** If Caching wraps Authorization, a cached response for a protected resource can be returned to an unauthorized caller without re-running authorization checks. Recommended order: Authorization → Caching (outer → inner).
-- **Code-Fix:** Reorder registrations so `UsePlaxionMediatorAuthorizationBehavior()` is called before `UsePlaxionMediatorCachingBehavior()` (or equivalent `GlobalBehaviors.Add` / `PipelineBuilder.Use` order).
+- **Code-Fix:** Reorder registrations so `UsePlaxionMediatorAuthorizationBehavior()` is called before `UsePlaxionMediatorCachingBehavior()`.
 - **False-Positive Risk:** Low; requires static analysis of registration order.
 - **Tests:** `AuthorizationBehindCache_ReportsError`, `AuthorizationOuterToCache_NoDiagnostic`.
 
@@ -121,10 +121,10 @@ Avoid disabling a diagnostic project-wide via `.editorconfig` unless you're cert
 - **Title:** Unregistered authorization behavior
 - **Category:** Correctness
 - **Severity:** Error
-- **Trigger:** A concrete class implementing `IRequestAuthorization<TRequest>` exists in the compiling assembly, but `AuthorizationBehavior` is not registered anywhere (`UsePlaxionMediatorAuthorizationBehavior` / non-generic `AddPlaxionMediatorAuthorization` / `GlobalBehaviors.Add(typeof(AuthorizationBehavior<,>))` / `PipelineBuilder.Use<AuthorizationBehavior<,>>()`).
-- **Non-Trigger:** `AuthorizationBehavior` is registered.
-- **Rationale:** Implementing an authorization check implies those checks should run in the pipeline. Without `AuthorizationBehavior`, checks are never evaluated and protected requests execute unrestricted.
-- **Code-Fix:** Call `options.UsePlaxionMediatorAuthorizationBehavior()` or `services.AddPlaxionMediatorAuthorization()`, or register `AuthorizationBehavior<,>` via `GlobalBehaviors` / `PipelineBuilder`.
+- **Trigger:** A concrete class implementing `IRequestAuthorization<TRequest>` exists in the compiling assembly, but the authorization behavior is not registered anywhere (`UsePlaxionMediatorAuthorizationBehavior` / non-generic `AddPlaxionMediatorAuthorization`).
+- **Non-Trigger:** The authorization behavior is registered.
+- **Rationale:** Implementing an authorization check implies those checks should run in the pipeline. Without the authorization behavior, checks are never evaluated and protected requests execute unrestricted.
+- **Code-Fix:** Call `options.UsePlaxionMediatorAuthorizationBehavior()` or `services.AddPlaxionMediatorAuthorization()`.
 - **False-Positive Risk:** Low; deterministic interface implementation + registration scan.
 - **Tests:** `AuthorizationCheck_MissingBehavior_ReportsError`, `AuthorizationCheck_WithBehavior_NoDiagnostic`.
 
