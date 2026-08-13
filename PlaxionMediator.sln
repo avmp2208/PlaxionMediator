@@ -91,6 +91,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Authorizati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.Authorization.AspNetCore.Tests", "test\PlaxionMediator.Authorization.AspNetCore.Tests\PlaxionMediator.Authorization.AspNetCore.Tests.csproj", "{25398210-601F-4D60-8CA8-FAE3728F36A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaxionMediator.BinaryCompatibility.Tests", "test\PlaxionMediator.BinaryCompatibility.Tests\PlaxionMediator.BinaryCompatibility.Tests.csproj", "{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -593,6 +595,18 @@ Global
 		{25398210-601F-4D60-8CA8-FAE3728F36A0}.Release|x64.Build.0 = Release|Any CPU
 		{25398210-601F-4D60-8CA8-FAE3728F36A0}.Release|x86.ActiveCfg = Release|Any CPU
 		{25398210-601F-4D60-8CA8-FAE3728F36A0}.Release|x86.Build.0 = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|x64.Build.0 = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|x64.ActiveCfg = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|x64.Build.0 = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -639,5 +653,6 @@ Global
 		{871B50C8-AD82-4F30-A8DB-82CF37B28350} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
 		{1DE636BC-5815-4493-9DB8-45B43D47C8F4} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{25398210-601F-4D60-8CA8-FAE3728F36A0} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
+		{AF0580A8-F1BE-4E29-AE74-D3A9E51A2F7C} = {B3037B5C-2746-4A56-A833-2A9B804C8821}
 	EndGlobalSection
 EndGlobal
