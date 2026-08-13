@@ -1,0 +1,44 @@
+#nullable enable
+PlaxionMediator.Retry.DefaultCircuitBreakerPolicyProvider<TRequest>
+PlaxionMediator.Retry.DefaultCircuitBreakerPolicyProvider<TRequest>.DefaultCircuitBreakerPolicyProvider(Polly.Registry.ResiliencePipelineProvider<string!>! pipelineProvider, PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions! options) -> void
+PlaxionMediator.Retry.DefaultCircuitBreakerPolicyProvider<TRequest>.GetPipeline(TRequest request) -> Polly.ResiliencePipeline!
+PlaxionMediator.Retry.ICircuitBreakerPolicyProvider<TRequest>
+PlaxionMediator.Retry.ICircuitBreakerPolicyProvider<TRequest>.GetPipeline(TRequest request) -> Polly.ResiliencePipeline!
+PlaxionMediator.Retry.ICircuitBreakerRequest
+PlaxionMediator.Retry.IRetryableRequest
+PlaxionMediator.Retry.IRetryableRequest.BaseDelay.get -> System.TimeSpan?
+PlaxionMediator.Retry.IRetryableRequest.MaxRetryAttempts.get -> int?
+PlaxionMediator.Retry.IRetryDelayProvider
+PlaxionMediator.Retry.IRetryDelayProvider.DelayAsync(System.TimeSpan delay, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.BreakDuration.get -> System.TimeSpan
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.BreakDuration.set -> void
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.FailureRatio.get -> double
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.FailureRatio.set -> void
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.MinimumThroughput.get -> int
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.MinimumThroughput.set -> void
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.PipelineName.get -> string!
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.PipelineName.set -> void
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.PlaxionMediatorCircuitBreakerOptions() -> void
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.SamplingDuration.get -> System.TimeSpan
+PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions.SamplingDuration.set -> void
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.BackoffStrategy.get -> PlaxionMediator.Retry.RetryBackoffStrategy
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.BackoffStrategy.set -> void
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.BaseDelay.get -> System.TimeSpan
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.BaseDelay.set -> void
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.MaxRetryAttempts.get -> int
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.MaxRetryAttempts.set -> void
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.NonRetryableExceptionTypes.get -> System.Collections.Generic.IList<System.Type!>!
+PlaxionMediator.Retry.PlaxionMediatorRetryOptions.PlaxionMediatorRetryOptions() -> void
+PlaxionMediator.Retry.RetryBackoffStrategy
+PlaxionMediator.Retry.RetryBackoffStrategy.Constant = 0 -> PlaxionMediator.Retry.RetryBackoffStrategy
+PlaxionMediator.Retry.RetryBackoffStrategy.Exponential = 1 -> PlaxionMediator.Retry.RetryBackoffStrategy
+PlaxionMediator.Retry.ServiceCollectionExtensions
+PlaxionMediator.Retry.TaskRetryDelayProvider
+PlaxionMediator.Retry.TaskRetryDelayProvider.DelayAsync(System.TimeSpan delay, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Retry.TaskRetryDelayProvider.TaskRetryDelayProvider() -> void
+static PlaxionMediator.Retry.ServiceCollectionExtensions.AddPlaxionMediatorCircuitBreaker(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Retry.PlaxionMediatorCircuitBreakerOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Retry.ServiceCollectionExtensions.AddPlaxionMediatorRetry(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Retry.PlaxionMediatorRetryOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Retry.ServiceCollectionExtensions.UsePlaxionMediatorCircuitBreakerBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!
+static PlaxionMediator.Retry.ServiceCollectionExtensions.UsePlaxionMediatorRetryBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!

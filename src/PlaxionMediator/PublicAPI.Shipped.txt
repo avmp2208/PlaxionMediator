@@ -1,0 +1,16 @@
+#nullable enable
+PlaxionMediator.PlaxionMediatorGeneratedRegistrationBridge
+PlaxionMediator.PlaxionMediatorOptions
+PlaxionMediator.PlaxionMediatorOptions.DefaultBehaviorLifetime.get -> Microsoft.Extensions.DependencyInjection.ServiceLifetime
+PlaxionMediator.PlaxionMediatorOptions.DefaultBehaviorLifetime.set -> void
+PlaxionMediator.PlaxionMediatorOptions.DefaultHandlerLifetime.get -> Microsoft.Extensions.DependencyInjection.ServiceLifetime
+PlaxionMediator.PlaxionMediatorOptions.DefaultHandlerLifetime.set -> void
+PlaxionMediator.PlaxionMediatorOptions.GlobalBehaviors.get -> System.Collections.Generic.IList<System.Type!>!
+PlaxionMediator.PlaxionMediatorOptions.PlaxionMediatorOptions() -> void
+PlaxionMediator.PlaxionMediatorServiceCollectionExtensions
+static PlaxionMediator.PlaxionMediatorGeneratedRegistrationBridge.Invoke(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, PlaxionMediator.PlaxionMediatorOptions! options) -> void
+static PlaxionMediator.PlaxionMediatorGeneratedRegistrationBridge.Register.get -> System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!, PlaxionMediator.PlaxionMediatorOptions!>?
+static PlaxionMediator.PlaxionMediatorGeneratedRegistrationBridge.Register.set -> void
+static PlaxionMediator.PlaxionMediatorServiceCollectionExtensions.AddPlaxionMediator(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.PlaxionMediatorOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.PlaxionMediatorServiceCollectionExtensions.AddPlaxionMediatorCore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.PlaxionMediatorOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.PlaxionMediatorServiceCollectionExtensions.AddPlaxionMediatorDispatcher<TDispatcher>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

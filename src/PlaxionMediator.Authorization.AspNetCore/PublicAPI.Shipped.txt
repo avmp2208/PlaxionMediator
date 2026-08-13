@@ -1,0 +1,9 @@
+#nullable enable
+Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions
+PlaxionMediator.Authorization.AspNetCore.HttpAuthorizationContextAccessor
+PlaxionMediator.Authorization.AspNetCore.HttpAuthorizationContextAccessor.Current.get -> PlaxionMediator.Authorization.IAuthorizationContext!
+PlaxionMediator.Authorization.AspNetCore.HttpAuthorizationContextAccessor.HttpAuthorizationContextAccessor(Microsoft.AspNetCore.Http.IHttpContextAccessor! httpContextAccessor) -> void
+PlaxionMediator.Authorization.AspNetCore.MicrosoftAuthorizationPolicyCheck<TRequest>
+PlaxionMediator.Authorization.AspNetCore.MicrosoftAuthorizationPolicyCheck<TRequest>.AuthorizeAsync(TRequest request, PlaxionMediator.Authorization.IAuthorizationContext! context, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Authorization.AuthorizationOutcome>
+PlaxionMediator.Authorization.AspNetCore.MicrosoftAuthorizationPolicyCheck<TRequest>.MicrosoftAuthorizationPolicyCheck(Microsoft.AspNetCore.Authorization.IAuthorizationService! authorizationService, string! policyName) -> void
+static Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddPlaxionMediatorAuthorizationAspNetCore(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

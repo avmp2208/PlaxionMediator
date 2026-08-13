@@ -1,0 +1,7 @@
+#nullable enable
+PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions
+static PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions.MapPlaxionMediatorDelete<TRequest, TResponse>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions.MapPlaxionMediatorGet<TRequest, TResponse>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions.MapPlaxionMediatorPatch<TRequest, TResponse>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions.MapPlaxionMediatorPost<TRequest, TResponse>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!
+static PlaxionMediator.MinimalApis.PlaxionMediatorEndpointRouteBuilderExtensions.MapPlaxionMediatorPut<TRequest, TResponse>(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern) -> Microsoft.AspNetCore.Builder.RouteHandlerBuilder!

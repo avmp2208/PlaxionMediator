@@ -1,0 +1,8 @@
+#nullable enable
+PlaxionMediator.AspNetCore.PlaxionMediatorApplicationBuilderExtensions
+PlaxionMediator.AspNetCore.PlaxionMediatorExceptionHandlingOptions
+PlaxionMediator.AspNetCore.PlaxionMediatorExceptionHandlingOptions.IncludeRequestTypeName.get -> bool
+PlaxionMediator.AspNetCore.PlaxionMediatorExceptionHandlingOptions.IncludeRequestTypeName.set -> void
+PlaxionMediator.AspNetCore.PlaxionMediatorExceptionHandlingOptions.PlaxionMediatorExceptionHandlingOptions() -> void
+static PlaxionMediator.AspNetCore.PlaxionMediatorApplicationBuilderExtensions.UsePlaxionMediatorExceptionHandling(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static PlaxionMediator.AspNetCore.PlaxionMediatorApplicationBuilderExtensions.UsePlaxionMediatorExceptionHandling(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app, System.Action<PlaxionMediator.AspNetCore.PlaxionMediatorExceptionHandlingOptions!>! configure) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!

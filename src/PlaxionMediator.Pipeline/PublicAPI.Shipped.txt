@@ -1,0 +1,76 @@
+#nullable enable
+PlaxionMediator.Pipeline.INotificationObserver
+PlaxionMediator.Pipeline.INotificationObserver.OnCompleted(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+PlaxionMediator.Pipeline.INotificationObserver.OnFaulted(in PlaxionMediator.Pipeline.NotificationCallContext context, System.Exception! exception) -> void
+PlaxionMediator.Pipeline.INotificationObserver.OnStarting(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+PlaxionMediator.Pipeline.IPipelineBehaviorOrder
+PlaxionMediator.Pipeline.IPipelineBehaviorOrder.Order.get -> int
+PlaxionMediator.Pipeline.IPipelineExtension
+PlaxionMediator.Pipeline.IPipelineExtension.Apply<TRequest, TResponse>(in PlaxionMediator.Pipeline.PipelineExtensionContext context, PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>! next) -> PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>!
+PlaxionMediator.Pipeline.IPipelineExtension.Order.get -> int
+PlaxionMediator.Pipeline.IPipelineObserver
+PlaxionMediator.Pipeline.IPipelineObserver.OnCompleted(in PlaxionMediator.Pipeline.PipelineCallContext context) -> void
+PlaxionMediator.Pipeline.IPipelineObserver.OnFaulted(in PlaxionMediator.Pipeline.PipelineCallContext context, System.Exception! exception) -> void
+PlaxionMediator.Pipeline.IPipelineObserver.OnStarting(in PlaxionMediator.Pipeline.PipelineCallContext context) -> void
+PlaxionMediator.Pipeline.NotificationCallContext
+PlaxionMediator.Pipeline.NotificationCallContext.HandlerCount.get -> int
+PlaxionMediator.Pipeline.NotificationCallContext.NotificationCallContext() -> void
+PlaxionMediator.Pipeline.NotificationCallContext.NotificationCallContext(System.Type! notificationType, int handlerCount) -> void
+PlaxionMediator.Pipeline.NotificationCallContext.NotificationType.get -> System.Type!
+PlaxionMediator.Pipeline.NotificationCallContext.NotificationTypeName.get -> string!
+PlaxionMediator.Pipeline.NotificationObserverHub
+PlaxionMediator.Pipeline.PipelineBehaviorResolver
+PlaxionMediator.Pipeline.PipelineBuilder
+PlaxionMediator.Pipeline.PipelineBuilder.Behaviors.get -> System.Collections.Generic.IReadOnlyList<System.Type!>!
+PlaxionMediator.Pipeline.PipelineBuilder.PipelineBuilder() -> void
+PlaxionMediator.Pipeline.PipelineBuilder.Use<TBehavior>() -> PlaxionMediator.Pipeline.PipelineBuilder!
+PlaxionMediator.Pipeline.PipelineBuilder.UseWhen<TBehavior>(System.Func<System.Type!, bool>! predicate) -> PlaxionMediator.Pipeline.PipelineBuilder!
+PlaxionMediator.Pipeline.PipelineCallContext
+PlaxionMediator.Pipeline.PipelineCallContext.BehaviorCount.get -> int
+PlaxionMediator.Pipeline.PipelineCallContext.PipelineCallContext() -> void
+PlaxionMediator.Pipeline.PipelineCallContext.PipelineCallContext(System.Type! requestType, System.Type! responseType, int behaviorCount) -> void
+PlaxionMediator.Pipeline.PipelineCallContext.RequestType.get -> System.Type!
+PlaxionMediator.Pipeline.PipelineCallContext.RequestTypeName.get -> string!
+PlaxionMediator.Pipeline.PipelineCallContext.ResponseType.get -> System.Type!
+PlaxionMediator.Pipeline.PipelineComposer
+PlaxionMediator.Pipeline.PipelineExtensionBuilder
+PlaxionMediator.Pipeline.PipelineExtensionBuilder.Extensions.get -> System.Collections.Generic.IReadOnlyList<System.Type!>!
+PlaxionMediator.Pipeline.PipelineExtensionBuilder.PipelineExtensionBuilder() -> void
+PlaxionMediator.Pipeline.PipelineExtensionBuilder.Use<TExtension>() -> PlaxionMediator.Pipeline.PipelineExtensionBuilder!
+PlaxionMediator.Pipeline.PipelineExtensionBuilder.UseWhen<TExtension>(System.Func<System.Type!, bool>! predicate) -> PlaxionMediator.Pipeline.PipelineExtensionBuilder!
+PlaxionMediator.Pipeline.PipelineExtensionContext
+PlaxionMediator.Pipeline.PipelineExtensionContext.BehaviorCount.get -> int
+PlaxionMediator.Pipeline.PipelineExtensionContext.PipelineExtensionContext() -> void
+PlaxionMediator.Pipeline.PipelineExtensionContext.PipelineExtensionContext(System.Type! requestType, System.Type! responseType, int behaviorCount) -> void
+PlaxionMediator.Pipeline.PipelineExtensionContext.RequestType.get -> System.Type!
+PlaxionMediator.Pipeline.PipelineExtensionContext.ResponseType.get -> System.Type!
+PlaxionMediator.Pipeline.PipelineExtensionRegistry
+PlaxionMediator.Pipeline.PipelineObserverHub
+PlaxionMediator.Pipeline.RequestHandlerResolver
+static PlaxionMediator.Pipeline.NotificationObserverHub.Clear() -> void
+static PlaxionMediator.Pipeline.NotificationObserverHub.Current.get -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Pipeline.INotificationObserver!>!
+static PlaxionMediator.Pipeline.NotificationObserverHub.HasObservers.get -> bool
+static PlaxionMediator.Pipeline.NotificationObserverHub.NotifyCompleted(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+static PlaxionMediator.Pipeline.NotificationObserverHub.NotifyFaulted(in PlaxionMediator.Pipeline.NotificationCallContext context, System.Exception! exception) -> void
+static PlaxionMediator.Pipeline.NotificationObserverHub.NotifyStarting(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+static PlaxionMediator.Pipeline.NotificationObserverHub.Register(PlaxionMediator.Pipeline.INotificationObserver! observer) -> void
+static PlaxionMediator.Pipeline.NotificationObserverHub.Unregister(PlaxionMediator.Pipeline.INotificationObserver! observer) -> void
+static PlaxionMediator.Pipeline.PipelineBehaviorResolver.GetBehaviors<TRequest, TResponse>(System.IServiceProvider! services, ref System.Collections.Generic.Dictionary<System.Type!, object!>? scopeCache) -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>!>!
+static PlaxionMediator.Pipeline.PipelineBehaviorResolver.GetBehaviorsForFieldCache<TRequest, TResponse>(System.IServiceProvider! services, out bool cacheable) -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>!>!
+static PlaxionMediator.Pipeline.PipelineBehaviorResolver.HasNoPipelineBehaviors() -> bool
+static PlaxionMediator.Pipeline.PipelineBehaviorResolver.RegisterServiceCollection(Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> void
+static PlaxionMediator.Pipeline.PipelineComposer.Compose<TRequest, TResponse>(TRequest request, System.Collections.Generic.IReadOnlyList<PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>!>! behaviors, System.Func<TRequest, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<TResponse>>! handler, System.Threading.CancellationToken cancellationToken) -> PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>!
+static PlaxionMediator.Pipeline.PipelineComposer.ExecuteAsync<TRequest, TResponse>(TRequest request, System.Collections.Generic.IReadOnlyList<PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>!>! behaviors, PlaxionMediator.Abstractions.IRequestHandler<TRequest, TResponse>! handler, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<TResponse>
+static PlaxionMediator.Pipeline.PipelineComposer.ExecuteAsync<TRequest, TResponse>(TRequest request, System.Collections.Generic.IReadOnlyList<PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>!>! behaviors, System.Func<TRequest, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<TResponse>>! handler, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<TResponse>
+static PlaxionMediator.Pipeline.PipelineExtensionRegistry.Clear() -> void
+static PlaxionMediator.Pipeline.PipelineExtensionRegistry.Current.get -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Pipeline.IPipelineExtension!>!
+static PlaxionMediator.Pipeline.PipelineExtensionRegistry.HasExtensions.get -> bool
+static PlaxionMediator.Pipeline.PipelineExtensionRegistry.Register(PlaxionMediator.Pipeline.IPipelineExtension! extension) -> void
+static PlaxionMediator.Pipeline.PipelineExtensionRegistry.Set(System.Collections.Generic.IEnumerable<PlaxionMediator.Pipeline.IPipelineExtension!>! extensions) -> void
+static PlaxionMediator.Pipeline.PipelineObserverHub.Clear() -> void
+static PlaxionMediator.Pipeline.PipelineObserverHub.Current.get -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Pipeline.IPipelineObserver!>!
+static PlaxionMediator.Pipeline.PipelineObserverHub.HasObservers.get -> bool
+static PlaxionMediator.Pipeline.PipelineObserverHub.Register(PlaxionMediator.Pipeline.IPipelineObserver! observer) -> void
+static PlaxionMediator.Pipeline.PipelineObserverHub.Unregister(PlaxionMediator.Pipeline.IPipelineObserver! observer) -> void
+static PlaxionMediator.Pipeline.RequestHandlerResolver.CanCacheHandlersPerScope() -> bool
+static PlaxionMediator.Pipeline.RequestHandlerResolver.RegisterServiceCollection(Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> void

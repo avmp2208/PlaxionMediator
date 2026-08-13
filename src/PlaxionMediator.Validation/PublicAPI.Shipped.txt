@@ -1,0 +1,20 @@
+#nullable enable
+PlaxionMediator.Validation.IPlaxionMediatorValidator<TRequest>
+PlaxionMediator.Validation.IPlaxionMediatorValidator<TRequest>.ValidateAsync(TRequest request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Validation.PlaxionMediatorValidationResult!>
+PlaxionMediator.Validation.PlaxionMediatorValidationException
+PlaxionMediator.Validation.PlaxionMediatorValidationException.Failures.get -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Validation.PlaxionMediatorValidationFailure!>!
+PlaxionMediator.Validation.PlaxionMediatorValidationException.PlaxionMediatorValidationException(string! message, System.Collections.Generic.IEnumerable<PlaxionMediator.Validation.PlaxionMediatorValidationFailure!>! failures) -> void
+PlaxionMediator.Validation.PlaxionMediatorValidationException.PlaxionMediatorValidationException(System.Collections.Generic.IEnumerable<PlaxionMediator.Validation.PlaxionMediatorValidationFailure!>! failures) -> void
+PlaxionMediator.Validation.PlaxionMediatorValidationFailure
+PlaxionMediator.Validation.PlaxionMediatorValidationFailure.ErrorMessage.get -> string!
+PlaxionMediator.Validation.PlaxionMediatorValidationFailure.PlaxionMediatorValidationFailure(string! propertyName, string! errorMessage) -> void
+PlaxionMediator.Validation.PlaxionMediatorValidationFailure.PropertyName.get -> string!
+PlaxionMediator.Validation.PlaxionMediatorValidationResult
+PlaxionMediator.Validation.PlaxionMediatorValidationResult.Failures.get -> System.Collections.Generic.IReadOnlyList<PlaxionMediator.Validation.PlaxionMediatorValidationFailure!>!
+PlaxionMediator.Validation.PlaxionMediatorValidationResult.IsValid.get -> bool
+PlaxionMediator.Validation.ServiceCollectionExtensions
+static PlaxionMediator.Validation.PlaxionMediatorValidationResult.Failed(params PlaxionMediator.Validation.PlaxionMediatorValidationFailure![]! failures) -> PlaxionMediator.Validation.PlaxionMediatorValidationResult!
+static PlaxionMediator.Validation.PlaxionMediatorValidationResult.Failed(System.Collections.Generic.IEnumerable<PlaxionMediator.Validation.PlaxionMediatorValidationFailure!>! failures) -> PlaxionMediator.Validation.PlaxionMediatorValidationResult!
+static PlaxionMediator.Validation.PlaxionMediatorValidationResult.Success.get -> PlaxionMediator.Validation.PlaxionMediatorValidationResult!
+static PlaxionMediator.Validation.ServiceCollectionExtensions.AddPlaxionMediatorValidator<TRequest, TValidator>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Validation.ServiceCollectionExtensions.UsePlaxionMediatorValidationBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!

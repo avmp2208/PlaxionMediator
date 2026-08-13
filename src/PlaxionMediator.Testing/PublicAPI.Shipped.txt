@@ -1,0 +1,18 @@
+#nullable enable
+PlaxionMediator.Testing.FakeSender
+PlaxionMediator.Testing.FakeSender.AssertCallCount<TRequest>(int expectedCount) -> void
+PlaxionMediator.Testing.FakeSender.AssertSentInOrder(params System.Type![]! expectedTypes) -> void
+PlaxionMediator.Testing.FakeSender.CreateStream<TResponse>(PlaxionMediator.Abstractions.IStreamRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Collections.Generic.IAsyncEnumerable<TResponse>!
+PlaxionMediator.Testing.FakeSender.FakeSender() -> void
+PlaxionMediator.Testing.FakeSender.GetCallCount<TRequest>() -> int
+PlaxionMediator.Testing.FakeSender.GetSent<TRequest>() -> System.Collections.Generic.IReadOnlyList<TRequest>!
+PlaxionMediator.Testing.FakeSender.Reset() -> void
+PlaxionMediator.Testing.FakeSender.Send<TResponse>(PlaxionMediator.Abstractions.IRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<TResponse>
+PlaxionMediator.Testing.FakeSender.SentRequests.get -> System.Collections.Generic.IReadOnlyList<object!>!
+PlaxionMediator.Testing.FakeSender.When<TRequest, TResponse>(System.Func<TRequest, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<TResponse>>! respond) -> void
+PlaxionMediator.Testing.FakeSender.When<TRequest, TResponse>(System.Func<TRequest, TResponse>! respond) -> void
+PlaxionMediator.Testing.FakeSender.WhenStream<TRequest, TResponse>(System.Func<TRequest, System.Collections.Generic.IAsyncEnumerable<TResponse>!>! respond) -> void
+PlaxionMediator.Testing.FakeSender.WhenStream<TRequest, TResponse>(System.Func<TRequest, System.Collections.Generic.IEnumerable<TResponse>!>! respond) -> void
+PlaxionMediator.Testing.FakeSender.WhenStream<TRequest, TResponse>(System.Func<TRequest, System.Threading.CancellationToken, System.Collections.Generic.IAsyncEnumerable<TResponse>!>! respond) -> void
+PlaxionMediator.Testing.FakeSenderAssertionException
+PlaxionMediator.Testing.FakeSenderAssertionException.FakeSenderAssertionException(string! message) -> void

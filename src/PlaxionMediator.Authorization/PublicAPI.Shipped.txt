@@ -1,0 +1,48 @@
+#nullable enable
+const PlaxionMediator.Authorization.AuthorizationMeter.Name = "PlaxionMediator.Authorization" -> string!
+const PlaxionMediator.Authorization.AuthorizationMeter.RequestTypeTag = "plaxionmediator.request.type" -> string!
+PlaxionMediator.Authorization.AuthorizationContext
+PlaxionMediator.Authorization.AuthorizationContext.AuthorizationContext(System.Security.Claims.ClaimsPrincipal? principal, bool isAuthenticated, PlaxionMediator.Authorization.CallerKind callerKind) -> void
+PlaxionMediator.Authorization.AuthorizationContext.CallerKind.get -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.AuthorizationContext.IsAuthenticated.get -> bool
+PlaxionMediator.Authorization.AuthorizationContext.Principal.get -> System.Security.Claims.ClaimsPrincipal?
+PlaxionMediator.Authorization.AuthorizationMeter
+PlaxionMediator.Authorization.AuthorizationOutcome
+PlaxionMediator.Authorization.AuthorizationOutcome.Authorized = 0 -> PlaxionMediator.Authorization.AuthorizationOutcome
+PlaxionMediator.Authorization.AuthorizationOutcome.Forbidden = 2 -> PlaxionMediator.Authorization.AuthorizationOutcome
+PlaxionMediator.Authorization.AuthorizationOutcome.Unauthenticated = 1 -> PlaxionMediator.Authorization.AuthorizationOutcome
+PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.CallerKind.Background = 2 -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.CallerKind.Http = 1 -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.CallerKind.Internal = 3 -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.CallerKind.Unknown = 0 -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.IAuthorizationContext
+PlaxionMediator.Authorization.IAuthorizationContext.CallerKind.get -> PlaxionMediator.Authorization.CallerKind
+PlaxionMediator.Authorization.IAuthorizationContext.IsAuthenticated.get -> bool
+PlaxionMediator.Authorization.IAuthorizationContext.Principal.get -> System.Security.Claims.ClaimsPrincipal?
+PlaxionMediator.Authorization.IAuthorizationContextAccessor
+PlaxionMediator.Authorization.IAuthorizationContextAccessor.Current.get -> PlaxionMediator.Authorization.IAuthorizationContext!
+PlaxionMediator.Authorization.IRequestAuthorization<TRequest>
+PlaxionMediator.Authorization.IRequestAuthorization<TRequest>.AuthorizeAsync(TRequest request, PlaxionMediator.Authorization.IAuthorizationContext! context, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Authorization.AuthorizationOutcome>
+PlaxionMediator.Authorization.PlaxionMediatorAuthorizationOptions
+PlaxionMediator.Authorization.PlaxionMediatorAuthorizationOptions.PlaxionMediatorAuthorizationOptions() -> void
+PlaxionMediator.Authorization.PlaxionMediatorForbiddenException
+PlaxionMediator.Authorization.PlaxionMediatorForbiddenException.PlaxionMediatorForbiddenException(string! requestTypeName) -> void
+PlaxionMediator.Authorization.PlaxionMediatorForbiddenException.PlaxionMediatorForbiddenException(string! requestTypeName, string! message) -> void
+PlaxionMediator.Authorization.PlaxionMediatorForbiddenException.RequestTypeName.get -> string!
+PlaxionMediator.Authorization.PlaxionMediatorUnauthenticatedException
+PlaxionMediator.Authorization.PlaxionMediatorUnauthenticatedException.PlaxionMediatorUnauthenticatedException(string! requestTypeName) -> void
+PlaxionMediator.Authorization.PlaxionMediatorUnauthenticatedException.PlaxionMediatorUnauthenticatedException(string! requestTypeName, string! message) -> void
+PlaxionMediator.Authorization.PlaxionMediatorUnauthenticatedException.RequestTypeName.get -> string!
+PlaxionMediator.Authorization.ServiceCollectionExtensions
+PlaxionMediator.Authorization.SystemAuthorizationContextAccessor
+PlaxionMediator.Authorization.SystemAuthorizationContextAccessor.Current.get -> PlaxionMediator.Authorization.IAuthorizationContext!
+PlaxionMediator.Authorization.SystemAuthorizationContextAccessor.SystemAuthorizationContextAccessor() -> void
+PlaxionMediator.Authorization.SystemAuthorizationContextAccessor.SystemAuthorizationContextAccessor(PlaxionMediator.Authorization.CallerKind callerKind) -> void
+static PlaxionMediator.Authorization.ServiceCollectionExtensions.AddPlaxionMediatorAuthorization(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Authorization.PlaxionMediatorAuthorizationOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Authorization.ServiceCollectionExtensions.AddPlaxionMediatorAuthorization<TRequest, TCheck>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Authorization.ServiceCollectionExtensions.UsePlaxionMediatorAuthorizationBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!
+static readonly PlaxionMediator.Authorization.AuthorizationMeter.AllowedCount -> System.Diagnostics.Metrics.Counter<long>!
+static readonly PlaxionMediator.Authorization.AuthorizationMeter.DeniedCount -> System.Diagnostics.Metrics.Counter<long>!
+static readonly PlaxionMediator.Authorization.AuthorizationMeter.Duration -> System.Diagnostics.Metrics.Histogram<double>!
+static readonly PlaxionMediator.Authorization.AuthorizationMeter.Meter -> System.Diagnostics.Metrics.Meter!

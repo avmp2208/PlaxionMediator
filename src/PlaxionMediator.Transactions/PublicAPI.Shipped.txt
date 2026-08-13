@@ -1,0 +1,24 @@
+#nullable enable
+PlaxionMediator.Transactions.ITransactionalRequest
+PlaxionMediator.Transactions.ITransactionalRequest.IsolationLevel.get -> PlaxionMediator.Transactions.TransactionIsolationLevel?
+PlaxionMediator.Transactions.ITransactionManager
+PlaxionMediator.Transactions.ITransactionManager.BeginAsync(PlaxionMediator.Transactions.TransactionIsolationLevel isolationLevel, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Transactions.ITransactionScope!>
+PlaxionMediator.Transactions.ITransactionScope
+PlaxionMediator.Transactions.ITransactionScope.CommitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Transactions.ITransactionScope.HasExistingTransaction.get -> bool
+PlaxionMediator.Transactions.ITransactionScope.RollbackAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions
+PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions.DefaultIsolationLevel.get -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions.DefaultIsolationLevel.set -> void
+PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions.PlaxionMediatorTransactionOptions() -> void
+PlaxionMediator.Transactions.ServiceCollectionExtensions
+PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.ReadCommitted = 2 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.ReadUncommitted = 1 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.RepeatableRead = 3 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.Serializable = 4 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.Snapshot = 5 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+PlaxionMediator.Transactions.TransactionIsolationLevel.Unspecified = 0 -> PlaxionMediator.Transactions.TransactionIsolationLevel
+static PlaxionMediator.Transactions.ServiceCollectionExtensions.AddPlaxionMediatorTransactionManager<TManager>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Transactions.ServiceCollectionExtensions.AddPlaxionMediatorTransactions(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Transactions.ServiceCollectionExtensions.UsePlaxionMediatorTransactionBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!
