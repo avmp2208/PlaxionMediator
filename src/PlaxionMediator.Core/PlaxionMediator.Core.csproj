@@ -18,4 +18,16 @@
   <ItemGroup>
     <ProjectReference Include="..\PlaxionMediator.Abstractions\PlaxionMediator.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>PlaxionMediator.Pipeline</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>PlaxionMediator.Pipeline.Tests</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>PlaxionMediator.Core.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

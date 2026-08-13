@@ -3,7 +3,7 @@ namespace PlaxionMediator.Core;
 /// <summary>
 /// Internal marker wrapping an exception raised by the terminal handler invocation.
 /// </summary>
-public sealed class HandlerFaultException : PlaxionMediatorException
+internal sealed class HandlerFaultException : PlaxionMediatorException
 {
     /// <summary>
     /// Initializes a new instance wrapping the given fault.
