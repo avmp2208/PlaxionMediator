@@ -7,7 +7,7 @@
     <Description>ASP.NET Core integration for PlaxionMediator Authorization, providing ClaimsPrincipal-based context and Microsoft.AspNetCore.Authorization bridge.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.9.0</Version>
+    <Version>1.0.0</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 
