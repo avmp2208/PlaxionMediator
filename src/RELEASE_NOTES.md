@@ -1,5 +1,44 @@
 # Release Notes
 
+## v1.0.0
+
+`PlaxionMediator v1.0.0` establishes the framework's **Stable Contract / Compatibility Baseline** — the first release with a mechanically-enforced, documented 1.x compatibility guarantee across 10 dimensions (source/API, binary, behavioral, package/dependency, pipeline semantic, source-generator, analyzer/diagnostic, NativeAOT/trimming, platform/TFM, performance). See `ADR-0013` and `docs/wiki/Versioning-Policy.md` for the full policy.
+
+### Breaking Changes
+- **Internalized accidental public implementation types** that were never intended for direct consumer use — always register behaviors through the documented extension methods instead:
+  - `HandlerFaultException` (`PlaxionMediator.Core`)
+  - `ValidationBehavior<,>` (`PlaxionMediator.Validation`) — use `UsePlaxionMediatorValidationBehavior()`
+  - `CachingBehavior<,>` (`PlaxionMediator.Caching`) — use `UsePlaxionMediatorCachingBehavior()`
+  - `RetryBehavior<,>` and `CircuitBreakerBehavior<,>` (`PlaxionMediator.Retry`) — use `UsePlaxionMediatorRetryBehavior()` / `UsePlaxionMediatorCircuitBreakerBehavior()`
+  - `AuthorizationBehavior<,>` (`PlaxionMediator.Authorization`) — use `UsePlaxionMediatorAuthorizationBehavior()`
+  - `TransactionBehavior<,>` (`PlaxionMediator.Transactions`) — use `UsePlaxionMediatorTransactionBehavior()`
+  - Full migration instructions and the complete breaking-change ledger: `docs/wiki/Migration-Guide.md`.
+
+### Added
+- **Public API compatibility baseline**: `Microsoft.CodeAnalysis.PublicApiAnalyzers` (`PublicAPI.Shipped.txt`/`PublicAPI.Unshipped.txt`) added to all 15 applicable shipped packages, CI-enforceable, preventing accidental breaking API changes going forward.
+- **Binary compatibility harness**: new `test/PlaxionMediator.BinaryCompatibility.Tests` project exercising `Send`/`Publish`/pipeline/DI as a fixed functional consumer.
+- **Behavioral compatibility suite**: new composed end-to-end pipeline tests (`test/PlaxionMediator.Tests/ComposedPipelineOrderingTests.cs`) locking the documented `Validation → Authorization → Caching → Retry → Transaction → Handler` ordering, alongside existing per-package invariant tests.
+- **Source generator and analyzer contract tests**: `GeneratorContractTests` locking supported request/handler shapes, plus hardened assertions (ID + severity) across all 34 analyzer diagnostics.
+- **`ADR-0013` — Compatibility Constitution**: the authoritative 1.x SemVer, deprecation, and 0.x-support policy.
+- **`docs/wiki/Versioning-Policy.md`** and **`docs/wiki/Migration-Guide.md`**: new consumer-facing SemVer rules and the v0.9.x → v1.0.0 breaking-change ledger.
+- **v1.0 Performance Baseline**: first authoritative, non-Dry BenchmarkDotNet run across all 7 benchmark classes, captured as the reference point for future 1.x regression analysis.
+- **Package dependency boundary validation**: mechanically verified — `Transactions` has no EF Core dependency, `Authorization` has no ASP.NET Core dependency, `OpenTelemetry` remains opt-in, zero violations found across all 18 shipped packages.
+- **`READMEpackage.md` resynchronized** with `README.md`: added the `PlaxionMediator.Authorization` / `PlaxionMediator.Authorization.AspNetCore` packages to the install list and package table, added a dedicated Authorization usage example, and corrected the Transactions/EF Core example.
+
+### Verified
+- Full solution `dotnet restore` / `dotnet build -c Release` (0 warnings, 0 errors) / `dotnet test -c Release`: 404/404 tests passing across all 21 test projects.
+- `dotnet pack -c Release`: all 18 shipped packages (+ `.snupkg` symbols) pack successfully; `.nuspec` metadata inspected directly (PackageId, TFMs, dependencies, README, license, tags).
+- NativeAOT publish-and-run certification: `PlaxionMediator.Sample.MinimalApi` fully PASSES.
+- Local `1.0.0-rc.1` candidate validated end-to-end from a local NuGet feed by a real, external (non-project-referenced) consumer app.
+
+### Known Limitations (non-blocking, documented)
+- `PlaxionMediator.Sample.WebApi` cannot start under NativeAOT due to third-party EF Core / ASP.NET Core Authorization middleware reflection limitations — not PlaxionMediator-attributable.
+- `IRequest<Unit>` combined with any pipeline behavior throws under NativeAOT DI (closed generics over value types) — flagged as a candidate fix for a future 1.x release.
+- No SourceLink provider is currently configured (release-quality follow-up, not a compatibility blocker).
+
+### 0.x Support
+`v0.9.x` and earlier are pre-stable; there is no formal long-term maintenance commitment for them after `v1.0.0` ships. Users should migrate using `docs/wiki/Migration-Guide.md`.
+
 ## v0.9.0
 
 ### Added
