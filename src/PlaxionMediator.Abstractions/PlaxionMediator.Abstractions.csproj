@@ -7,11 +7,15 @@
     <Description>Contract-only abstractions for the PlaxionMediator request pipeline framework (IRequest, handlers, behaviors, notifications).</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.7.1</Version>
+    <Version>1.0.0</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\assets\plaxionlogonuget.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
 </Project>

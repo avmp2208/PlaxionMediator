@@ -115,8 +115,14 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Ensure the sample orders schema exists (SQLite file DB).
-using (var scope = app.Services.CreateScope())
+// NOTE: EF Core's runtime model building (used by EnsureCreated()) is not supported under
+// NativeAOT (see IL3050 at publish time / https://aka.ms/efcore-docs-aot); this is a third-party
+// EF Core limitation, not a PlaxionMediator one. It is skipped here under AOT so the rest of the
+// sample (items/validation/retry/circuit-breaker endpoints) can still be exercised; a production
+// AOT deployment using EF Core would need a compiled model instead.
+if (System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported)
 {
+    using var scope = app.Services.CreateScope();
     SampleOrderDbContext db = scope.ServiceProvider.GetRequiredService<SampleOrderDbContext>();
     db.Database.EnsureCreated();
 }

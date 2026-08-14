@@ -17,7 +17,7 @@ Handlers that touch multiple persistence operations need an atomic boundary: com
 
 | Package | Role |
 |---------|------|
-| `PlaxionMediator.Transactions` | Marker, manager abstraction, `TransactionBehavior`, DI helpers |
+| `PlaxionMediator.Transactions` | Marker, manager abstraction, transaction behavior, DI helpers |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 
 Core depends only on `PlaxionMediator.Abstractions` + `PlaxionMediator` (DI bundle). No EF Core reference in the core transactions package. Both packages set `IsAotCompatible=true`.
@@ -131,14 +131,14 @@ Nested `Send` of another `ITransactionalRequest` should join the existing transa
 
 ## Fast path
 
-Non-`ITransactionalRequest` requests hit a single type-check guard and call `next()` — same pattern as `RetryBehavior`. Registering `TransactionBehavior` without using transactional requests adds only that guard on the pipeline path (no manager calls).
+Non-`ITransactionalRequest` requests hit a single type-check guard and call `next()` — same pattern as the retry behavior. Registering the transaction behavior without using transactional requests adds only that guard on the pipeline path (no manager calls).
 
 ## Analyzers
 
 | ID | Severity | Meaning |
 |----|----------|---------|
-| `PlaxionMediator042` | Error | `ITransactionalRequest` without `TransactionBehavior` registered |
-| `PlaxionMediator043` | Error | `TransactionBehavior` outer to `RetryBehavior` (unsafe) |
+| `PlaxionMediator042` | Error | `ITransactionalRequest` without transaction behavior registered |
+| `PlaxionMediator043` | Error | Transaction behavior outer to retry behavior (unsafe) |
 | `PlaxionMediator044` | Error | Multiple `ITransactionManager` registrations without keyed resolution |
 | `PlaxionMediator045` | Warning | Isolation level statically known unsupported (e.g. Snapshot + SQLite/InMemory) |
 

@@ -1,0 +1,28 @@
+#nullable enable
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.BehaviorCountTag = "plaxionmediator.behavior.count" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.CorrelationIdBaggageKey = "correlation.id" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.CorrelationIdTag = "plaxionmediator.correlation_id" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.HandlerTypeTag = "plaxionmediator.handler.type" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.Name = "PlaxionMediator" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.NotificationTypeTag = "plaxionmediator.notification.type" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.RequestTypeTag = "plaxionmediator.request.type" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.ResponseTypeTag = "plaxionmediator.response.type" -> string!
+const PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.Name = "PlaxionMediator" -> string!
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnCompleted(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnCompleted(in PlaxionMediator.Pipeline.PipelineCallContext context) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnFaulted(in PlaxionMediator.Pipeline.NotificationCallContext context, System.Exception! exception) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnFaulted(in PlaxionMediator.Pipeline.PipelineCallContext context, System.Exception! exception) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnStarting(in PlaxionMediator.Pipeline.NotificationCallContext context) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OnStarting(in PlaxionMediator.Pipeline.PipelineCallContext context) -> void
+PlaxionMediator.OpenTelemetry.OpenTelemetryPipelineObserver.OpenTelemetryPipelineObserver() -> void
+PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource
+PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter
+PlaxionMediator.OpenTelemetry.ServiceCollectionExtensions
+static PlaxionMediator.OpenTelemetry.ServiceCollectionExtensions.AddPlaxionMediatorOpenTelemetry(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorActivitySource.Source -> System.Diagnostics.ActivitySource!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.HandlerNotFoundCount -> System.Diagnostics.Metrics.Counter<long>!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.Meter -> System.Diagnostics.Metrics.Meter!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.PipelineExceptionCount -> System.Diagnostics.Metrics.Counter<long>!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.RequestCount -> System.Diagnostics.Metrics.Counter<long>!
+static readonly PlaxionMediator.OpenTelemetry.PlaxionMediatorMeter.RequestDuration -> System.Diagnostics.Metrics.Histogram<double>!

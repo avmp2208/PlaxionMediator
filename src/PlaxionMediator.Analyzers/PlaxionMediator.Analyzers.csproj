@@ -12,7 +12,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5128;RS2008;RS1038</NoWarn>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>

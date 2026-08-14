@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 using Xunit;
 
@@ -15,7 +16,7 @@ public sealed class MissingTransactionBehaviorAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingTransactionBehaviorAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator042");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator042" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -61,7 +62,7 @@ public sealed class InvalidTransactionOrderingAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new InvalidTransactionOrderingAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator043");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator043" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -120,7 +121,7 @@ public sealed class AmbiguousTransactionManagerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new AmbiguousTransactionManagerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator044");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator044" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -178,7 +179,7 @@ public sealed class UnsupportedIsolationLevelAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new UnsupportedIsolationLevelAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator045");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator045" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

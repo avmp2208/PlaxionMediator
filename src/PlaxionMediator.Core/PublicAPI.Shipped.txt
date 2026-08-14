@@ -1,0 +1,20 @@
+#nullable enable
+PlaxionMediator.Core.HandlerNotFoundException
+PlaxionMediator.Core.HandlerNotFoundException.HandlerNotFoundException(string! message) -> void
+PlaxionMediator.Core.HandlerNotFoundException.HandlerNotFoundException(System.Type! requestType) -> void
+PlaxionMediator.Core.HandlerNotFoundException.RequestType.get -> System.Type?
+PlaxionMediator.Core.IPublisher
+PlaxionMediator.Core.IPublisher.Publish<TNotification>(TNotification notification, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Core.ISender
+PlaxionMediator.Core.ISender.CreateStream<TResponse>(PlaxionMediator.Abstractions.IStreamRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Collections.Generic.IAsyncEnumerable<TResponse>!
+PlaxionMediator.Core.ISender.Send<TResponse>(PlaxionMediator.Abstractions.IRequest<TResponse>! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<TResponse>
+PlaxionMediator.Core.PipelineExecutionException
+PlaxionMediator.Core.PipelineExecutionException.PipelineExecutionException(string! message, System.Exception! innerException) -> void
+PlaxionMediator.Core.PipelineExecutionException.PipelineExecutionException(string! message, System.Exception! innerException, string? stageName) -> void
+PlaxionMediator.Core.PipelineExecutionException.PipelineExecutionException(string! message, System.Exception! innerException, string? stageName, string? requestTypeName) -> void
+PlaxionMediator.Core.PipelineExecutionException.RequestTypeName.get -> string?
+PlaxionMediator.Core.PipelineExecutionException.StageName.get -> string?
+PlaxionMediator.Core.PlaxionMediatorException
+PlaxionMediator.Core.PlaxionMediatorException.PlaxionMediatorException() -> void
+PlaxionMediator.Core.PlaxionMediatorException.PlaxionMediatorException(string! message) -> void
+PlaxionMediator.Core.PlaxionMediatorException.PlaxionMediatorException(string! message, System.Exception! innerException) -> void

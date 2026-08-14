@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 
 namespace PlaxionMediator.Analyzers.Tests;
@@ -29,7 +30,7 @@ public sealed class MissingRequestBindingAttributeAnalyzerTests
             new MissingRequestBindingAttributeAnalyzer(),
             source);
 
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator005");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator005" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public sealed class MissingRequestBindingAttributeAnalyzerTests
             new MissingRequestBindingAttributeAnalyzer(),
             source);
 
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator005");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator005" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

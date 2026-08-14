@@ -14,7 +14,7 @@ public sealed class MissingHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator001");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator001" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public sealed class MultipleHandlersAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MultipleHandlersAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator002");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator002" && d.Severity == DiagnosticSeverity.Error);
     }
 }
 
@@ -76,7 +76,7 @@ public sealed class MutableRequestAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MutableRequestAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator003");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator003" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public sealed class MutableRequestAnalyzerTests
             }
             """;
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MutableRequestAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator003");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator003" && d.Severity == DiagnosticSeverity.Error);
     }
 }
 
@@ -131,7 +131,7 @@ public sealed class MissingCancellationTokenAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator004");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator004" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -177,12 +177,12 @@ public sealed class MissingCancellationTokenAnalyzerTests
 
         // We check individual analyzers or we could run all, but here we just check if multiple analyzers fire on the same source if we run them.
         var d1 = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingHandlerAnalyzer(), source);
-        Assert.Contains(d1, d => d.Id == "PlaxionMediator001");
+        Assert.Contains(d1, d => d.Id == "PlaxionMediator001" && d.Severity == DiagnosticSeverity.Error);
 
         var d3 = await AnalyzerTestHelper.GetDiagnosticsAsync(new MutableRequestAnalyzer(), source);
-        Assert.Contains(d3, d => d.Id == "PlaxionMediator003");
+        Assert.Contains(d3, d => d.Id == "PlaxionMediator003" && d.Severity == DiagnosticSeverity.Error);
 
         var d4 = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenAnalyzer(), source);
-        Assert.Contains(d4, d => d.Id == "PlaxionMediator004");
+        Assert.Contains(d4, d => d.Id == "PlaxionMediator004" && d.Severity == DiagnosticSeverity.Warning);
     }
 }

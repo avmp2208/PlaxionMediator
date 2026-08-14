@@ -26,6 +26,8 @@ dotnet add package PlaxionMediator.Retry
 dotnet add package PlaxionMediator.Transactions
 dotnet add package PlaxionMediator.Transactions.EntityFrameworkCore
 dotnet add package PlaxionMediator.OpenTelemetry
+dotnet add package PlaxionMediator.Authorization
+dotnet add package PlaxionMediator.Authorization.AspNetCore
 ```
 
 ## Quickstart
@@ -80,9 +82,16 @@ builder.Services.AddPlaxionMediator(o =>
 });
 builder.Services.AddPlaxionMediatorFluentValidation(typeof(Program).Assembly);
 
-// Resilience, Caching & Transactions (v0.4.0+ / v0.8.0+)
+// ... failures return 400 ProblemDetails automatically
+app.UsePlaxionMediatorExceptionHandling();
+```
+
+### Resilience, Caching & Transactions (v0.4.0+ / v0.8.0+)
+
+```csharp
 builder.Services.AddPlaxionMediator(o =>
 {
+    // Recommended order: Validation → Caching → CircuitBreaker → Retry → Transaction → Handler
     o.UsePlaxionMediatorCachingBehavior();
     o.UsePlaxionMediatorCircuitBreakerBehavior();
     o.UsePlaxionMediatorRetryBehavior();
@@ -91,11 +100,38 @@ builder.Services.AddPlaxionMediator(o =>
 builder.Services.AddPlaxionMediatorCaching();
 builder.Services.AddPlaxionMediatorRetry();
 builder.Services.AddPlaxionMediatorCircuitBreaker();
-// builder.Services.AddPlaxionMediatorTransactionsEntityFrameworkCore<AppDbContext>();
-
-// ... failures return 400 ProblemDetails automatically
-app.UsePlaxionMediatorExceptionHandling();
+// Register exactly one ITransactionManager (custom or EF Core adapter package).
+builder.Services.AddPlaxionMediatorTransactionsEntityFrameworkCore<AppDbContext>();
 ```
+
+### Authorization (`PlaxionMediator.Authorization`, v0.9.0+)
+
+Protect application operations with fine-grained authorization checks that apply regardless of the caller (HTTP, background worker, internal call). Register Authorization **outside** Retry and Transaction.
+
+```csharp
+using PlaxionMediator.Authorization;
+using PlaxionMediator.Authorization.AspNetCore;
+
+builder.Services.AddPlaxionMediator(o =>
+{
+    o.UsePlaxionMediatorValidationBehavior();
+    o.UsePlaxionMediatorAuthorizationBehavior(); // after Validation
+});
+builder.Services.AddPlaxionMediatorAuthorization();
+builder.Services.AddPlaxionMediatorAuthorizationAspNetCore(); // For ASP.NET Core integration
+
+public sealed class CancelOrderAuthorization : IRequestAuthorization<CancelOrderRequest>
+{
+    public ValueTask<AuthorizationOutcome> AuthorizeAsync(CancelOrderRequest request, IAuthorizationContext context, CancellationToken ct)
+    {
+        return context.Principal?.IsInRole("Admin") == true 
+            ? ValueTask.FromResult(AuthorizationOutcome.Authorized)
+            : ValueTask.FromResult(AuthorizationOutcome.Forbidden);
+    }
+}
+```
+
+See the [full write-up on GitHub](https://github.com/avmp2208/PlaxionMediator/blob/master/docs/wiki/Authorization.md).
 
 ### Telemetry (`PlaxionMediator.OpenTelemetry`, v0.7.0+)
 
@@ -132,13 +168,15 @@ Emits `plaxionmediator.request.duration`, `plaxionmediator.request.count`, `plax
 | `PlaxionMediator.Testing` | `FakeSender` and test helpers |
 | `PlaxionMediator.AspNetCore` | Exception→`ProblemDetails` middleware (`UsePlaxionMediatorExceptionHandling`) |
 | `PlaxionMediator.MinimalApis` | `MapPlaxionMediatorPost/Get/Put/Delete/Patch` endpoint helpers |
-| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and `ValidationBehavior<,>` |
+| `PlaxionMediator.Validation` | `IPlaxionMediatorValidator<>` and validation behavior |
 | `PlaxionMediator.Validation.FluentValidation` | `FluentValidation` adapter and DI scanning |
-| `PlaxionMediator.Caching` | `ICacheableRequest<>` and `CachingBehavior<,>` |
-| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, `RetryBehavior<,>`, `CircuitBreakerBehavior<,>` |
-| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, `TransactionBehavior<,>` (provider-agnostic) |
+| `PlaxionMediator.Caching` | `ICacheableRequest<>` and caching behavior |
+| `PlaxionMediator.Retry` | `IRetryableRequest`, `ICircuitBreakerRequest`, retry behavior, and circuit breaker behavior |
+| `PlaxionMediator.Transactions` | `ITransactionalRequest`, `ITransactionManager`, and transaction behavior (provider-agnostic) |
 | `PlaxionMediator.Transactions.EntityFrameworkCore` | `EfCoreTransactionManager<TDbContext>` adapter |
 | `PlaxionMediator.OpenTelemetry` | Opt-in OpenTelemetry tracing and metrics instrumentation for request dispatch and notification fan-out. |
+| `PlaxionMediator.Authorization` | `IAuthorizationContext`, `IRequestAuthorization<>`, and authorization behavior (transport-neutral). |
+| `PlaxionMediator.Authorization.AspNetCore` | `HttpAuthorizationContextAccessor` and bridge to Microsoft `IAuthorizationService`. |
 
 ## Benchmarks
 

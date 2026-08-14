@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 
 namespace PlaxionMediator.Analyzers.Tests;
@@ -19,7 +20,7 @@ public sealed class InvalidExtensionRegistrationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new InvalidExtensionRegistrationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator024");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator024" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -77,7 +78,7 @@ public sealed class DuplicateExtensionRegistrationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new DuplicateExtensionRegistrationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator025");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator025" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

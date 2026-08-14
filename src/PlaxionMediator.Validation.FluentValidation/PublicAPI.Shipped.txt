@@ -1,0 +1,7 @@
+#nullable enable
+PlaxionMediator.Validation.FluentValidation.FluentValidationAdapter<TRequest>
+PlaxionMediator.Validation.FluentValidation.FluentValidationAdapter<TRequest>.FluentValidationAdapter(System.Collections.Generic.IEnumerable<FluentValidation.IValidator<TRequest>!>! validators) -> void
+PlaxionMediator.Validation.FluentValidation.FluentValidationAdapter<TRequest>.ValidateAsync(TRequest request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Validation.PlaxionMediatorValidationResult!>
+PlaxionMediator.Validation.FluentValidation.ServiceCollectionExtensions
+static PlaxionMediator.Validation.FluentValidation.ServiceCollectionExtensions.AddPlaxionMediatorFluentValidation(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, params System.Reflection.Assembly![]! assembliesToScan) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Validation.FluentValidation.ServiceCollectionExtensions.AddPlaxionMediatorFluentValidator<TRequest, TValidator>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Scoped) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

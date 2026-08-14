@@ -98,7 +98,7 @@ dotnet add package PlaxionMediator.Validation.FluentValidation // For FluentVali
 ```
 
 ### 1. Enable Global Validation
-Call `UsePlaxionMediatorValidationBehavior()` on the mediator options to add `ValidationBehavior<,>` to your global behavior list. This behavior will automatically run all registered validators for a request before the handler executes. You never need to reference `ValidationBehavior<,>` directly.
+Call `UsePlaxionMediatorValidationBehavior()` on the mediator options to add the validation behavior to your global behavior list. This behavior will automatically run all registered validators for a request before the handler executes. You never need to reference the behavior type directly.
 
 ```csharp
 builder.Services.AddPlaxionMediator(options =>
@@ -140,7 +140,7 @@ dotnet add package PlaxionMediator.Retry
 ```
 
 ### 1. Enable Behaviors
-Call the `UsePlaxionMediatorXBehavior()` extension methods to add the behaviors to your global behavior list; you never need to reference `CachingBehavior<,>`/`RetryBehavior<,>` directly. The recommended order is **Validation → Caching → Retry → Handler**.
+Call the `UsePlaxionMediatorXBehavior()` extension methods to add the behaviors to your global behavior list; you never need to reference the internal behavior types directly. The recommended order is **Validation → Caching → Retry → Handler**.
 
 ```csharp
 builder.Services.AddPlaxionMediator(options =>
@@ -204,7 +204,7 @@ public sealed record UnstableRequest(string Data) : IRequest<string>, IRetryable
 }
 ```
 
-The `RetryBehavior` will automatically retry the operation if a transient exception occurs, following the configured backoff strategy.
+The retry behavior will automatically retry the operation if a transient exception occurs, following the configured backoff strategy.
 
 ---
 

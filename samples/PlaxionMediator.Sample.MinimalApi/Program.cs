@@ -5,6 +5,12 @@ using PlaxionMediator;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// NativeAOT/trimming requires JSON source generation for all types bound to request/response bodies.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+});
+
 // 1. Add PlaxionMediator (registers handlers discovered at compile time)
 builder.Services.AddPlaxionMediator();
 
@@ -24,13 +30,13 @@ app.MapGet("/", () => "PlaxionMediator sample is running.");
 app.MapGet("/ping", async (string? message, ISender sender, CancellationToken ct) =>
 {
     string result = await sender.Send(new Ping(message ?? "from-api"), ct);
-    return Results.Ok(new { result });
+    return Results.Ok(new ResultResponse(result));
 });
 
 app.MapPost("/echo", async (Echo body, ISender sender, CancellationToken ct) =>
 {
     string result = await sender.Send(new EchoRequest(body.Message), ct);
-    return Results.Ok(new { result });
+    return Results.Ok(new ResultResponse(result));
 });
 
 app.MapPost("/echo-class", async (Echo body, ISender sender, CancellationToken ct) =>
@@ -38,7 +44,7 @@ app.MapPost("/echo-class", async (Echo body, ISender sender, CancellationToken c
     // Testing non-record class request
     var request = new EchoClassRequest { Message = body.Message };
     string result = await sender.Send(request, ct);
-    return Results.Ok(new { result });
+    return Results.Ok(new ResultResponse(result));
 });
 
 app.MapPost("/notify", async (string message, IPublisher publisher, CancellationToken ct) =>
@@ -52,7 +58,7 @@ app.MapPost("/notify-parallel", async (string message, IPublisher publisher, Can
 {
     // Parallel notification fan-out via [NotificationPublishStrategy(PublishStrategy.Parallel)]
     await publisher.Publish(new ParallelPingNotification(message), ct);
-    return Results.Accepted(value: new { strategy = "Parallel" });
+    return Results.Accepted(value: new StrategyResponse("Parallel"));
 });
 
 app.MapGet("/stream", async (int? count, ISender sender, CancellationToken ct) =>
@@ -64,14 +70,14 @@ app.MapGet("/stream", async (int? count, ISender sender, CancellationToken ct) =
         items.Add(item);
     }
 
-    return Results.Ok(new { items });
+    return Results.Ok(new ItemsResponse(items));
 });
 
 //Create a min api for the TestClass tes below
 app.MapPost("/test-class", async (TestClass body, ISender sender, CancellationToken ct) =>
 {
     string result = await sender.Send(body, ct);
-    return Results.Ok(new { result });
+    return Results.Ok(new ResultResponse(result));
 });
 
 app.MapGet("/fail", async (ISender sender, CancellationToken ct) =>
@@ -83,13 +89,13 @@ app.MapGet("/fail", async (ISender sender, CancellationToken ct) =>
 app.MapGet("/flow", async (ISender sender, FlowTracker tracker, CancellationToken ct) =>
 {
     var result = await sender.Send(new FlowRequest(), ct);
-    return Results.Ok(new { result, steps = tracker.Steps });
+    return Results.Ok(new FlowResponse(result, tracker.Steps));
 });
 
 app.MapGet("/nested", async (ISender sender, CancellationToken ct) =>
 {
     var result = await sender.Send(new NestedRequest("hello"), ct);
-    return Results.Ok(new { result });
+    return Results.Ok(new ResultResponse(result));
 });
 
 app.MapGet("/stream/ticks", (int? count, int? intervalMs, ISender sender, CancellationToken ct) =>
@@ -106,6 +112,26 @@ app.MapPost("/telemetry", async (TelemetryData data, ISender sender, Cancellatio
 });
 
 app.Run();
+
+// --- JSON source-generation context (required for NativeAOT/trimming) ---
+
+public sealed record ResultResponse(string Result);
+public sealed record ItemsResponse(List<int> Items);
+public sealed record StrategyResponse(string Strategy);
+public sealed record FlowResponse(string Result, List<string> Steps);
+
+[System.Text.Json.Serialization.JsonSerializable(typeof(Echo))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(TestClass))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(TelemetryData))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(ResultResponse))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(ItemsResponse))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(StrategyResponse))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(FlowResponse))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(DateTime))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(IAsyncEnumerable<DateTime>))]
+public partial class AppJsonSerializerContext : System.Text.Json.Serialization.JsonSerializerContext
+{
+}
 
 // --- Requests & Handlers ---
 

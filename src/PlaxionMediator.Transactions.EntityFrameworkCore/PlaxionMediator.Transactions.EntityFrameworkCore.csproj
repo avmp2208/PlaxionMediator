@@ -7,7 +7,7 @@
     <Description>Entity Framework Core ITransactionManager adapter for PlaxionMediator.Transactions.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
-    <Version>0.8.0</Version>
+    <Version>1.0.0</Version>
     <PackageIcon>plaxionlogonuget.png</PackageIcon>
   </PropertyGroup>
 
@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

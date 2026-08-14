@@ -15,6 +15,7 @@
     <Copyright>Copyright Â© PlaxionMediator Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://plaxion.dev</PackageProjectUrl>
+    <PackageTags>mediator;cqrs;request-pipeline;source-generator;native-aot</PackageTags>
     <RepositoryUrl>https://github.com/avmp2208/PlaxionMediator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

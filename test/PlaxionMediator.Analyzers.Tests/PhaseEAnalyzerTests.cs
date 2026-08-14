@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 using Xunit;
 
@@ -23,7 +24,7 @@ public sealed class MultiplePublicConstructorsHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MultiplePublicConstructorsHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator012");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator012" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -70,7 +71,7 @@ public sealed class PipelineBehaviorMutableStateAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new PipelineBehaviorMutableStateAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator023");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator023" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -121,7 +122,7 @@ public sealed class LinqUsageInHighFrequencyHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new LinqUsageInHighFrequencyHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator050");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator050" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -172,7 +173,7 @@ public sealed class ClosureCaptureInHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new ClosureCaptureInHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator051");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator051" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -220,7 +221,7 @@ public sealed class FireAndForgetTaskRunAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new FireAndForgetTaskRunAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator070");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator070" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

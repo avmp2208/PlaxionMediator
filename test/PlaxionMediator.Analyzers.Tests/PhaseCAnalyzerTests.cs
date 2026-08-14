@@ -1,5 +1,7 @@
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
+using Xunit;
 
 namespace PlaxionMediator.Analyzers.Tests;
 
@@ -21,7 +23,7 @@ public sealed class NonSealedHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new NonSealedHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator011");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator011" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -61,7 +63,7 @@ public sealed class InvalidBehaviorRegistrationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new InvalidBehaviorRegistrationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator020");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator020" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -117,7 +119,7 @@ public sealed class DuplicateRegistrationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new DuplicateRegistrationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator021");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator021" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -183,7 +185,7 @@ public sealed class IncorrectLifetimeAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator022");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator022" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -308,7 +310,7 @@ public sealed class IncorrectLifetimeAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new IncorrectLifetimeAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator022");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator022" && d.Severity == DiagnosticSeverity.Warning);
     }
 }
 
@@ -333,7 +335,7 @@ public sealed class MissingCancellationTokenPropagationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator031");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator031" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -411,7 +413,7 @@ public sealed class MissingCancellationTokenPropagationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new MissingCancellationTokenPropagationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator031");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator031" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -465,7 +467,7 @@ public sealed class CancellationTokenNoneAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new CancellationTokenNoneAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator032");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator032" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -515,7 +517,7 @@ public sealed class CancellationTokenNoneAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new CancellationTokenNoneAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator032");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator032" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -573,7 +575,7 @@ public sealed class AsyncVoidHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new AsyncVoidHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator040");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator040" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -618,7 +620,7 @@ public sealed class HandlerSelfSendAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new HandlerSelfSendAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator041");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator041" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -697,7 +699,7 @@ public sealed class UnnecessaryBehaviorOnHotPathAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new UnnecessaryBehaviorOnHotPathAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator080");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator080" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -766,7 +768,7 @@ public sealed class SynchronousOnlyHandlerAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new SynchronousOnlyHandlerAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator081");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator081" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -815,7 +817,7 @@ public sealed class BehaviorAllocatesInHotPathAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new BehaviorAllocatesInHotPathAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator082");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator082" && d.Severity == DiagnosticSeverity.Info);
     }
 
     [Fact]
@@ -865,7 +867,7 @@ public sealed class StreamHandlerBuffersAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new StreamHandlerBuffersAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator083");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator083" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -924,7 +926,7 @@ public sealed class NotificationHandlerThrowsAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new NotificationHandlerThrowsAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator090");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator090" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

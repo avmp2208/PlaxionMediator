@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PlaxionMediator.Analyzers;
 using Xunit;
 
@@ -24,7 +25,7 @@ public sealed class AuthorizationRegisteredBehindCacheAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new AuthorizationRegisteredBehindCacheAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator046");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator046" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -72,7 +73,7 @@ public sealed class UnregisteredAuthorizationBehaviorAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new UnregisteredAuthorizationBehaviorAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator047");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator047" && d.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
@@ -128,7 +129,7 @@ public sealed class AmbiguousAuthorizationOrderingAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new AmbiguousAuthorizationOrderingAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator048");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator048" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]
@@ -187,7 +188,7 @@ public sealed class DuplicateAuthorizationRegistrationAnalyzerTests
             """;
 
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new DuplicateAuthorizationRegistrationAnalyzer(), source);
-        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator049");
+        Assert.Contains(diagnostics, d => d.Id == "PlaxionMediator049" && d.Severity == DiagnosticSeverity.Warning);
     }
 
     [Fact]

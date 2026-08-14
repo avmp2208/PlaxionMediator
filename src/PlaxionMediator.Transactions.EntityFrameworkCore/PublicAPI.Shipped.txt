@@ -1,0 +1,6 @@
+#nullable enable
+PlaxionMediator.Transactions.EntityFrameworkCore.EfCoreTransactionManager<TDbContext>
+PlaxionMediator.Transactions.EntityFrameworkCore.EfCoreTransactionManager<TDbContext>.BeginAsync(PlaxionMediator.Transactions.TransactionIsolationLevel isolationLevel, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<PlaxionMediator.Transactions.ITransactionScope!>
+PlaxionMediator.Transactions.EntityFrameworkCore.EfCoreTransactionManager<TDbContext>.EfCoreTransactionManager(TDbContext! dbContext) -> void
+PlaxionMediator.Transactions.EntityFrameworkCore.ServiceCollectionExtensions
+static PlaxionMediator.Transactions.EntityFrameworkCore.ServiceCollectionExtensions.AddPlaxionMediatorTransactionsEntityFrameworkCore<TDbContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Transactions.PlaxionMediatorTransactionOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

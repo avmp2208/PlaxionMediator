@@ -1,0 +1,22 @@
+#nullable enable
+PlaxionMediator.Caching.ICacheableRequest<TResponse>
+PlaxionMediator.Caching.ICacheableRequest<TResponse>.CacheDuration.get -> System.TimeSpan?
+PlaxionMediator.Caching.ICacheableRequest<TResponse>.CacheKey.get -> string!
+PlaxionMediator.Caching.IPlaxionMediatorCacheInvalidator
+PlaxionMediator.Caching.IPlaxionMediatorCacheInvalidator.Remove(string! cacheKey) -> void
+PlaxionMediator.Caching.IPlaxionMediatorCacheInvalidator.RemoveByRequestType(System.Type! requestType) -> void
+PlaxionMediator.Caching.IPlaxionMediatorCacheInvalidator.RemoveByRequestType<TRequest>() -> void
+PlaxionMediator.Caching.IPlaxionMediatorCacheInvalidator.Track(System.Type! requestType, string! cacheKey) -> void
+PlaxionMediator.Caching.MemoryCacheInvalidator
+PlaxionMediator.Caching.MemoryCacheInvalidator.MemoryCacheInvalidator(Microsoft.Extensions.Caching.Memory.IMemoryCache! cache) -> void
+PlaxionMediator.Caching.MemoryCacheInvalidator.Remove(string! cacheKey) -> void
+PlaxionMediator.Caching.MemoryCacheInvalidator.RemoveByRequestType(System.Type! requestType) -> void
+PlaxionMediator.Caching.MemoryCacheInvalidator.RemoveByRequestType<TRequest>() -> void
+PlaxionMediator.Caching.MemoryCacheInvalidator.Track(System.Type! requestType, string! cacheKey) -> void
+PlaxionMediator.Caching.PlaxionMediatorCachingOptions
+PlaxionMediator.Caching.PlaxionMediatorCachingOptions.DefaultCacheDuration.get -> System.TimeSpan
+PlaxionMediator.Caching.PlaxionMediatorCachingOptions.DefaultCacheDuration.set -> void
+PlaxionMediator.Caching.PlaxionMediatorCachingOptions.PlaxionMediatorCachingOptions() -> void
+PlaxionMediator.Caching.ServiceCollectionExtensions
+static PlaxionMediator.Caching.ServiceCollectionExtensions.AddPlaxionMediatorCaching(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<PlaxionMediator.Caching.PlaxionMediatorCachingOptions!>? configure = null) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static PlaxionMediator.Caching.ServiceCollectionExtensions.UsePlaxionMediatorCachingBehavior(this PlaxionMediator.PlaxionMediatorOptions! options) -> PlaxionMediator.PlaxionMediatorOptions!

@@ -1,0 +1,32 @@
+#nullable enable
+override PlaxionMediator.Abstractions.Unit.Equals(object? obj) -> bool
+override PlaxionMediator.Abstractions.Unit.GetHashCode() -> int
+override PlaxionMediator.Abstractions.Unit.ToString() -> string!
+PlaxionMediator.Abstractions.HighFrequencyAttribute
+PlaxionMediator.Abstractions.HighFrequencyAttribute.HighFrequencyAttribute() -> void
+PlaxionMediator.Abstractions.INotification
+PlaxionMediator.Abstractions.INotificationHandler<TNotification>
+PlaxionMediator.Abstractions.INotificationHandler<TNotification>.Handle(TNotification notification, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask
+PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>
+PlaxionMediator.Abstractions.IPipelineBehavior<TRequest, TResponse>.Handle(TRequest request, PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>! next, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<TResponse>
+PlaxionMediator.Abstractions.IRequest
+PlaxionMediator.Abstractions.IRequest<TResponse>
+PlaxionMediator.Abstractions.IRequestHandler<TRequest, TResponse>
+PlaxionMediator.Abstractions.IRequestHandler<TRequest, TResponse>.Handle(TRequest request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<TResponse>
+PlaxionMediator.Abstractions.IStreamRequest<TResponse>
+PlaxionMediator.Abstractions.IStreamRequestHandler<TRequest, TResponse>
+PlaxionMediator.Abstractions.IStreamRequestHandler<TRequest, TResponse>.Handle(TRequest request, System.Threading.CancellationToken cancellationToken) -> System.Collections.Generic.IAsyncEnumerable<TResponse>!
+PlaxionMediator.Abstractions.NotificationPublishStrategyAttribute
+PlaxionMediator.Abstractions.NotificationPublishStrategyAttribute.NotificationPublishStrategyAttribute(PlaxionMediator.Abstractions.PublishStrategy strategy) -> void
+PlaxionMediator.Abstractions.NotificationPublishStrategyAttribute.Strategy.get -> PlaxionMediator.Abstractions.PublishStrategy
+PlaxionMediator.Abstractions.PublishStrategy
+PlaxionMediator.Abstractions.PublishStrategy.Parallel = 1 -> PlaxionMediator.Abstractions.PublishStrategy
+PlaxionMediator.Abstractions.PublishStrategy.Sequential = 0 -> PlaxionMediator.Abstractions.PublishStrategy
+PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>
+PlaxionMediator.Abstractions.Unit
+PlaxionMediator.Abstractions.Unit.Equals(PlaxionMediator.Abstractions.Unit other) -> bool
+PlaxionMediator.Abstractions.Unit.Unit() -> void
+static PlaxionMediator.Abstractions.Unit.operator !=(PlaxionMediator.Abstractions.Unit left, PlaxionMediator.Abstractions.Unit right) -> bool
+static PlaxionMediator.Abstractions.Unit.operator ==(PlaxionMediator.Abstractions.Unit left, PlaxionMediator.Abstractions.Unit right) -> bool
+static readonly PlaxionMediator.Abstractions.Unit.Value -> PlaxionMediator.Abstractions.Unit
+virtual PlaxionMediator.Abstractions.RequestHandlerDelegate<TResponse>.Invoke() -> System.Threading.Tasks.ValueTask<TResponse>

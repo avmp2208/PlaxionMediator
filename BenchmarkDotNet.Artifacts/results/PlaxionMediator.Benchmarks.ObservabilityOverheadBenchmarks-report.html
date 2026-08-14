@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>PlaxionMediator.Benchmarks.ObservabilityOverheadBenchmarks-20260811-121424</title>
+<title>PlaxionMediator.Benchmarks.ObservabilityOverheadBenchmarks-20260813-183905</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -16,20 +16,18 @@
 BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
 12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
 .NET SDK 9.0.202
-  [Host]   : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
-  ShortRun : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  DefaultJob : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
-WarmupCount=3  
-</code></pre>
+<pre><code></code></pre>
 
 <table>
 <thead><tr><th>Method         </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>Publish_NoObserver</td><td>144.1 ns</td><td>244.5 ns</td><td>13.40 ns</td><td>0.99</td><td>0.09</td><td>0.0098</td><td>128 B</td><td>0.64</td>
-</tr><tr><td>Send_NoObserver</td><td>145.7 ns</td><td>117.7 ns</td><td>6.45 ns</td><td>1.00</td><td>0.05</td><td>0.0153</td><td>200 B</td><td>1.00</td>
-</tr><tr><td>Publish_OpenTelemetry</td><td>153.0 ns</td><td>290.0 ns</td><td>15.90 ns</td><td>1.05</td><td>0.10</td><td>0.0098</td><td>128 B</td><td>0.64</td>
-</tr><tr><td>Send_OpenTelemetry</td><td>161.7 ns</td><td>325.1 ns</td><td>17.82 ns</td><td>1.11</td><td>0.11</td><td>0.0153</td><td>200 B</td><td>1.00</td>
+</thead><tbody><tr><td>Publish_OpenTelemetry</td><td>173.9 ns</td><td>3.30 ns</td><td>3.53 ns</td><td>0.94</td><td>0.02</td><td>0.0098</td><td>128 B</td><td>0.64</td>
+</tr><tr><td>Publish_NoObserver</td><td>174.9 ns</td><td>3.39 ns</td><td>4.52 ns</td><td>0.95</td><td>0.03</td><td>0.0098</td><td>128 B</td><td>0.64</td>
+</tr><tr><td>Send_NoObserver</td><td>184.5 ns</td><td>3.56 ns</td><td>3.16 ns</td><td>1.00</td><td>0.02</td><td>0.0153</td><td>200 B</td><td>1.00</td>
+</tr><tr><td>Send_OpenTelemetry</td><td>185.5 ns</td><td>3.45 ns</td><td>3.06 ns</td><td>1.01</td><td>0.02</td><td>0.0153</td><td>200 B</td><td>1.00</td>
 </tr></tbody></table>
 </body>
 </html>
