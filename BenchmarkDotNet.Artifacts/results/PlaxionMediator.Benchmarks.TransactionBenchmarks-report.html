@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>PlaxionMediator.Benchmarks.TransactionBenchmarks-20260811-202704</title>
+<title>PlaxionMediator.Benchmarks.TransactionBenchmarks-20260813-184353</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -16,21 +16,19 @@
 BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8875)
 12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
 .NET SDK 9.0.202
-  [Host]   : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
-  ShortRun : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
+  DefaultJob : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
-WarmupCount=3  
-</code></pre>
+<pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method                                      </th><th>Mean  </th><th>Error </th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                                      </th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>Send_NoTransaction</td><td>23.42 ns</td><td>5.230 ns</td><td>0.287 ns</td><td>1.00</td><td>0.01</td><td>0.0043</td><td>56 B</td><td>1.00</td>
-</tr><tr><td>Send_TransactionBehavior_NonTransactional_FastPath</td><td>91.60 ns</td><td>10.041 ns</td><td>0.550 ns</td><td>3.91</td><td>0.05</td><td>0.0079</td><td>104 B</td><td>1.86</td>
-</tr><tr><td>Send_Transactional_CommitPath</td><td>98.30 ns</td><td>50.973 ns</td><td>2.794 ns</td><td>4.20</td><td>0.11</td><td>0.0098</td><td>128 B</td><td>2.29</td>
-</tr><tr><td>Send_Transactional_NoOpManager</td><td>98.92 ns</td><td>14.213 ns</td><td>0.779 ns</td><td>4.22</td><td>0.05</td><td>0.0098</td><td>128 B</td><td>2.29</td>
-</tr><tr><td>Send_Transactional_RollbackPath</td><td>25,347.52 ns</td><td>1,694.885 ns</td><td>92.902 ns</td><td>1,082.31</td><td>11.94</td><td>0.3967</td><td>5272 B</td><td>94.14</td>
+</thead><tbody><tr><td>Send_NoTransaction</td><td>34.04 ns</td><td>0.711 ns</td><td>0.790 ns</td><td>1.00</td><td>0.03</td><td>0.0042</td><td>56 B</td><td>1.00</td>
+</tr><tr><td>Send_TransactionBehavior_NonTransactional_FastPath</td><td>113.96 ns</td><td>2.279 ns</td><td>3.745 ns</td><td>3.35</td><td>0.13</td><td>0.0079</td><td>104 B</td><td>1.86</td>
+</tr><tr><td>Send_Transactional_CommitPath</td><td>127.06 ns</td><td>2.597 ns</td><td>3.965 ns</td><td>3.73</td><td>0.14</td><td>0.0098</td><td>128 B</td><td>2.29</td>
+</tr><tr><td>Send_Transactional_NoOpManager</td><td>127.59 ns</td><td>2.265 ns</td><td>1.891 ns</td><td>3.75</td><td>0.10</td><td>0.0098</td><td>128 B</td><td>2.29</td>
+</tr><tr><td>Send_Transactional_RollbackPath</td><td>33,426.29 ns</td><td>667.041 ns</td><td>998.395 ns</td><td>982.54</td><td>36.49</td><td>0.3967</td><td>5272 B</td><td>94.14</td>
 </tr></tbody></table>
 </body>
 </html>
